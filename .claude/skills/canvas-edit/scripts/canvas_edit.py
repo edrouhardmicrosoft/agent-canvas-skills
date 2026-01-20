@@ -14,6 +14,13 @@ AI agent to implement in code.
 
 The panel uses Shadow DOM to be invisible to agent-eyes screenshots.
 
+Features:
+- Integrates with shared canvas bus for cross-skill coordination
+- Subscribes to selection.changed events for auto-handoff
+- Separate event queue (transient) and changeLog (durable)
+- Undo/redo support for style and text changes
+- Capture mode awareness (hides during screenshots)
+
 Usage:
     uv run canvas_edit.py edit <url> [--output PATH]
 """
@@ -29,17 +36,72 @@ from typing import Optional
 from playwright.sync_api import sync_playwright
 
 
+# =============================================================================
+# Shared module imports (with fallback for standalone operation)
+# =============================================================================
+
+
+def _setup_shared_imports():
+    """Add shared module to path for imports."""
+    shared_path = Path(__file__).parent.parent.parent / "shared"
+    if shared_path.exists() and str(shared_path) not in sys.path:
+        sys.path.insert(0, str(shared_path))
+
+
+_setup_shared_imports()
+
+try:
+    from canvas_bus import (
+        CANVAS_BUS_JS,
+        get_bus_change_log,
+        reset_bus_change_log,
+        drain_bus_events,
+    )
+
+    HAS_CANVAS_BUS = True
+except ImportError:
+    HAS_CANVAS_BUS = False
+    CANVAS_BUS_JS = ""
+
+
 def get_timestamp() -> str:
     return datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S-%f")[:-3] + "Z"
 
 
 # The edit panel JS - uses Shadow DOM to hide from DOM snapshots
+# Updated with:
+# - Canvas bus integration
+# - Selection auto-handoff
+# - Undo/redo support
+# - Capture mode awareness
+# - Separate eventQueue vs changeLog
 EDIT_PANEL_JS = """
 (() => {
     if (window.__canvasEditActive) return;
     window.__canvasEditActive = true;
+    
+    // Get canvas bus (must be initialized first)
+    const bus = window.__canvasBus;
+    if (!bus) {
+        console.warn('[CanvasEdit] Canvas bus not found, running in standalone mode');
+    }
+    
+    // Register this tool
+    if (bus) {
+        bus.state.activeTools.add('edit');
+    }
+    
+    // Legacy event queue (TRANSIENT - drained by Python polling)
+    // This is for backward compatibility
     window.__canvasEditEvents = [];
+    
+    // The bus handles the durable changeLog, but we also maintain local state
     window.__canvasEditSelectedElement = null;
+    
+    // Undo/redo stacks
+    const undoStack = [];
+    const redoStack = [];
+    const MAX_UNDO_HISTORY = 50;
 
     // Create host element with Shadow DOM (invisible to DOM queries)
     const host = document.createElement('div');
@@ -48,6 +110,13 @@ EDIT_PANEL_JS = """
     document.body.appendChild(host);
     
     const shadow = host.attachShadow({ mode: 'closed' });
+    
+    // Subscribe to capture mode changes (hide panel during screenshots)
+    if (bus) {
+        bus.subscribe('capture_mode.changed', (event) => {
+            host.style.display = event.payload.enabled ? 'none' : 'block';
+        });
+    }
     
     // Inject styles into shadow DOM
     const styles = document.createElement('style');
@@ -58,7 +127,7 @@ EDIT_PANEL_JS = """
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 280px;
+            width: 300px;
             background: #1a1a2e;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -95,7 +164,7 @@ EDIT_PANEL_JS = """
         
         .content {
             padding: 12px;
-            max-height: 500px;
+            max-height: 550px;
             overflow-y: auto;
         }
         
@@ -109,7 +178,21 @@ EDIT_PANEL_JS = """
             letter-spacing: 0.5px;
             color: #888;
             margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        
+        .confidence-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        
+        .confidence-high { background: #34C759; color: white; }
+        .confidence-medium { background: #FF9500; color: white; }
+        .confidence-low { background: #FF3B30; color: white; }
         
         .selected-info {
             background: #252538;
@@ -233,12 +316,19 @@ EDIT_PANEL_JS = """
             transition: all 0.15s;
         }
         
+        .btn-small {
+            flex: none;
+            padding: 6px 10px;
+            font-size: 10px;
+        }
+        
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
         
         .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .btn-secondary {
             background: #333;
@@ -246,6 +336,7 @@ EDIT_PANEL_JS = """
         }
         
         .btn-secondary:hover { background: #444; }
+        .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .history {
             max-height: 120px;
@@ -339,6 +430,12 @@ EDIT_PANEL_JS = """
             padding-top: 12px;
             border-top: 1px solid #333;
         }
+        
+        .undo-redo-row {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+        }
     `;
     shadow.appendChild(styles);
     
@@ -352,14 +449,23 @@ EDIT_PANEL_JS = """
         </div>
         <div class="content">
             <div class="section">
-                <div class="section-title">Selected Element</div>
+                <div class="section-title">
+                    <span>Selected Element</span>
+                    <span class="confidence-badge confidence-low" id="confidenceBadge" style="display: none;">low</span>
+                </div>
                 <div class="selected-info" id="selectedInfo">
                     <div class="no-selection">Click an element to select</div>
                 </div>
             </div>
             
             <div class="section" id="editControls" style="display: none;">
-                <div class="section-title">Text Content</div>
+                <div class="section-title">
+                    <span>Text Content</span>
+                    <div class="undo-redo-row">
+                        <button class="btn btn-secondary btn-small" id="undoBtn" disabled title="Undo (Ctrl+Z)">↩</button>
+                        <button class="btn btn-secondary btn-small" id="redoBtn" disabled title="Redo (Ctrl+Y)">↪</button>
+                    </div>
+                </div>
                 <div class="control-group">
                     <div class="edit-mode-toggle">
                         <div class="toggle-switch" id="editModeToggle"></div>
@@ -481,6 +587,7 @@ EDIT_PANEL_JS = """
     const selectedInfo = shadow.getElementById('selectedInfo');
     const editControls = shadow.getElementById('editControls');
     const history = shadow.getElementById('history');
+    const confidenceBadge = shadow.getElementById('confidenceBadge');
     
     const bgColor = shadow.getElementById('bgColor');
     const bgColorText = shadow.getElementById('bgColorText');
@@ -498,21 +605,15 @@ EDIT_PANEL_JS = """
     const radiusDisplay = shadow.getElementById('radiusDisplay');
     const textContent = shadow.getElementById('textContent');
     const editModeToggle = shadow.getElementById('editModeToggle');
+    const undoBtn = shadow.getElementById('undoBtn');
+    const redoBtn = shadow.getElementById('redoBtn');
     
     let originalStyles = {};
     let originalText = '';
     let currentChanges = {};
     let textChanges = {};
     let editModeActive = false;
-    
-    function getSelector(el) {
-        if (el.id) return '#' + el.id;
-        if (el.className && typeof el.className === 'string') {
-            const classes = el.className.trim().split(/\\s+/).filter(c => c && !c.startsWith('__'));
-            if (classes.length) return el.tagName.toLowerCase() + '.' + classes.join('.');
-        }
-        return el.tagName.toLowerCase();
-    }
+    let currentSelectorInfo = null;
     
     function rgbToHex(rgb) {
         if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '#ffffff';
@@ -524,14 +625,123 @@ EDIT_PANEL_JS = """
         }).join('');
     }
     
-    function selectElement(el) {
+    function updateUndoRedoButtons() {
+        undoBtn.disabled = undoStack.length === 0;
+        redoBtn.disabled = redoStack.length === 0;
+    }
+    
+    function pushUndo(action) {
+        undoStack.push(action);
+        if (undoStack.length > MAX_UNDO_HISTORY) {
+            undoStack.shift();
+        }
+        redoStack.length = 0;  // Clear redo on new action
+        updateUndoRedoButtons();
+    }
+    
+    function performUndo() {
+        if (undoStack.length === 0) return;
+        
+        const action = undoStack.pop();
+        redoStack.push(action);
+        
+        const el = window.__canvasEditSelectedElement;
+        if (!el) return;
+        
+        // Restore previous value
+        if (action.type === 'style') {
+            el.style[action.property] = action.oldValue;
+        } else if (action.type === 'text') {
+            el.textContent = action.oldText;
+            textContent.value = action.oldText;
+        }
+        
+        // Emit undo event
+        emitEvent('edit.undo', {
+            action: action.type,
+            property: action.property,
+            selector: currentSelectorInfo?.selector
+        });
+        
+        updateUndoRedoButtons();
+    }
+    
+    function performRedo() {
+        if (redoStack.length === 0) return;
+        
+        const action = redoStack.pop();
+        undoStack.push(action);
+        
+        const el = window.__canvasEditSelectedElement;
+        if (!el) return;
+        
+        // Apply new value
+        if (action.type === 'style') {
+            el.style[action.property] = action.newValue;
+        } else if (action.type === 'text') {
+            el.textContent = action.newText;
+            textContent.value = action.newText;
+        }
+        
+        // Emit redo event
+        emitEvent('edit.redo', {
+            action: action.type,
+            property: action.property,
+            selector: currentSelectorInfo?.selector
+        });
+        
+        updateUndoRedoButtons();
+    }
+    
+    // Keyboard shortcuts for undo/redo
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            performUndo();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            performRedo();
+        }
+    });
+    
+    undoBtn.addEventListener('click', performUndo);
+    redoBtn.addEventListener('click', performRedo);
+    
+    /**
+     * Emit an event through the bus (if available) and legacy queue
+     */
+    function emitEvent(type, payload) {
+        const event = bus ? 
+            bus.emit(type, 'edit', payload) :
+            {
+                schemaVersion: '1.0',
+                sessionId: 'standalone',
+                seq: Date.now(),
+                type: type,
+                source: 'edit',
+                timestamp: new Date().toISOString(),
+                payload: payload
+            };
+        
+        // Also push to legacy queue for backward compatibility
+        window.__canvasEditEvents.push(event);
+        
+        return event;
+    }
+    
+    function selectElement(el, fromBus = false) {
         if (el.id && el.id.startsWith('__canvas')) return;
         
         window.__canvasEditSelectedElement = el;
-        const selector = getSelector(el);
+        
+        // Use bus selector generation if available
+        currentSelectorInfo = bus ? 
+            bus.generateSelector(el) : 
+            { selector: el.id ? '#' + el.id : el.tagName.toLowerCase(), confidence: 'low', alternatives: [] };
+        
         const styles = window.getComputedStyle(el);
         
-        // Store original styles
+        // Store original styles for undo
         originalStyles = {
             backgroundColor: styles.backgroundColor,
             color: styles.color,
@@ -541,8 +751,14 @@ EDIT_PANEL_JS = """
             borderRadius: styles.borderRadius
         };
         
-        // Update panel
-        selectedInfo.innerHTML = `<div style="color: #a0a0ff;">${selector}</div>`;
+        // Update panel UI
+        selectedInfo.innerHTML = `<div style="color: #a0a0ff;">${currentSelectorInfo.selector}</div>`;
+        
+        // Show confidence badge
+        confidenceBadge.style.display = 'inline-block';
+        confidenceBadge.textContent = currentSelectorInfo.confidence;
+        confidenceBadge.className = 'confidence-badge confidence-' + currentSelectorInfo.confidence;
+        
         editControls.style.display = 'block';
         
         // Set current values
@@ -584,11 +800,48 @@ EDIT_PANEL_JS = """
         }
         
         currentChanges = {};
+        
+        // Emit selection event (only if not already from bus to avoid loops)
+        if (!fromBus) {
+            emitEvent('edit.element_selected', {
+                selector: currentSelectorInfo.selector,
+                selectorConfidence: currentSelectorInfo.confidence,
+                selectorAlternatives: currentSelectorInfo.alternatives
+            });
+        }
     }
     
-    function applyChange(prop, value) {
+    // Subscribe to selection.changed events from picker (auto-handoff)
+    if (bus) {
+        bus.subscribe('selection.changed', (event) => {
+            // Auto-select the element when picker selects it
+            if (event.source === 'picker' && event.payload?.element?.selector) {
+                const selector = event.payload.element.selector;
+                try {
+                    const el = document.querySelector(selector);
+                    if (el) {
+                        selectElement(el, true);  // fromBus=true to avoid event loop
+                    }
+                } catch (e) {
+                    console.warn('[CanvasEdit] Could not select element:', selector);
+                }
+            }
+        });
+    }
+    
+    function applyChange(prop, value, skipUndo = false) {
         const el = window.__canvasEditSelectedElement;
         if (!el) return;
+        
+        if (!skipUndo) {
+            const oldValue = el.style[prop] || originalStyles[prop] || '';
+            pushUndo({
+                type: 'style',
+                property: prop,
+                oldValue: oldValue,
+                newValue: value
+            });
+        }
         
         el.style[prop] = value;
         currentChanges[prop] = value;
@@ -598,16 +851,13 @@ EDIT_PANEL_JS = """
         const el = window.__canvasEditSelectedElement;
         if (!el) return;
         
-        const event = {
-            event: 'style_change',
-            timestamp: new Date().toISOString(),
-            selector: getSelector(el),
+        emitEvent('style.changed', {
+            selector: currentSelectorInfo?.selector,
+            selectorConfidence: currentSelectorInfo?.confidence,
             property: prop,
             oldValue: originalStyles[prop] || 'unset',
             newValue: value
-        };
-        
-        window.__canvasEditEvents.push(event);
+        });
         
         // Update history UI
         const item = document.createElement('div');
@@ -679,6 +929,10 @@ EDIT_PANEL_JS = """
         
         selectElement(el);
         currentChanges = {};
+        
+        emitEvent('edit.reset', {
+            selector: currentSelectorInfo?.selector
+        });
     });
     
     // Apply & Log button
@@ -695,10 +949,18 @@ EDIT_PANEL_JS = """
         if (!el) return;
         
         const newText = e.target.value;
+        const oldText = el.textContent;
+        
+        pushUndo({
+            type: 'text',
+            oldText: oldText,
+            newText: newText
+        });
+        
         el.textContent = newText;
         
         // Track the text change
-        const selector = getSelector(el);
+        const selector = currentSelectorInfo?.selector;
         textChanges[selector] = {
             selector: selector,
             oldText: originalText,
@@ -719,17 +981,20 @@ EDIT_PANEL_JS = """
             el.focus();
             
             // Listen for changes directly on the element
-            el.addEventListener('input', function onInput() {
+            const onInput = () => {
                 const newText = el.textContent || '';
                 textContent.value = newText;
                 
-                const selector = getSelector(el);
+                const selector = currentSelectorInfo?.selector;
                 textChanges[selector] = {
                     selector: selector,
                     oldText: originalText,
                     newText: newText
                 };
-            });
+            };
+            
+            el.addEventListener('input', onInput);
+            el._canvasEditInputHandler = onInput;
             
             // Style to indicate edit mode
             el.style.outline = '2px dashed #667eea';
@@ -738,27 +1003,49 @@ EDIT_PANEL_JS = """
             el.contentEditable = 'false';
             el.style.outline = '';
             el.style.outlineOffset = '';
+            
+            if (el._canvasEditInputHandler) {
+                el.removeEventListener('input', el._canvasEditInputHandler);
+                delete el._canvasEditInputHandler;
+            }
         }
     });
     
-    // Save All to Code button
+    // Save All to Code button - reads from durable changeLog
     shadow.getElementById('saveAllBtn').addEventListener('click', () => {
         const allChanges = {
             styles: [],
             texts: []
         };
         
-        // Collect all logged style changes from history
-        window.__canvasEditEvents.forEach(evt => {
-            if (evt.event === 'style_change') {
+        // Get ALL changes from the bus changeLog (durable, not drained)
+        const changeLog = bus ? bus.getChangeLog() : [];
+        
+        // Collect style changes from changeLog
+        changeLog.forEach(evt => {
+            if (evt.type === 'style.changed') {
                 allChanges.styles.push({
-                    selector: evt.selector,
-                    property: evt.property,
-                    oldValue: evt.oldValue,
-                    newValue: evt.newValue
+                    selector: evt.payload.selector,
+                    selectorConfidence: evt.payload.selectorConfidence,
+                    property: evt.payload.property,
+                    oldValue: evt.payload.oldValue,
+                    newValue: evt.payload.newValue
                 });
             }
         });
+        
+        // Also include any pending changes not yet logged
+        if (currentSelectorInfo) {
+            Object.keys(currentChanges).forEach(prop => {
+                allChanges.styles.push({
+                    selector: currentSelectorInfo.selector,
+                    selectorConfidence: currentSelectorInfo.confidence,
+                    property: prop,
+                    oldValue: originalStyles[prop] || 'unset',
+                    newValue: currentChanges[prop]
+                });
+            });
+        }
         
         // Collect all text changes
         Object.values(textChanges).forEach(change => {
@@ -768,25 +1055,21 @@ EDIT_PANEL_JS = """
         });
         
         // Emit save request event
-        const saveEvent = {
-            event: 'save_request',
-            timestamp: new Date().toISOString(),
+        emitEvent('save_request', {
             changes: allChanges,
             summary: {
                 styleChanges: allChanges.styles.length,
                 textChanges: allChanges.texts.length
             }
-        };
-        
-        window.__canvasEditEvents.push(saveEvent);
+        });
         
         // Visual feedback
         const btn = shadow.getElementById('saveAllBtn');
-        const originalText = btn.textContent;
+        const originalBtnText = btn.textContent;
         btn.textContent = 'Saved!';
         btn.style.background = '#34C759';
         setTimeout(() => {
-            btn.textContent = originalText;
+            btn.textContent = originalBtnText;
             btn.style.background = '';
         }, 1500);
         
@@ -813,7 +1096,7 @@ EDIT_PANEL_JS = """
         }
     }, true);
     
-    console.log('[Canvas Edit] Panel loaded (Shadow DOM - invisible to screenshots)');
+    console.log('[CanvasEdit] Panel loaded with session:', bus?.sessionId || 'standalone');
 })();
 """
 
@@ -834,14 +1117,28 @@ def run_edit_session(
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
 
+            # Inject shared canvas bus FIRST
+            session_info = {"sessionId": "standalone", "seq": 0}
+            if HAS_CANVAS_BUS:
+                page.evaluate(CANVAS_BUS_JS)
+                session_info = page.evaluate(
+                    "() => ({ sessionId: window.__canvasBus.sessionId, seq: window.__canvasBus.getSeq() })"
+                )
+
             # Inject edit panel
             page.evaluate(EDIT_PANEL_JS)
 
             # Emit session start
             start_event = {
-                "event": "edit_session_started",
-                "url": url,
+                "schemaVersion": "1.0",
+                "sessionId": session_info.get("sessionId", "standalone"),
+                "seq": 0,
+                "type": "session.started",
+                "source": "edit",
                 "timestamp": get_timestamp(),
+                "payload": {
+                    "url": url,
+                },
             }
             print(json.dumps(start_event))
             sys.stdout.flush()
@@ -852,14 +1149,17 @@ def run_edit_session(
                     if page.is_closed():
                         break
 
-                    # Drain event queue
-                    events = page.evaluate("""
-                        () => {
-                            const events = window.__canvasEditEvents || [];
-                            window.__canvasEditEvents = [];
-                            return events;
-                        }
-                    """)
+                    # Drain events from bus (preferred) or legacy queue
+                    if HAS_CANVAS_BUS:
+                        events = drain_bus_events(page)
+                    else:
+                        events = page.evaluate("""
+                            () => {
+                                const events = window.__canvasEditEvents || [];
+                                window.__canvasEditEvents = [];
+                                return events;
+                            }
+                        """)
 
                     for event in events:
                         all_events.append(event)
@@ -873,9 +1173,15 @@ def run_edit_session(
 
             # Emit session end
             end_event = {
-                "event": "edit_session_ended",
+                "schemaVersion": "1.0",
+                "sessionId": session_info.get("sessionId", "standalone"),
+                "seq": len(all_events) + 1,
+                "type": "session.ended",
+                "source": "edit",
                 "timestamp": get_timestamp(),
-                "total_changes": len(all_events),
+                "payload": {
+                    "total_changes": len(all_events),
+                },
             }
             print(json.dumps(end_event))
             sys.stdout.flush()
@@ -883,6 +1189,7 @@ def run_edit_session(
             result = {
                 "ok": True,
                 "url": url,
+                "sessionId": session_info.get("sessionId"),
                 "changes": all_events,
                 "total": len(all_events),
             }
@@ -901,6 +1208,9 @@ def run_edit_session(
 
 def get_panel_js() -> str:
     """Return the panel injection JS for use by other skills."""
+    # Return both bus and panel JS together for proper initialization
+    if HAS_CANVAS_BUS:
+        return CANVAS_BUS_JS + "\n" + EDIT_PANEL_JS
     return EDIT_PANEL_JS
 
 
@@ -925,7 +1235,7 @@ def main():
         sys.exit(0 if result.get("ok") else 1)
 
     elif args.command == "get-js":
-        print(EDIT_PANEL_JS)
+        print(get_panel_js())
 
 
 if __name__ == "__main__":

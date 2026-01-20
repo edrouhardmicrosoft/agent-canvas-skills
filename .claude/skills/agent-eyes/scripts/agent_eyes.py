@@ -9,13 +9,20 @@
 """
 Agent Eyes - Visual context analyzer for AI agents.
 
-A CLI tool that provides visual context about web pages including:
+A library and CLI tool that provides visual context about web pages including:
 - Screenshots (full page or element-specific)
 - Accessibility scans (using axe-core)
 - DOM snapshots
 - Element descriptions (computed styles, bounding box, text content)
 
-Usage:
+Library Usage:
+    from agent_eyes import take_screenshot, describe_element, get_full_context
+
+    # Use with an existing Playwright page
+    result = take_screenshot(page, selector="#my-element")
+    context = get_full_context(page, selector=".container")
+
+CLI Usage:
     uv run agent_eyes.py screenshot <url> [--selector SELECTOR] [--output PATH]
     uv run agent_eyes.py a11y <url> [--selector SELECTOR] [--level AA|AAA]
     uv run agent_eyes.py dom <url> [--selector SELECTOR] [--depth DEPTH]
@@ -29,9 +36,15 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-from playwright.sync_api import sync_playwright, Page, Locator
+if TYPE_CHECKING:
+    from playwright.sync_api import Page
+
+
+# =============================================================================
+# Core Library Functions - Can be called with an existing Page object
+# =============================================================================
 
 
 def get_timestamp() -> str:
@@ -40,44 +53,88 @@ def get_timestamp() -> str:
 
 
 def take_screenshot(
-    page: Page,
+    page: "Page",
     selector: Optional[str] = None,
     output_path: Optional[str] = None,
     as_base64: bool = False,
+    capture_mode_aware: bool = True,
 ) -> dict:
-    """Take a screenshot of the page or a specific element."""
-    if selector:
-        element = page.locator(selector)
-        if element.count() == 0:
-            return {"ok": False, "error": f"Selector '{selector}' not found"}
-        screenshot_bytes = element.first.screenshot()
-    else:
-        screenshot_bytes = page.screenshot(full_page=True)
+    """
+    Take a screenshot of the page or a specific element.
 
-    if output_path:
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(output_path).write_bytes(screenshot_bytes)
-        return {"ok": True, "path": output_path, "size": len(screenshot_bytes)}
-    elif as_base64:
-        return {
-            "ok": True,
-            "base64": base64.b64encode(screenshot_bytes).decode("utf-8"),
-            "size": len(screenshot_bytes),
-        }
-    else:
-        # Default: save to .canvas/screenshots/
-        screenshots_dir = Path(".canvas/screenshots")
-        screenshots_dir.mkdir(parents=True, exist_ok=True)
-        filename = f"{get_timestamp()}.png"
-        filepath = screenshots_dir / filename
-        filepath.write_bytes(screenshot_bytes)
-        return {"ok": True, "path": str(filepath), "size": len(screenshot_bytes)}
+    Args:
+        page: Playwright Page object
+        selector: Optional CSS selector for element screenshot
+        output_path: Optional file path to save screenshot
+        as_base64: Return screenshot as base64 string
+        capture_mode_aware: If True, sets captureMode on bus before screenshot
+
+    Returns:
+        dict with ok, path/base64, size keys
+    """
+    # Set capture mode if bus exists (hides overlays)
+    if capture_mode_aware:
+        page.evaluate("""
+            () => {
+                if (window.__canvasBus) {
+                    window.__canvasBus.setCaptureMode(true);
+                }
+            }
+        """)
+
+    try:
+        if selector:
+            element = page.locator(selector)
+            if element.count() == 0:
+                return {"ok": False, "error": f"Selector '{selector}' not found"}
+            screenshot_bytes = element.first.screenshot()
+        else:
+            screenshot_bytes = page.screenshot(full_page=True)
+
+        if output_path:
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(output_path).write_bytes(screenshot_bytes)
+            return {"ok": True, "path": output_path, "size": len(screenshot_bytes)}
+        elif as_base64:
+            return {
+                "ok": True,
+                "base64": base64.b64encode(screenshot_bytes).decode("utf-8"),
+                "size": len(screenshot_bytes),
+            }
+        else:
+            # Default: save to .canvas/screenshots/
+            screenshots_dir = Path(".canvas/screenshots")
+            screenshots_dir.mkdir(parents=True, exist_ok=True)
+            filename = f"{get_timestamp()}.png"
+            filepath = screenshots_dir / filename
+            filepath.write_bytes(screenshot_bytes)
+            return {"ok": True, "path": str(filepath), "size": len(screenshot_bytes)}
+    finally:
+        # Restore capture mode
+        if capture_mode_aware:
+            page.evaluate("""
+                () => {
+                    if (window.__canvasBus) {
+                        window.__canvasBus.setCaptureMode(false);
+                    }
+                }
+            """)
 
 
 def run_a11y_scan(
-    page: Page, selector: Optional[str] = None, level: str = "AA"
+    page: "Page", selector: Optional[str] = None, level: str = "AA"
 ) -> dict:
-    """Run accessibility scan using axe-core."""
+    """
+    Run accessibility scan using axe-core.
+
+    Args:
+        page: Playwright Page object
+        selector: Optional CSS selector to scope the scan
+        level: WCAG level - "AA" or "AAA"
+
+    Returns:
+        dict with violations, passes, incomplete counts
+    """
     try:
         from axe_playwright_python.sync_playwright import Axe
 
@@ -122,9 +179,19 @@ def run_a11y_scan(
 
 
 def get_dom_snapshot(
-    page: Page, selector: Optional[str] = None, depth: int = 5
+    page: "Page", selector: Optional[str] = None, depth: int = 5
 ) -> dict:
-    """Get a simplified DOM snapshot."""
+    """
+    Get a simplified DOM snapshot.
+
+    Args:
+        page: Playwright Page object
+        selector: Optional CSS selector for subtree
+        depth: Maximum depth to traverse
+
+    Returns:
+        dict with ok and dom keys
+    """
     script = """
     (args) => {
         const { selector, maxDepth } = args;
@@ -152,6 +219,8 @@ def get_dom_snapshot(
             }
             if (el.getAttribute('role')) result.role = el.getAttribute('role');
             if (el.getAttribute('aria-label')) result.ariaLabel = el.getAttribute('aria-label');
+            if (el.getAttribute('data-testid')) result.testId = el.getAttribute('data-testid');
+            if (el.getAttribute('data-cy')) result.cy = el.getAttribute('data-cy');
             if (el.tagName === 'A' && el.href) result.href = el.href;
             if (el.tagName === 'IMG' && el.src) result.src = el.src.slice(0, 100);
             if (el.tagName === 'IMG' && el.alt) result.alt = el.alt;
@@ -182,8 +251,18 @@ def get_dom_snapshot(
     return result
 
 
-def describe_element(page: Page, selector: str) -> dict:
-    """Get detailed description of an element including styles and bounding box."""
+def describe_element(page: "Page", selector: str) -> dict:
+    """
+    Get detailed description of an element including styles and bounding box.
+    Uses the standardized selector strategy from canvas bus if available.
+
+    Args:
+        page: Playwright Page object
+        selector: CSS selector for the element
+
+    Returns:
+        dict with element information including computed styles
+    """
     script = """
     (selector) => {
         const el = document.querySelector(selector);
@@ -192,11 +271,20 @@ def describe_element(page: Page, selector: str) -> dict:
         const rect = el.getBoundingClientRect();
         const styles = window.getComputedStyle(el);
         
+        // Use canvas bus selector generation if available
+        let selectorInfo = { selector: selector, confidence: 'unknown', alternatives: [] };
+        if (window.__canvasBus && window.__canvasBus.generateSelector) {
+            selectorInfo = window.__canvasBus.generateSelector(el);
+        }
+        
         return {
             ok: true,
             tag: el.tagName.toLowerCase(),
             id: el.id || null,
             className: el.className || null,
+            selector: selectorInfo.selector,
+            selectorConfidence: selectorInfo.confidence,
+            selectorAlternatives: selectorInfo.alternatives,
             textContent: el.textContent?.trim().slice(0, 200) || null,
             boundingBox: {
                 x: Math.round(rect.x),
@@ -214,6 +302,7 @@ def describe_element(page: Page, selector: str) -> dict:
                 margin: styles.margin,
                 padding: styles.padding,
                 border: styles.border,
+                borderRadius: styles.borderRadius,
                 visibility: styles.visibility,
                 opacity: styles.opacity,
             },
@@ -222,6 +311,8 @@ def describe_element(page: Page, selector: str) -> dict:
                 ariaLabel: el.getAttribute('aria-label'),
                 ariaDescribedby: el.getAttribute('aria-describedby'),
                 tabindex: el.getAttribute('tabindex'),
+                dataTestid: el.getAttribute('data-testid'),
+                dataCy: el.getAttribute('data-cy'),
                 href: el.getAttribute('href'),
                 src: el.getAttribute('src'),
                 alt: el.getAttribute('alt'),
@@ -234,12 +325,23 @@ def describe_element(page: Page, selector: str) -> dict:
 
 
 def get_full_context(
-    page: Page,
+    page: "Page",
     selector: Optional[str] = None,
     include_screenshot: bool = True,
     format_type: str = "json",
 ) -> dict:
-    """Get comprehensive context including screenshot, a11y, DOM, and description."""
+    """
+    Get comprehensive context including screenshot, a11y, DOM, and description.
+
+    Args:
+        page: Playwright Page object
+        selector: Optional CSS selector for focused context
+        include_screenshot: Whether to include base64 screenshot
+        format_type: Output format ("json" or "text")
+
+    Returns:
+        dict with url, title, dom, a11y, element, and screenshot
+    """
     result = {
         "ok": True,
         "url": page.url,
@@ -278,7 +380,61 @@ def get_full_context(
     return result
 
 
+def inject_canvas_bus(page: "Page") -> dict:
+    """
+    Inject the shared canvas bus if not already present.
+
+    Args:
+        page: Playwright Page object
+
+    Returns:
+        dict with sessionId and seq
+    """
+    # Try to import from shared module, fall back to inline if not available
+    try:
+        import sys
+        from pathlib import Path
+
+        # Add shared module to path
+        shared_path = Path(__file__).parent.parent.parent / "shared"
+        if str(shared_path) not in sys.path:
+            sys.path.insert(0, str(shared_path))
+
+        from canvas_bus import inject_canvas_bus as _inject
+
+        return _inject(page)
+    except ImportError:
+        # Fallback: minimal bus injection for standalone operation
+        page.evaluate("""
+            () => {
+                if (!window.__canvasBus) {
+                    window.__canvasBus = {
+                        sessionId: 'standalone_' + Date.now(),
+                        state: { captureMode: false },
+                        setCaptureMode: (v) => { window.__canvasBus.state.captureMode = v; },
+                        generateSelector: (el) => ({
+                            selector: el.id ? '#' + el.id : el.tagName.toLowerCase(),
+                            confidence: 'low',
+                            alternatives: []
+                        })
+                    };
+                }
+            }
+        """)
+        return page.evaluate(
+            "() => ({ sessionId: window.__canvasBus.sessionId, seq: 0 })"
+        )
+
+
+# =============================================================================
+# CLI Entry Point
+# =============================================================================
+
+
 def main():
+    """CLI entry point - creates browser and calls library functions."""
+    from playwright.sync_api import sync_playwright
+
     parser = argparse.ArgumentParser(
         description="Agent Eyes - Visual context analyzer for AI agents",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -341,7 +497,10 @@ def main():
             # Navigate to URL
             page.goto(args.url, wait_until="networkidle", timeout=30000)
 
-            # Execute command
+            # Inject canvas bus for selector utilities
+            inject_canvas_bus(page)
+
+            # Execute command using library functions
             if args.command == "screenshot":
                 result = take_screenshot(
                     page,
