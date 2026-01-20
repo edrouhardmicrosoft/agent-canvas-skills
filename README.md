@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Canvas CLI Demo
+
+A Next.js project with AI agent visual analysis and editing skills for web development workflows.
 
 ## Getting Started
 
@@ -16,9 +18,144 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## AI Agent Skills
+
+This project includes three visual analysis and editing skills for AI agents located in `.claude/skills/`. These tools enable AI agents to "see" web pages, let users select elements interactively, and make live style/text edits.
+
+### Prerequisites
+
+All skills require:
+
+- Python 3.10+
+- `uv` package manager
+- Playwright browsers: `playwright install chromium`
+
+---
+
+### Agent Eyes
+
+Visual context analyzer for AI agents. Provides screenshots, accessibility scans, DOM snapshots, and element descriptions.
+
+**Use when:** You need to see what a web page looks like, analyze accessibility issues, inspect DOM structure, or get detailed element information.
+
+#### Commands
+
+```bash
+SKILL_DIR=".claude/skills/agent-eyes/scripts"
+
+# Screenshot (full page)
+uv run $SKILL_DIR/agent_eyes.py screenshot http://localhost:3000
+
+# Screenshot (specific element)
+uv run $SKILL_DIR/agent_eyes.py screenshot http://localhost:3000 --selector ".hero"
+
+# Accessibility scan (WCAG 2.1 AA)
+uv run $SKILL_DIR/agent_eyes.py a11y http://localhost:3000
+
+# DOM snapshot
+uv run $SKILL_DIR/agent_eyes.py dom http://localhost:3000
+
+# Describe element (styles, bounding box, attributes)
+uv run $SKILL_DIR/agent_eyes.py describe http://localhost:3000 --selector ".hero-button"
+
+# Full context bundle (screenshot + a11y + DOM + description)
+uv run $SKILL_DIR/agent_eyes.py context http://localhost:3000
+```
+
+---
+
+### Agent Canvas
+
+Interactive element picker that opens a browser with a DevTools-like selection overlay. Users hover to highlight elements and click to select.
+
+**Use when:** You need to let users visually select DOM elements, identify element selectors, or get detailed element information interactively.
+
+#### Commands
+
+```bash
+SKILL_DIR=".claude/skills/agent-canvas/scripts"
+
+# Basic pick - opens browser, streams selections as JSON lines
+uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000
+
+# Pick with agent-eyes integration (screenshot + detailed styles per selection)
+uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-eyes
+
+# Pick with edit panel (floating DevTools for live style editing)
+uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-edit
+
+# Full workflow: picker + edit panel + agent-eyes (recommended)
+uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+
+# Watch for DOM changes
+uv run $SKILL_DIR/agent_canvas.py watch http://localhost:3000
+```
+
+#### User Interaction Flow
+
+1. Browser opens with blue highlight overlay
+2. Hover over elements to see selector labels
+3. Click to select (overlay flashes green, counter increments)
+4. Keep clicking to select more elements
+5. Close browser window when done
+
+---
+
+### Canvas Edit
+
+Floating DevTools-like panel for live UI editing (text and styles). Changes apply live to the page and stream as JSON events for AI agent implementation.
+
+**Use when:** You need to edit text content, adjust colors, typography, or spacing on elements visually.
+
+#### Commands
+
+```bash
+SKILL_DIR=".claude/skills/canvas-edit/scripts"
+
+# Open page with edit panel
+uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000
+
+# Save all changes to file
+uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000 --output ./changes.json
+```
+
+#### Panel Controls
+
+- **Text Content**: Textarea for editing selected element's text, or toggle for direct on-page editing
+- **Colors**: Background and text color pickers
+- **Typography**: Font size (8-72px) and font weight (100-900)
+- **Spacing**: Padding (0-64px) and border radius (0-50px)
+- **Actions**: Reset, Apply & Log, Save All to Code
+
+#### User Workflow
+
+1. Click an element to select it
+2. Edit text via textarea OR toggle "Edit text directly on page"
+3. Adjust styles using panel controls (changes apply live)
+4. Click **Apply & Log** to log individual style changes
+5. Click **Save All to Code** to emit all changes for agent implementation
+6. Close browser window to end session
+
+---
+
+### Recommended Workflow
+
+For the best experience combining all three skills:
+
+```bash
+# Full visual editing workflow
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+```
+
+This gives users:
+- Element selection with visual highlighting
+- Live style editing with preview
+- Screenshots and detailed element info for the AI agent
+- JSON event stream of all changes for code implementation
+
+---
 
 ## Learn More
 
@@ -26,8 +163,6 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
 
