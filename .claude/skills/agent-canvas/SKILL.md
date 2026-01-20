@@ -7,12 +7,25 @@ description: Interactive element picker for web pages. Opens a browser with clic
 
 Interactive element picker that opens a browser window with a DevTools-like selection overlay. Users hover to highlight elements and click to select. Returns detailed element info including selector, bounding box, and computed styles.
 
-## Prerequisites
+## First-Time Setup
 
-- Python 3.10+
-- `uv` package manager
-- Playwright browsers: `playwright install chromium`
-- agent-eyes skill (for `--with-eyes` integration)
+**Before first use**, verify dependencies are installed:
+
+```bash
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check
+```
+
+If checks fail, ask user which installation scope they prefer and run:
+
+```bash
+# Recommended: minimal footprint, uv manages deps on-demand
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
+
+# Alternative: create .venv in project
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope local
+```
+
+See `agent-canvas-setup` skill for full details on installation options.
 
 ## Commands
 
