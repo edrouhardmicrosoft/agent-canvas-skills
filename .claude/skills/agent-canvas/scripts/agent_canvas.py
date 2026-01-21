@@ -21,11 +21,83 @@ import argparse
 import json
 import sys
 import time
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from playwright.sync_api import sync_playwright, Page
+
+
+# =============================================================================
+# Session Artifact Management
+# =============================================================================
+
+
+def generate_session_id() -> str:
+    """Generate a unique session ID using UUID."""
+    return f"ses-{uuid.uuid4().hex[:12]}"
+
+
+def get_session_dir(session_id: str) -> Path:
+    """Get the session directory path, creating it if needed."""
+    session_dir = Path(".canvas/sessions") / session_id
+    session_dir.mkdir(parents=True, exist_ok=True)
+    return session_dir
+
+
+def write_session_artifact(
+    session_dir: Path,
+    session_id: str,
+    url: str,
+    start_time: str,
+    end_time: str,
+    features: dict,
+    selections: list,
+    edits: list,
+    before_screenshot_base64: Optional[str] = None,
+) -> Path:
+    """
+    Write the complete session artifact to disk.
+
+    Returns the path to session.json.
+    """
+    artifact = {
+        "schemaVersion": "1.0",
+        "sessionId": session_id,
+        "url": url,
+        "startTime": start_time,
+        "endTime": end_time,
+        "features": features,
+        "beforeScreenshot": before_screenshot_base64,
+        "events": {
+            "selections": selections,
+            "edits": edits,
+        },
+        "summary": {
+            "totalSelections": len(selections),
+            "totalEdits": len(edits),
+            "hasSaveRequest": any(
+                e.get("type") == "save_request" or e.get("event") == "save_request"
+                for e in edits
+            ),
+        },
+    }
+
+    session_file = session_dir / "session.json"
+    session_file.write_text(json.dumps(artifact, indent=2))
+
+    # Also extract save_request to separate file if present
+    save_requests = [
+        e
+        for e in edits
+        if e.get("type") == "save_request" or e.get("event") == "save_request"
+    ]
+    if save_requests:
+        changes_file = session_dir / "changes.json"
+        changes_file.write_text(json.dumps(save_requests[-1], indent=2))
+
+    return session_file
 
 
 # =============================================================================
@@ -350,10 +422,18 @@ def pick_element(
 
     When with_eyes=True, enriches selections with agent-eyes data IN-PROCESS
     (using the same Page object - no subprocess spawning).
+
+    Session artifacts are automatically written to .canvas/sessions/<sessionId>/
     """
 
     all_selections = []
     all_edit_events = []
+
+    # Generate our own session ID for artifact tracking
+    session_id = generate_session_id()
+    session_dir = get_session_dir(session_id)
+    start_time = get_timestamp()
+    before_screenshot_base64 = None
 
     with sync_playwright() as p:
         # Launch visible browser for interaction
@@ -364,10 +444,20 @@ def pick_element(
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
 
+            # Capture "before" screenshot immediately (as base64 for portability)
+            if HAS_AGENT_EYES:
+                before_result = take_screenshot(page, as_base64=True)
+                if before_result.get("ok"):
+                    before_screenshot_base64 = before_result.get("base64")
+
             # Inject shared canvas bus FIRST
-            session_info = {"sessionId": "unknown", "seq": 0}
+            session_info = {"sessionId": session_id, "seq": 0}
             if HAS_CANVAS_BUS:
                 page.evaluate(CANVAS_BUS_JS)
+                # Override the bus session ID to match our artifact session ID
+                page.evaluate(
+                    f"() => {{ window.__canvasBus.sessionId = '{session_id}'; }}"
+                )
                 session_info = page.evaluate(
                     "() => ({ sessionId: window.__canvasBus.sessionId, seq: window.__canvasBus.getSeq() })"
                 )
@@ -381,21 +471,25 @@ def pick_element(
                 if edit_js:
                     page.evaluate(edit_js)
 
+            # Define features for this session
+            features = {
+                "picker": True,
+                "eyes": with_eyes and HAS_AGENT_EYES,
+                "edit": with_edit and get_canvas_edit_js() is not None,
+            }
+
             # Emit session start
             start_event = {
                 "schemaVersion": "1.0",
-                "sessionId": session_info.get("sessionId", "unknown"),
+                "sessionId": session_id,
                 "seq": 0,
                 "type": "session.started",
                 "source": "picker",
-                "timestamp": get_timestamp(),
+                "timestamp": start_time,
                 "payload": {
                     "url": url,
-                    "features": {
-                        "picker": True,
-                        "eyes": with_eyes and HAS_AGENT_EYES,
-                        "edit": with_edit and get_canvas_edit_js() is not None,
-                    },
+                    "features": features,
+                    "artifactDir": str(session_dir),
                 },
             }
             print(json.dumps(start_event))
@@ -504,17 +598,34 @@ def pick_element(
                     # Page likely closed
                     break
 
+            # Session end time
+            end_time = get_timestamp()
+
+            # Write session artifact to disk
+            artifact_path = write_session_artifact(
+                session_dir=session_dir,
+                session_id=session_id,
+                url=url,
+                start_time=start_time,
+                end_time=end_time,
+                features=features,
+                selections=all_selections,
+                edits=all_edit_events,
+                before_screenshot_base64=before_screenshot_base64,
+            )
+
             # Emit session end
             end_event = {
                 "schemaVersion": "1.0",
-                "sessionId": session_info.get("sessionId", "unknown"),
+                "sessionId": session_id,
                 "seq": len(all_selections) + len(all_edit_events) + 1,
                 "type": "session.ended",
                 "source": "picker",
-                "timestamp": get_timestamp(),
+                "timestamp": end_time,
                 "payload": {
                     "total_selections": len(all_selections),
                     "total_edits": len(all_edit_events),
+                    "artifactPath": str(artifact_path),
                 },
             }
             print(json.dumps(end_event))
@@ -523,14 +634,16 @@ def pick_element(
             result = {
                 "ok": True,
                 "url": url,
-                "sessionId": session_info.get("sessionId"),
+                "sessionId": session_id,
+                "artifactPath": str(artifact_path),
+                "artifactDir": str(session_dir),
                 "selections": all_selections,
                 "edits": all_edit_events,
                 "total_selections": len(all_selections),
                 "total_edits": len(all_edit_events),
             }
 
-            # Save to file if requested
+            # Save to file if requested (in addition to session artifact)
             if output_path:
                 Path(output_path).parent.mkdir(parents=True, exist_ok=True)
                 Path(output_path).write_text(json.dumps(result, indent=2))
@@ -538,11 +651,12 @@ def pick_element(
             return result
 
         except Exception as e:
-            error_result = {"ok": False, "error": str(e)}
+            error_result = {"ok": False, "error": str(e), "sessionId": session_id}
             print(
                 json.dumps(
                     {
                         "schemaVersion": "1.0",
+                        "sessionId": session_id,
                         "type": "session.error",
                         "source": "picker",
                         "timestamp": get_timestamp(),

@@ -963,6 +963,8 @@ EDIT_PANEL_JS = """
         const selector = currentSelectorInfo?.selector;
         textChanges[selector] = {
             selector: selector,
+            selectorConfidence: currentSelectorInfo?.confidence,
+            selectorAlternatives: currentSelectorInfo?.alternatives,
             oldText: originalText,
             newText: newText
         };
@@ -988,6 +990,8 @@ EDIT_PANEL_JS = """
                 const selector = currentSelectorInfo?.selector;
                 textChanges[selector] = {
                     selector: selector,
+                    selectorConfidence: currentSelectorInfo?.confidence,
+                    selectorAlternatives: currentSelectorInfo?.alternatives,
                     oldText: originalText,
                     newText: newText
                 };

@@ -157,6 +157,59 @@ This gives users:
 
 ---
 
+### Session Artifacts
+
+When running a canvas session with `--with-edit`, all interactions are recorded to `.canvas/sessions/` for later use by `canvas-apply` and `canvas-verify`.
+
+#### Directory Structure
+
+```
+.canvas/sessions/
+├── ses-a1b2c3d4e5f6/           # 12-char hex session ID
+│   ├── session.json            # Full event log + metadata
+│   └── changes.json            # Extracted save_request (if "Save All" clicked)
+```
+
+#### Session ID Format
+
+Session IDs use the format `ses-<12-char-hex>` (e.g., `ses-a1b2c3d4e5f6`).
+
+#### Session JSON Structure
+
+```json
+{
+  "sessionId": "ses-a1b2c3d4e5f6",
+  "url": "http://localhost:3000",
+  "startTime": "2026-01-21T15:30:45.123Z",
+  "endTime": "2026-01-21T15:35:12.456Z",
+  "features": {
+    "withEdit": true,
+    "withEyes": true
+  },
+  "beforeScreenshot": "data:image/png;base64,...",
+  "events": [
+    {"type": "selection.changed", "timestamp": "...", "data": {...}},
+    {"type": "style.changed", "timestamp": "...", "data": {...}},
+    {"type": "save_request", "timestamp": "...", "data": {...}}
+  ]
+}
+```
+
+#### Screenshot Storage
+
+Screenshots are stored as **base64-encoded data URIs** within the JSON for portability. This keeps all session data self-contained in a single file.
+
+#### What Gets Recorded
+
+| Event Type | Description |
+|------------|-------------|
+| `selection.changed` | User clicked to select an element |
+| `style.changed` | User modified a style property |
+| `text.changed` | User edited element text |
+| `save_request` | User clicked "Save All to Code" |
+
+---
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
