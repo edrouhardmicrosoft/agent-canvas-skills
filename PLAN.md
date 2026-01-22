@@ -115,10 +115,10 @@ canvas verify <url> --baseline <session>
   - [x] CLI with --diff, --apply, --verbose flags (`canvas_apply.py`)
   - [x] Conservative by default: show diff, require --apply flag
 
-### Phase 3: Verification Loop (1 day)
-- [ ] Add `canvas verify` command
-- [ ] Before/after screenshot comparison
-- [ ] A11y rerun to prove fixes
+### Phase 3: Verification Loop (1 day) ✅ COMPLETE
+- [x] Add `canvas verify` command
+- [x] Before/after screenshot comparison
+- [x] A11y rerun to prove fixes
 
 ### Phase 4: UX Unification (1 day)
 - [ ] Create unified `canvas session <url>` entrypoint
