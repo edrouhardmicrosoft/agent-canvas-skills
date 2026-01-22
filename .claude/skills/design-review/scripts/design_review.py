@@ -758,9 +758,324 @@ def cmd_specs(args: argparse.Namespace) -> None:
 
 
 def cmd_interactive(args: argparse.Namespace) -> None:
-    """Interactive design review mode."""
-    error_output("Interactive mode not yet implemented. Use 'review' command.")
-    sys.exit(1)
+    """Interactive design review mode.
+
+    Launches a browser with a review overlay. User can hover over elements
+    to see compliance status, click to see full compliance report, and
+    add elements to the review. On browser close, generates annotated
+    screenshot and tasks file.
+    """
+    import time
+
+    from spec_loader import load_spec, resolve_spec
+
+    from playwright.sync_api import sync_playwright
+
+    # Load spec
+    project_root = Path.cwd()
+    spec_path = resolve_spec(getattr(args, "spec", None), project_root)
+    try:
+        spec = load_spec(spec_path, SPECS_DIR)
+    except FileNotFoundError:
+        error_output(f"Spec not found: {spec_path}")
+        sys.exit(1)
+
+    session_id = generate_session_id()
+    session_dir = ensure_reviews_dir(session_id)
+    session_start = get_timestamp()
+
+    # Load overlay JS
+    overlay_js_path = SCRIPT_DIR / "review_overlay.js"
+    if not overlay_js_path.exists():
+        error_output(f"Review overlay not found: {overlay_js_path}")
+        sys.exit(1)
+    overlay_js = overlay_js_path.read_text()
+
+    # Load shared canvas bus if available
+    canvas_bus_js = ""
+    shared_path = SCRIPT_DIR.parent.parent / "shared"
+    canvas_bus_path = shared_path / "canvas_bus.py"
+    if canvas_bus_path.exists():
+        # Import canvas_bus to get the JS
+        if str(shared_path) not in sys.path:
+            sys.path.insert(0, str(shared_path))
+        try:
+            from canvas_bus import CANVAS_BUS_JS
+
+            canvas_bus_js = CANVAS_BUS_JS
+        except ImportError:
+            pass
+
+    # Prepare spec data for the overlay
+    spec_data = {
+        "name": spec.name,
+        "checks": [
+            {
+                "id": check.id,
+                "pillar": check.pillar,
+                "severity": check.severity,
+                "description": check.description,
+                "config": check.config,
+            }
+            for check in spec.get_all_checks()
+        ],
+    }
+
+    # Session events for logging
+    session_events: list[dict] = []
+
+    def log_event(event_type: str, data: dict) -> None:
+        session_events.append(
+            {
+                "timestamp": get_timestamp(),
+                "type": event_type,
+                "data": data,
+            }
+        )
+
+    log_event(
+        "session_start",
+        {
+            "sessionId": session_id,
+            "url": args.url,
+            "spec": str(spec_path),
+            "mode": "interactive",
+        },
+    )
+
+    # Emit session start event
+    start_event = {
+        "schemaVersion": "1.0",
+        "sessionId": session_id,
+        "type": "review.session_started",
+        "source": "design-review",
+        "timestamp": session_start,
+        "payload": {
+            "url": args.url,
+            "spec": spec.name,
+            "mode": "interactive",
+        },
+    }
+    print(json.dumps(start_event))
+    sys.stdout.flush()
+
+    review_results = None
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page(viewport={"width": 1280, "height": 800})
+
+        log_event("browser_launched", {"viewport": {"width": 1280, "height": 800}})
+
+        try:
+            page.goto(args.url, wait_until="networkidle", timeout=30000)
+            log_event("page_loaded", {"url": args.url})
+        except Exception as e:
+            log_event("page_load_error", {"error": str(e)})
+            error_output(f"Failed to load URL: {e}")
+            browser.close()
+            sys.exit(1)
+
+        # Inject canvas bus first if available
+        if canvas_bus_js:
+            page.evaluate(canvas_bus_js)
+
+        # Inject review overlay
+        page.evaluate(overlay_js)
+
+        # Initialize overlay with spec data
+        page.evaluate(
+            f"window.__designReviewInit && window.__designReviewInit({json.dumps(spec_data)})"
+        )
+
+        log_event("overlay_injected", {"spec": spec.name})
+
+        # Poll for events until browser closes
+        while True:
+            try:
+                if page.is_closed():
+                    break
+
+                # Drain review events
+                events = page.evaluate("""
+                    () => {
+                        const events = window.__designReviewEvents || [];
+                        window.__designReviewEvents = [];
+                        return events;
+                    }
+                """)
+
+                for event in events:
+                    log_event("review_event", event)
+                    print(json.dumps(event))
+                    sys.stdout.flush()
+
+                time.sleep(0.1)
+
+            except Exception:
+                # Page likely closed
+                break
+
+        # Get final review results before browser closes
+        try:
+            review_results = page.evaluate(
+                "() => window.__designReviewGetResults && window.__designReviewGetResults()"
+            )
+        except Exception:
+            review_results = None
+
+        browser.close()
+        log_event("browser_closed", {})
+
+    # Take screenshot after browser closes - need to reopen headless
+    screenshot_path = session_dir / "screenshot.png"
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1280, "height": 800})
+        try:
+            page.goto(args.url, wait_until="networkidle", timeout=30000)
+            page.screenshot(path=str(screenshot_path), full_page=True)
+            log_event("screenshot_captured", {"path": str(screenshot_path)})
+        except Exception as e:
+            log_event("screenshot_error", {"error": str(e)})
+        finally:
+            browser.close()
+
+    # Process review results
+    issues: list[dict] = []
+    summary = {"blocking": 0, "major": 0, "minor": 0}
+
+    if review_results and review_results.get("issues"):
+        issue_id = 0
+        for reviewed_item in review_results["issues"]:
+            for rule in reviewed_item.get("rules", []):
+                issue_id += 1
+                severity = rule.get("severity", "minor")
+                issues.append(
+                    {
+                        "id": issue_id,
+                        "checkId": rule.get("id", "unknown"),
+                        "pillar": "",  # Could be populated from spec lookup
+                        "severity": severity,
+                        "element": reviewed_item.get("selector", ""),
+                        "description": rule.get("message", ""),
+                        "recommendation": get_recommendation_for_check(
+                            rule.get("id", "")
+                        ),
+                    }
+                )
+                if severity in summary:
+                    summary[severity] += 1
+
+        # Also add summary counts from overlay if no individual issues
+        if not issues and review_results.get("summary"):
+            summary = review_results["summary"]
+
+    # Build result
+    result = {
+        "ok": True,
+        "url": args.url,
+        "spec": spec.name,
+        "specPath": str(spec_path),
+        "sessionId": session_id,
+        "mode": "interactive",
+        "summary": summary,
+        "issues": issues,
+        "reviewedElements": review_results.get("reviewedElements", [])
+        if review_results
+        else [],
+        "artifacts": {
+            "screenshot": str(screenshot_path),
+            "sessionDir": str(session_dir),
+        },
+    }
+
+    # Generate annotated screenshot if there are issues
+    annotated_path: Optional[Path] = None
+    if issues:
+        from annotator import annotate_screenshot
+
+        annotated_path = session_dir / "annotated.png"
+        annotate_result = annotate_screenshot(
+            screenshot_path=screenshot_path,
+            issues=issues,
+            output_path=annotated_path,
+            include_legend=True,
+        )
+
+        if annotate_result.get("ok"):
+            result["artifacts"]["annotated"] = str(annotated_path)
+            log_event(
+                "annotated_screenshot_created",
+                {
+                    "path": str(annotated_path),
+                    "annotatedIssues": annotate_result.get("annotatedIssues", []),
+                },
+            )
+
+    # Generate tasks file
+    if issues:
+        tasks_path = Path("DESIGN-REVIEW-TASKS.md")
+        generate_tasks_file(result, tasks_path, annotated_path)
+        result["artifacts"]["tasks"] = str(tasks_path)
+        log_event("tasks_file_generated", {"path": str(tasks_path)})
+
+    # Save report.json
+    report_file = session_dir / "report.json"
+    report_file.write_text(json.dumps(result, indent=2))
+    log_event("report_saved", {"path": str(report_file)})
+
+    # Save session.json
+    session_data = {
+        "sessionId": session_id,
+        "startTime": session_start,
+        "endTime": get_timestamp(),
+        "url": args.url,
+        "mode": "interactive",
+        "spec": {
+            "name": spec.name,
+            "path": str(spec_path),
+            "pillars": len(spec.pillars),
+            "checks": len(spec.get_all_checks()),
+        },
+        "summary": summary,
+        "reviewedElements": review_results.get("reviewedElements", [])
+        if review_results
+        else [],
+        "events": session_events,
+    }
+    session_file = session_dir / "session.json"
+    session_file.write_text(json.dumps(session_data, indent=2))
+
+    # Emit session end event
+    end_event = {
+        "schemaVersion": "1.0",
+        "sessionId": session_id,
+        "type": "review.session_ended",
+        "source": "design-review",
+        "timestamp": get_timestamp(),
+        "payload": {
+            "summary": summary,
+            "issueCount": len(issues),
+            "artifacts": result["artifacts"],
+        },
+    }
+    print(json.dumps(end_event))
+    sys.stdout.flush()
+
+    json_output(result)
+
+
+def get_recommendation_for_check(check_id: str) -> str:
+    """Get a recommendation string for a check ID."""
+    recommendations = {
+        "color-contrast": "Increase contrast by darkening text or lightening background",
+        "touch-targets": "Increase the interactive element size to at least 44x44px",
+        "focus-indicators": "Add visible focus indicator using outline or box-shadow",
+        "alt-text": "Add descriptive alt text that conveys the image content",
+        "keyboard-navigation": "Ensure element is focusable and responds to keyboard events",
+    }
+    return recommendations.get(check_id, "")
 
 
 def cmd_compare(args: argparse.Namespace) -> None:
@@ -792,6 +1107,7 @@ def main() -> None:
         "interactive", help="Interactive review mode"
     )
     interactive_parser.add_argument("url", help="URL to review")
+    interactive_parser.add_argument("--spec", help="Spec file (default: default.md)")
 
     compare_parser = subparsers.add_parser("compare", help="Compare against reference")
     compare_parser.add_argument("url", help="URL to compare")
