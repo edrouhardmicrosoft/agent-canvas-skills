@@ -30,6 +30,12 @@ uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --a11y
 # Full verification (explicit)
 uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --full
 
+# Custom visual diff threshold (default: 5%)
+uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --threshold 10
+
+# Save verification results to session.json
+uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --save
+
 # JSON output (for CI integration)
 uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --json
 ```
@@ -43,8 +49,8 @@ uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --json
 
 2. **Apply the changes** to source files:
    ```bash
-   python3 .claude/skills/canvas-apply/scripts/canvas_apply.py --list  # Find session ID
-   python3 .claude/skills/canvas-apply/scripts/canvas_apply.py ses-abc123 --apply
+   uv run .claude/skills/canvas-apply/scripts/canvas_apply.py --list  # Find session ID
+   uv run .claude/skills/canvas-apply/scripts/canvas_apply.py ses-abc123 --apply
    ```
 
 3. **Verify the changes** worked correctly:
@@ -118,8 +124,8 @@ ses-xyz789           http://localhost:8080          No             No         -
 
 - Captures current screenshot using agent-eyes
 - Compares pixel-by-pixel with baseline `beforeScreenshot` from session
-- Calculates percentage of pixels changed
-- **Pass criteria**: Less than 5% of pixels differ (configurable)
+- Calculates percentage of pixels changed using histogram-based diff (fast)
+- **Pass criteria**: Less than threshold% of pixels differ (default: 5%, configurable via `--threshold`)
 
 ### Accessibility Comparison
 

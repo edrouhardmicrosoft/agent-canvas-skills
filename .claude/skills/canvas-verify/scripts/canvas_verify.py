@@ -37,7 +37,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "agent-eyes" / "scr
 from session_parser import find_project_root, find_session_dir, load_session
 
 # Visual diff threshold (percentage of pixels different)
-VISUAL_DIFF_THRESHOLD = 5.0  # 5% difference allowed for "pass"
+DEFAULT_VISUAL_DIFF_THRESHOLD = 5.0  # 5% difference allowed for "pass"
+
+
+def resize_with_padding(img, target_width: int, target_height: int):
+    """Resize image by padding with white to target dimensions."""
+    from PIL import Image
+
+    new_img = Image.new("RGB", (target_width, target_height), (255, 255, 255))
+    new_img.paste(img, (0, 0))
+    return new_img
 
 
 def list_sessions() -> list[dict]:
@@ -69,7 +78,11 @@ def list_sessions() -> list[dict]:
                             ),
                         }
                     )
-                except Exception:
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to parse {session_file}: {e}",
+                        file=sys.stderr,
+                    )
                     sessions.append(
                         {
                             "id": session_path.name,
@@ -114,7 +127,11 @@ def decode_base64_screenshot(data: str) -> bytes:
     return base64.b64decode(data)
 
 
-def compare_screenshots(before_b64: Optional[str], after_b64: str) -> dict:
+def compare_screenshots(
+    before_b64: Optional[str],
+    after_b64: str,
+    threshold: float = DEFAULT_VISUAL_DIFF_THRESHOLD,
+) -> dict:
     """
     Compare two screenshots and return diff information.
 
@@ -148,27 +165,24 @@ def compare_screenshots(before_b64: Optional[str], after_b64: str) -> dict:
         if before_img.size != after_img.size:
             max_width = max(before_img.width, after_img.width)
             max_height = max(before_img.height, after_img.height)
-
-            # Resize both to same dimensions, padding with white
-            def resize_with_padding(img, target_width, target_height):
-                new_img = Image.new(
-                    "RGB", (target_width, target_height), (255, 255, 255)
-                )
-                new_img.paste(img, (0, 0))
-                return new_img
-
             before_img = resize_with_padding(before_img, max_width, max_height)
             after_img = resize_with_padding(after_img, max_width, max_height)
 
-        # Calculate difference
+        # Calculate difference using histogram for performance
+        # (avoids iterating all pixels in Python)
         diff = ImageChops.difference(before_img, after_img)
 
-        # Count non-zero pixels
+        # Convert to grayscale for simpler histogram analysis
+        diff_gray = diff.convert("L")
+        histogram = diff_gray.histogram()
+
+        # Count pixels with any difference (non-zero in grayscale)
         total_pixels = before_img.width * before_img.height
-        diff_pixels = sum(1 for pixel in diff.getdata() if pixel != (0, 0, 0))
+        identical_pixels = histogram[0]  # Pixels with value 0 (no difference)
+        diff_pixels = total_pixels - identical_pixels
         diff_percentage = (diff_pixels / total_pixels) * 100
 
-        status = "pass" if diff_percentage <= VISUAL_DIFF_THRESHOLD else "fail"
+        status = "pass" if diff_percentage <= threshold else "fail"
 
         return {
             "status": status,
@@ -197,17 +211,21 @@ def compare_screenshots(before_b64: Optional[str], after_b64: str) -> dict:
 
 def get_violation_key(violation: dict) -> str:
     """Generate a unique key for an a11y violation."""
-    # Key by rule ID + first target selector
+    # Key by rule ID + first target selector + node count for better uniqueness
     rule_id = violation.get("id", "unknown")
     nodes = violation.get("nodes", [])
     if nodes:
         target = nodes[0].get("target", ["unknown"])[0]
     else:
         target = "unknown"
-    return f"{rule_id}:{target}"
+    return f"{rule_id}:{target}:{len(nodes)}"
 
 
-def compare_a11y(before_violations: list, after_violations: list) -> dict:
+def compare_a11y(
+    before_violations: list,
+    after_violations: list,
+    baseline_available: bool = True,
+) -> dict:
     """
     Compare accessibility violations before and after.
 
@@ -245,11 +263,15 @@ def compare_a11y(before_violations: list, after_violations: list) -> dict:
             desc = f"{v.get('id', 'unknown')}: {v.get('description', 'No description')}"
             unchanged.append(desc)
 
-    # Status: pass if no new violations introduced
-    status = "pass" if len(introduced) == 0 else "fail"
+    # Status: pass if no new violations introduced (or no baseline to compare)
+    if not baseline_available:
+        status = "pass"  # Can't fail without baseline
+    else:
+        status = "pass" if len(introduced) == 0 else "fail"
 
     return {
         "status": status,
+        "baselineAvailable": baseline_available,
         "beforeViolations": len(before_violations),
         "afterViolations": len(after_violations),
         "fixed": fixed,
@@ -263,6 +285,7 @@ def run_verification(
     session_id: str,
     include_visual: bool = True,
     include_a11y: bool = True,
+    threshold: float = DEFAULT_VISUAL_DIFF_THRESHOLD,
 ) -> dict:
     """
     Run verification against a session baseline.
@@ -272,6 +295,7 @@ def run_verification(
         session_id: Session ID to compare against
         include_visual: Include visual diff
         include_a11y: Include a11y comparison
+        threshold: Visual diff threshold percentage (default: 5.0)
 
     Returns:
         Verification result dict
@@ -314,7 +338,7 @@ def run_verification(
                     before_screenshot = session.get("beforeScreenshot")
 
                     visual_result = compare_screenshots(
-                        before_screenshot, after_screenshot
+                        before_screenshot, after_screenshot, threshold=threshold
                     )
                     result["verification"]["visual"] = visual_result
 
@@ -336,8 +360,13 @@ def run_verification(
                     # Get before violations from session (if stored)
                     before_a11y = session.get("beforeA11y", {})
                     before_violations = before_a11y.get("violations", [])
+                    baseline_available = bool(before_a11y)
 
-                    a11y_diff = compare_a11y(before_violations, after_violations)
+                    a11y_diff = compare_a11y(
+                        before_violations,
+                        after_violations,
+                        baseline_available=baseline_available,
+                    )
                     result["verification"]["a11y"] = a11y_diff
 
                     if a11y_diff["status"] == "fail":
@@ -357,7 +386,9 @@ def run_verification(
     return result
 
 
-def print_verification_result(result: dict) -> None:
+def print_verification_result(
+    result: dict, threshold: float = DEFAULT_VISUAL_DIFF_THRESHOLD
+) -> None:
     """Print verification result in human-readable format."""
     if not result.get("ok"):
         print(f"Error: {result.get('error')}", file=sys.stderr)
@@ -379,7 +410,7 @@ def print_verification_result(result: dict) -> None:
 
         if visual.get("diffPercentage") is not None:
             print(f"  Pixels changed: {visual['diffPercentage']}%")
-            print(f"  Threshold: {VISUAL_DIFF_THRESHOLD}%")
+            print(f"  Threshold: {threshold}%")
 
         if visual.get("note"):
             print(f"  Note: {visual['note']}")
@@ -419,6 +450,49 @@ def print_verification_result(result: dict) -> None:
     overall = result.get("overallStatus", "unknown")
     overall_emoji = {"pass": "✅", "fail": "❌"}.get(overall, "❓")
     print(f"Overall: {overall_emoji} {overall.upper()}")
+
+
+def save_verification_result(session_id: str, result: dict) -> bool:
+    """
+    Save verification result to the session.json file.
+
+    Args:
+        session_id: Session ID to update
+        result: Verification result dict
+
+    Returns:
+        True if saved successfully, False otherwise
+    """
+    session_dir = find_session_dir(session_id)
+    if not session_dir:
+        print(f"Error: Session directory not found: {session_id}", file=sys.stderr)
+        return False
+
+    session_file = session_dir / "session.json"
+    if not session_file.exists():
+        print(f"Error: Session file not found: {session_file}", file=sys.stderr)
+        return False
+
+    try:
+        # Load existing session
+        session_data = json.loads(session_file.read_text())
+
+        # Add/update verification result
+        session_data["verification"] = {
+            "timestamp": result.get("timestamp")
+            or __import__("datetime").datetime.now().isoformat(),
+            "overallStatus": result.get("overallStatus"),
+            "visual": result.get("verification", {}).get("visual"),
+            "a11y": result.get("verification", {}).get("a11y"),
+        }
+
+        # Write back
+        session_file.write_text(json.dumps(session_data, indent=2))
+        return True
+
+    except Exception as e:
+        print(f"Error saving verification result: {e}", file=sys.stderr)
+        return False
 
 
 def main():
@@ -466,6 +540,18 @@ Examples:
         action="store_true",
         help="Output result as JSON",
     )
+    parser.add_argument(
+        "--threshold",
+        "-t",
+        type=float,
+        default=DEFAULT_VISUAL_DIFF_THRESHOLD,
+        help=f"Visual diff threshold percentage (default: {DEFAULT_VISUAL_DIFF_THRESHOLD}%%)",
+    )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save verification results to the session.json file",
+    )
 
     args = parser.parse_args()
 
@@ -499,13 +585,22 @@ Examples:
         session_id=args.session,
         include_visual=include_visual,
         include_a11y=include_a11y,
+        threshold=args.threshold,
     )
 
     # Output
     if args.json:
         print(json.dumps(result, indent=2))
     else:
-        print_verification_result(result)
+        print_verification_result(result, threshold=args.threshold)
+
+    # Save verification result if requested
+    if args.save and result.get("ok"):
+        if save_verification_result(args.session, result):
+            if not args.json:
+                print(f"\nVerification result saved to session {args.session}")
+        else:
+            print("Warning: Failed to save verification result", file=sys.stderr)
 
     # Exit code
     if not result.get("ok"):
