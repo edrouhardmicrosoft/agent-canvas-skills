@@ -2,15 +2,16 @@
 
 ## Current State Assessment
 
-We have three AI agent skills for visual web development that work together but feel incomplete:
+We have four AI agent skills for visual web development that work together:
 
 | Skill | Purpose | Current State |
 |-------|---------|---------------|
-| **agent-eyes** | Visual context analyzer (screenshots, a11y, DOM) | Works well |
-| **agent-canvas** | Interactive element picker with overlay | Works well |
-| **canvas-edit** | Live style/text editor panel | Works well |
+| **agent-eyes** | Visual context analyzer (screenshots, a11y, DOM) | ✅ Works well |
+| **agent-canvas** | Interactive element picker with overlay | ✅ Works well |
+| **canvas-edit** | Live style/text editor panel | ✅ Works well |
+| **canvas-apply** | Convert visual edits to code changes | ✅ Complete |
 
-**The Problem:** These feel like disconnected tools rather than a cohesive product. The workflow ends with "emit JSON" but doesn't close the loop to actual code changes.
+**Completed:** The core workflow from visual edit to code change is functional.
 
 ---
 
@@ -106,12 +107,13 @@ canvas verify <url> --baseline <session>
 - [x] Add session artifact output (`.canvas/sessions/<id>/session.json`)
 - [x] Bundle intent: changes + selectors + alternatives + confidence + screenshots
 
-### Phase 2: Apply MVP (2-3 days)
-- [ ] Build `canvas-apply` skill
-  - Parse session JSON
-  - Propose file candidates with confidence
-  - Generate unified diff
-  - Optional: auto-apply with confirmation
+### Phase 2: Apply MVP (2-3 days) ✅ COMPLETE
+- [x] Build `canvas-apply` skill
+  - [x] Parse session JSON (`session_parser.py`)
+  - [x] Propose file candidates with confidence (`file_finder.py`)
+  - [x] Generate unified diff (`diff_generator.py`)
+  - [x] CLI with --diff, --apply, --verbose flags (`canvas_apply.py`)
+  - [x] Conservative by default: show diff, require --apply flag
 
 ### Phase 3: Verification Loop (1 day)
 - [ ] Add `canvas verify` command

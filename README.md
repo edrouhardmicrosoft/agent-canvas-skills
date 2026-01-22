@@ -22,7 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## AI Agent Skills
 
-This project includes three visual analysis and editing skills for AI agents located in `.claude/skills/`. These tools enable AI agents to "see" web pages, let users select elements interactively, and make live style/text edits.
+This project includes four visual analysis and editing skills for AI agents located in `.claude/skills/`. These tools enable AI agents to "see" web pages, let users select elements interactively, make live style/text edits, and convert those edits into code changes.
 
 ### Prerequisites
 
@@ -207,6 +207,51 @@ Screenshots are stored as **base64-encoded data URIs** within the JSON for porta
 | `style.changed` | User modified a style property |
 | `text.changed` | User edited element text |
 | `save_request` | User clicked "Save All to Code" |
+
+---
+
+### Canvas Apply
+
+Convert visual UI edit sessions into actual code changes. Maps DOM selectors to source files and generates diffs.
+
+**Use when:** You have a canvas session with changes and want to apply them to your source files.
+
+#### Commands
+
+```bash
+SKILL_DIR=".claude/skills/canvas-apply/scripts"
+
+# List available sessions
+python3 $SKILL_DIR/canvas_apply.py --list
+
+# Preview changes (default)
+python3 $SKILL_DIR/canvas_apply.py <sessionId>
+
+# Show unified diff
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --diff
+
+# Apply changes to files
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --apply
+
+# Verbose mode with confidence scores
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --verbose
+
+# Dry run (show what would be applied)
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --apply --dry-run
+```
+
+#### Confidence Scoring
+
+The tool uses multiple strategies to map DOM selectors to source files:
+
+| Strategy | Confidence | Description |
+|----------|------------|-------------|
+| ID attribute | ~0.95 | `id="myElement"` |
+| data-testid | ~0.90 | `data-testid="submit-btn"` |
+| className + tag | 0.65-0.95 | Matching classes in `<tag className="...">` |
+| Text content | 0.60-0.80 | Literal text fallback |
+
+Changes with confidence below 70% show a warning. Use `--force` to apply anyway.
 
 ---
 

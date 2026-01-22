@@ -1,0 +1,49 @@
+{
+  "sessionId": "ses-test123456",
+  "url": "http://localhost:3000",
+  "startTime": "2026-01-22T15:00:00.000Z",
+  "beforeScreenshot": null,
+  "events": {
+    "selections": [
+      {
+        "type": "selection.changed",
+        "timestamp": "2026-01-22T15:00:01.000Z",
+        "payload": {
+          "element": {
+            "tag": "h1",
+            "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+            "className": "text-[72px] font-black mb-8 p-[52px] rounded-[40px]",
+            "text": "hello world"
+          }
+        }
+      }
+    ],
+    "edits": [
+      {
+        "type": "save_request",
+        "timestamp": "2026-01-22T15:01:00.000Z",
+        "payload": {
+          "changes": {
+            "styles": [
+              {
+                "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+                "property": "color",
+                "oldValue": "rgb(0, 0, 0)",
+                "newValue": "rgb(255, 0, 0)",
+                "selectorConfidence": "medium"
+              }
+            ],
+            "texts": [
+              {
+                "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+                "oldText": "hello world",
+                "newText": "Hello Canvas!",
+                "selectorConfidence": "medium"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
