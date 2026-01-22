@@ -213,13 +213,23 @@ uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check
 # 2. Pick element and edit visually
 uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
 # User makes changes, clicks "Save All to Code", closes browser
-# Output includes sessionId (e.g., ses-abc123)
 
-# 3. Apply changes to source files
-python3 .claude/skills/canvas-apply/scripts/canvas_apply.py ses-abc123 --apply
+# 3. Read the session from disk (NOT stdout!)
+SESSION_ID=$(ls -t .canvas/sessions/ | head -1)
+echo "Session: $SESSION_ID"
 
-# 4. Verify changes worked
-uv run .claude/skills/canvas-verify/scripts/canvas_verify.py http://localhost:3000 --session ses-abc123
+# 4. Check if user saved changes
+HAS_SAVE=$(cat .canvas/sessions/$SESSION_ID/session.json | jq -r '.summary.hasSaveRequest')
+if [ "$HAS_SAVE" = "false" ]; then
+  echo "No changes to apply - user didn't click 'Save All to Code'"
+  exit 0
+fi
+
+# 5. Apply changes to source files
+python3 .claude/skills/canvas-apply/scripts/canvas_apply.py $SESSION_ID --apply
+
+# 6. Verify changes worked
+uv run .claude/skills/canvas-verify/scripts/canvas_verify.py http://localhost:3000 --session $SESSION_ID
 ```
 
 ### Workflow 2: Accessibility Analysis
@@ -306,11 +316,49 @@ if result["overallStatus"] == "pass":
 
 1. **Always check setup first** - Run `check_setup.py check` before first canvas operation
 2. **Use full flags for context** - `--with-edit --with-eyes` provides maximum information
-3. **Parse JSON output** - Don't rely on text output; use `--json` flag when available
-4. **Track sessionId** - Pass it consistently from agent-canvas to canvas-apply to canvas-verify
-5. **Verify after apply** - Always run canvas-verify to confirm changes worked
-6. **Watch confidence scores** - Warn users about low-confidence matches (<70%)
-7. **Handle errors gracefully** - Check `ok` field and provide helpful messages on failure
+3. **Read sessions from disk, not stdout** - Sessions are saved to `.canvas/sessions/` automatically
+4. **Parse JSON output** - Don't rely on text output; use `--json` flag when available
+5. **Track sessionId** - Pass it consistently from agent-canvas to canvas-apply to canvas-verify
+6. **Verify after apply** - Always run canvas-verify to confirm changes worked
+7. **Watch confidence scores** - Warn users about low-confidence matches (<70%)
+8. **Handle errors gracefully** - Check `ok` field and provide helpful messages on failure
+9. **Check hasSaveRequest** - If `false`, user didn't click "Save All to Code" and there's nothing to apply
+
+---
+
+## Reading Session Artifacts (CRITICAL)
+
+**Do NOT rely on capturing stdout** from agent-canvas commands. Sessions are automatically saved to disk.
+
+### After Browser Closes
+
+```bash
+# Find the latest session
+SESSION_ID=$(ls -t .canvas/sessions/ | head -1)
+
+# Quick summary
+cat .canvas/sessions/$SESSION_ID/session.json | jq '.summary'
+
+# Check if changes were saved (required for apply workflow)
+cat .canvas/sessions/$SESSION_ID/session.json | jq '.summary.hasSaveRequest'
+
+# See what elements were selected
+cat .canvas/sessions/$SESSION_ID/session.json | jq '.events.selections[] | {selector: .payload.element.selector, text: .payload.element.text}'
+
+# See edit events
+cat .canvas/sessions/$SESSION_ID/session.json | jq '.events.edits'
+```
+
+### Important: hasSaveRequest
+
+Before running `canvas-apply`, **always check** if the user clicked "Save All to Code":
+
+```bash
+HAS_SAVE=$(cat .canvas/sessions/$SESSION_ID/session.json | jq -r '.summary.hasSaveRequest')
+if [ "$HAS_SAVE" = "false" ]; then
+  echo "No changes to apply - user didn't click 'Save All to Code'"
+fi
+```
 
 ---
 

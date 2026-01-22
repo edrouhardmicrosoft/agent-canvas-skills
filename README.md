@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Agent Canvas Logo.png" alt="Agent Canvas" width="600">
+</p>
+
 # Agent Canvas Skills
 
 > **DevTools for shipping UI changes with AI**

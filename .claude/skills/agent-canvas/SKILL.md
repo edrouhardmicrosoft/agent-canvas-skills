@@ -27,6 +27,23 @@ uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope 
 
 See `agent-canvas-setup` skill for full details on installation options.
 
+## Quick Start for AI Agents
+
+When using agent-canvas, **always follow this pattern**:
+
+1. **Launch the picker** (browser opens for user interaction)
+2. **Wait for browser to close** (user finishes selecting/editing)
+3. **Read session from disk** (NOT from stdout - it may be lost)
+
+```bash
+# 1. Launch (user interacts with browser)
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+
+# 2. After browser closes, read the latest session
+SESSION_ID=$(ls -t .canvas/sessions/ | head -1)
+cat .canvas/sessions/$SESSION_ID/session.json | jq '.summary'
+```
+
 ## Commands
 
 ```bash
@@ -135,10 +152,70 @@ uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-edit --with-
 ```
 This gives users full control to select elements, preview style changes, while the agent receives both the visual context and the specific CSS changes to implement.
 
+## Session Artifacts (IMPORTANT)
+
+Sessions are **automatically saved** to `.canvas/sessions/<sessionId>/` regardless of how the command is run. This is the **primary way to retrieve session data** - do NOT rely on capturing stdout.
+
+### After Browser Closes - Read the Session
+
+```bash
+# List all sessions (most recent first)
+ls -lt .canvas/sessions/ | head -5
+
+# Read the latest session
+cat .canvas/sessions/$(ls -t .canvas/sessions/ | head -1)/session.json
+
+# Or use jq for formatted output
+cat .canvas/sessions/$(ls -t .canvas/sessions/ | head -1)/session.json | jq '.summary'
+```
+
+### Session Structure
+
+```
+.canvas/sessions/<sessionId>/
+├── session.json    # Full event log, selections, edits, screenshots (base64)
+└── changes.json    # Extracted save_request (if user clicked "Save All to Code")
+```
+
+### Key Fields in session.json
+
+```json
+{
+  "sessionId": "ses-abc123",
+  "url": "http://localhost:3000",
+  "summary": {
+    "totalSelections": 5,
+    "totalEdits": 3,
+    "hasSaveRequest": true  // <-- Check this! false = user didn't save changes
+  },
+  "events": {
+    "selections": [...],  // Element selection events with screenshots
+    "edits": [...]        // Style/text changes from edit panel
+  }
+}
+```
+
+### Checking What Changed
+
+```bash
+# Quick summary
+cat .canvas/sessions/<sessionId>/session.json | jq '.summary'
+
+# See all selections (element info)
+cat .canvas/sessions/<sessionId>/session.json | jq '.events.selections[] | {selector: .payload.element.selector, text: .payload.element.text}'
+
+# See all edits
+cat .canvas/sessions/<sessionId>/session.json | jq '.events.edits'
+
+# Check if save was requested (required for canvas-apply)
+cat .canvas/sessions/<sessionId>/session.json | jq '.summary.hasSaveRequest'
+```
+
 ## Notes
 
 - Browser launches in **visible mode** for `pick` command (user interaction required)
 - Browser runs **headless** for `watch` command
 - Selection events stream as JSON lines to stdout in real-time
+- **Session artifacts are always saved to disk** - use these instead of stdout capture
 - Close the browser window to end the session
 - Overlay elements are excluded from selection
