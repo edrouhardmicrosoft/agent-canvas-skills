@@ -1,0 +1,111 @@
+# Custom Design Specs
+
+Add your project-specific design specs here.
+
+## Creating a Custom Spec
+
+1. Create a new `.md` file in this directory
+2. Add YAML frontmatter with metadata
+3. Define pillars (H2) and checks (H4)
+
+### Example: my-project.md
+
+```markdown
+---
+name: My Project Design Spec
+version: "1.0"
+extends: default.md
+---
+
+# My Project Design Spec
+
+Custom rules extending the default spec.
+
+## Overrides
+
+### accessibility-grade
+- **Severity**: blocking
+- **Config**:
+  - minimum_grade: B
+  - target_grade: A
+
+---
+
+## Brand Guidelines
+
+Project-specific brand requirements.
+
+### Checks
+
+#### brand-colors
+- **Severity**: major
+- **Description**: Uses approved brand colors only
+- **Approved colors**:
+  - `#0078D4` - Primary Blue
+  - `#FFFFFF` - White
+- **How to check**: Extract colors from elements, compare against approved list
+
+#### typography
+- **Severity**: minor
+- **Description**: Uses approved font families
+- **Approved fonts**:
+  - Segoe UI
+  - Segoe UI Variable
+- **How to check**: Check computed font-family on text elements
+```
+
+## Spec Format Reference
+
+### Frontmatter (Required)
+
+```yaml
+---
+name: Human-readable spec name
+version: "1.0"
+extends: default.md  # Optional: inherit from another spec
+---
+```
+
+### Pillars (H2 headers)
+
+Group related checks under design pillars:
+
+```markdown
+## Pillar Name
+
+Description of what this pillar covers.
+
+### Checks
+```
+
+### Checks (H4 headers under ### Checks)
+
+```markdown
+#### check-id
+- **Severity**: blocking | major | minor
+- **Description**: What this check validates
+- **Config**:
+  - key: value
+- **How to check**: Manual verification steps
+```
+
+### Severity Levels
+
+| Level | Meaning |
+|-------|---------|
+| `blocking` | Must fix before shipping |
+| `major` | Should fix, significant impact |
+| `minor` | Nice to fix, polish issue |
+
+### Overrides Section
+
+Override inherited check settings:
+
+```markdown
+## Overrides
+
+### check-id-to-override
+- **Severity**: major  # Change severity
+- **Config**:
+  - minimum_ratio: 7.0  # Change config value
+```
