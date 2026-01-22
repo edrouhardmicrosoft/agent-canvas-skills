@@ -2,13 +2,20 @@
 
 Add your project-specific design specs here.
 
+## Project-Level Spec (Recommended)
+
+Create a `DESIGN-SPEC.md` in your project root. It will be automatically used instead of the default spec.
+
+**Discovery locations (in priority order):**
+1. `./DESIGN-SPEC.md`
+2. `./design-spec.md`
+3. `./.claude/DESIGN-SPEC.md`
+
 ## Creating a Custom Spec
 
-1. Create a new `.md` file in this directory
-2. Add YAML frontmatter with metadata
-3. Define pillars (H2) and checks (H4)
+Two frontmatter formats are supported:
 
-### Example: my-project.md
+### Spec Format (with inheritance)
 
 ```markdown
 ---
@@ -16,6 +23,16 @@ name: My Project Design Spec
 version: "1.0"
 extends: default.md
 ---
+```
+
+### Skill Format (simpler)
+
+```markdown
+---
+name: my-project-design-review
+description: Review UI for my project against our standards.
+---
+```
 
 # My Project Design Spec
 

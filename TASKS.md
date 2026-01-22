@@ -1,131 +1,195 @@
-# Next Session Tasks: Phase 1 Foundation
+# Design Review Skill - Implementation Tasks
 
-## Current State Assessment
-
-**Where we are:** Working prototype of three skills (agent-eyes, agent-canvas, canvas-edit) that function individually but don't close the loop. The workflow ends at "emit JSON" with no path to actual code changes.
-
-**Development stage:** Core functionality - individual tools work, but end-to-end value proposition is incomplete.
-
-**Target fidelity:** Personal tool → alpha transition.
+> **Hero Feature**: Spec-driven design review with visual annotations, interactive compliance checking, and automated task generation.
 
 ---
 
-## Session Goal
+## Implementation Status
 
-Implement session artifacts so the workflow produces durable, structured output that future skills (`canvas-apply`, `canvas-verify`) can consume.
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 1 | Core Review Engine | ✅ Complete |
+| Phase 2 | Annotation & Output | ✅ Complete |
+| Phase 3 | Interactive Mode | 🔲 Pending |
+| Phase 4 | Comparison Features | 🔲 Pending |
+| Phase 5 | Smart Features | 🔲 Pending |
 
 ---
 
-## Tasks for AI Coding Agent
+## Phase 1: Core Review Engine ✅
 
-| # | Task | Description | Effort | Status |
-|---|------|-------------|--------|--------|
-| 1 | **Add session artifact output to agent-canvas** | When session ends, write `.canvas/sessions/<sessionId>/` with `session.json` (full event log) and `before.png` (initial screenshot) | Short | [x] |
-| 2 | **Enhance save_request payload** | Bundle: changes + selectors + alternatives + confidence + beforeScreenshot reference | Short | [x] |
-| 3 | **Create session directory structure** | Ensure `.canvas/sessions/` exists, generate proper session IDs with timestamps | Quick | [x] |
+| Task | Description | Status |
+|------|-------------|--------|
+| Markdown spec parser | `spec_loader.py` - Parse specs with YAML frontmatter and inheritance | ✅ |
+| Default spec | `specs/default.md` - 4 pillars, 21 checks | ✅ |
+| Basic issue detection | Integration with axe-core for a11y, contrast checking | ✅ |
+| CLI with `review` command | `design_review.py review <url> [options]` | ✅ |
+| CLI with `specs` command | `design_review.py specs --list|--validate|--show` | ✅ |
+| JSON output format | Structured output with summary, issues, artifacts | ✅ |
+| Project spec discovery | Auto-discover `DESIGN-SPEC.md` in project root | ✅ |
+| Spec inheritance | `extends: default.md` in frontmatter | ✅ |
 
-### Implementation Details
+**Files created:**
+- `.claude/skills/design-review/scripts/spec_loader.py`
+- `.claude/skills/design-review/scripts/design_review.py`
+- `.claude/skills/design-review/specs/default.md`
+- `.claude/skills/design-review/specs/README.md`
+- `.claude/skills/design-review/SKILL.md`
 
-#### Task 1: Session Artifact Output
+---
 
-**Modify:** `.claude/skills/agent-canvas/scripts/agent_canvas.py`
+## Phase 2: Annotation & Output ✅
 
-**Changes:**
-1. At session start, create `.canvas/sessions/<sessionId>/` directory
-2. Take initial screenshot and save as `before.png`
-3. At session end, write `session.json` with:
-   - All events (selections + edits)
-   - Session metadata (url, start time, end time, features enabled)
-   - Reference to `before.png`
+| Task | Description | Status |
+|------|-------------|--------|
+| Screenshot annotator | `annotator.py` - Draw on screenshots using Pillow | ✅ |
+| Numbered circles | ①②③ markers at issue locations | ✅ |
+| Severity colors | Red (blocking), orange (major), yellow (minor) | ✅ |
+| Border drawing | Borders around problematic elements | ✅ |
+| Legend | Issue list at bottom of annotated screenshot | ✅ |
+| Enhanced DESIGN-REVIEW-TASKS.md | Better formatting with issue numbers, source hints | ✅ |
+| Annotated screenshot reference | Include annotated.png reference in tasks file | ✅ |
+| Source file detection | Heuristics to detect likely source files | ✅ |
+| Code fix examples | Suggested fixes with code examples | ✅ |
+| Session artifacts | Full directory structure with session.json | ✅ |
+| Wire --annotate flag | Connect flag to annotator module | ✅ |
 
-#### Task 2: Enhanced save_request
+**Files created/modified:**
+- `.claude/skills/design-review/scripts/annotator.py` (NEW)
+- `.claude/skills/design-review/scripts/design_review.py` (enhanced)
 
-**Modify:** `.claude/skills/canvas-edit/scripts/canvas_edit.py`
-
-**Changes:**
-1. When emitting `save_request`, include:
-   - `selectorConfidence` for each change
-   - `selectorAlternatives` for each change
-   - Reference to session (so apply can find before screenshot)
-
-#### Task 3: Session Directory Structure
-
-**Expected output:**
+**Session artifacts structure:**
 ```
-.canvas/sessions/
-├── ses_20260121_153045/
-│   ├── session.json       # Full event log + metadata
-│   ├── before.png         # Initial screenshot
-│   └── changes.json       # Extracted save_request (if user clicked Save)
+.canvas/reviews/<sessionId>/
+├── session.json       # Full event log + metadata
+├── report.json        # Structured issue data
+├── screenshot.png     # Original screenshot
+└── annotated.png      # Screenshot with redlines (when --annotate used)
 ```
 
 ---
 
-## Tasks for Human (Erik)
+## Phase 3: Interactive Mode 🔲
 
-| # | Task | Description | Why You |
-|---|------|-------------|---------|
-| 1 | **Decide on session ID format** | `ses_20260121_153045` vs `ses_<uuid>` vs something else? | Design decision |
-| 2 | **Test current workflow end-to-end** | Run `agent-canvas pick http://localhost:3000 --with-edit --with-eyes`, make edits, close browser, verify JSON output | Only you can evaluate UX |
-| 3 | **Answer: Screenshot storage format?** | Base64 in JSON (portable) or separate PNG file (smaller JSON)? | Design decision |
+| Task | Description | Status |
+|------|-------------|--------|
+| Review overlay JS | Browser overlay styled for review (not editing) | 🔲 |
+| Compliance indicators | Show ✅⚠️❌ as user hovers over elements | 🔲 |
+| Element-specific review | Click element → full compliance report | 🔲 |
+| "Add to Review" workflow | User curates which issues to include | 🔲 |
+| "Next Issue" navigation | Jump to next non-compliant element | 🔲 |
+| Browser close handling | Generate report when browser closes | 🔲 |
 
-### Design Decisions Needed
-
-Before AI agent proceeds:
-
-- [x] **Session ID format:** `ses-<uuid>` (12 char hex) ✓
-- [x] **Screenshot storage:** Base64 in JSON (portable) ✓
-- [x] **Run dev server first?** Should AI test current state before modifying? ✓
-
----
-
-## Session End Checklist
-
-After implementation:
-- [x] Update PLAN.md to mark Phase 1 tasks as complete
-- [x] Update README.md with new session artifact behavior
-- [x] Test: Run a full session, verify `.canvas/sessions/` is created with expected files
-- [x] Document any learnings or issues encountered
+**Expected CLI:**
+```bash
+uv run .claude/skills/design-review/scripts/design_review.py interactive http://localhost:3000
+```
 
 ---
 
-## Learnings & Notes (Phase 1)
+## Phase 4: Comparison Features 🔲
 
-### What Worked Well
-- Session artifact structure using directory-per-session (`ses-<id>/`) allows for future expansion (e.g., separate `after.png` for verification)
-- Base64 screenshots in JSON keeps sessions self-contained and portable
-- Event log captures full interaction history for debugging and replay
+| Task | Description | Status |
+|------|-------------|--------|
+| Reference image comparison | Compare against images in `imgs/` folder | 🔲 |
+| `image_comparator.py` | Visual diff algorithm (SSIM or pixel diff) | 🔲 |
+| Visual diff output | Highlight differences between current and reference | 🔲 |
+| Figma MCP integration | Optional: fetch frames from Figma API | 🔲 |
+| Compare command | `design_review.py compare <url> --reference <img>` | 🔲 |
 
-### Design Decisions Made
-- **Session ID format**: `ses-<12-char-hex>` - short enough to type, long enough to be unique
-- **Screenshot storage**: Base64 in JSON (not separate PNG files) - prioritizes portability over file size
-- **Artifact location**: `.canvas/sessions/` at project root - easy to gitignore, doesn't pollute source
-
-### Notes for Phase 2 (canvas-apply)
-- `save_request` now includes `selectorConfidence` and `selectorAlternatives` - use these for file matching heuristics
-- Session artifacts reference screenshots by session ID, not embedded in `changes.json`
-- Consider adding `changes.json` extraction on browser close (currently only written on "Save All" click)
+**Expected CLI:**
+```bash
+uv run .claude/skills/design-review/scripts/design_review.py compare http://localhost:3000 --reference imgs/homepage.png
+```
 
 ---
 
-## What This Unlocks
+## Phase 5: Smart Features 🔲
 
-Once session artifacts exist:
-- **Next session:** Build `canvas-apply` that reads session JSON
-- **After that:** Build `canvas-verify` that compares before/after
-- **Result:** Complete the "UI Patch Workflow" (Path A from PLAN.md)
+| Task | Description | Status |
+|------|-------------|--------|
+| User prompt parsing | Natural language → review type | 🔲 |
+| Intent detection | "check buttons" → filter to button-related checks | 🔲 |
+| Editable context detection | Detect if source files are available | 🔲 |
+| Source file mapping | Map selectors to actual source files | 🔲 |
+| todowrite integration | Create todos for each issue | 🔲 |
+| Interactive prompts | Prompt user for review type if not specified | 🔲 |
+
+**Expected flow:**
+```
+$ uv run design_review.py http://localhost:3000
+
+🎨 Design Review - What would you like to check?
+
+  1. Full page review (check entire page against spec)
+  2. Specific element (select an element to review)
+  3. Compare to reference (compare against design image)
+  4. Accessibility audit (deep-dive a11y checks)
+  5. Custom (describe what you're looking for)
+
+Enter choice [1-5] or describe your goal: 
+```
 
 ---
 
-## Commands for Testing
+## Commands Reference
 
 ```bash
-# Start the dev server
-npm run dev
+SKILL_DIR=".claude/skills/design-review/scripts"
 
-# Run a full canvas session (in another terminal)
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+# === REVIEW COMMANDS ===
+uv run $SKILL_DIR/design_review.py review <url>                    # Basic review
+uv run $SKILL_DIR/design_review.py review <url> --spec my-spec.md  # Custom spec
+uv run $SKILL_DIR/design_review.py review <url> --selector ".hero" # Specific element
+uv run $SKILL_DIR/design_review.py review <url> --annotate         # With annotations
+uv run $SKILL_DIR/design_review.py review <url> --generate-tasks   # With task file
 
-# After closing browser, check for session artifacts
-ls -la .canvas/sessions/
+# === SPEC MANAGEMENT ===
+uv run $SKILL_DIR/design_review.py specs --list                    # List specs
+uv run $SKILL_DIR/design_review.py specs --validate my-spec.md     # Validate spec
+uv run $SKILL_DIR/design_review.py specs --show default.md         # Show spec details
+
+# === TESTING ===
+npm run dev                                                         # Start dev server
+uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate --generate-tasks
+```
+
+---
+
+## Design Decisions Made
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Spec format | Markdown + YAML frontmatter | Human-readable, easy to version control |
+| Annotation style | Numbered circles + severity colors | Both numbers (for reference) and colors (for scanning) |
+| Session ID format | `review_YYYYMMDDHHMMSS###` | Timestamp-based, sortable |
+| Screenshot in legend | Yes, with issue list | Provides visual reference alongside annotations |
+| Source file detection | Heuristic-based | data-testid, class names, common patterns |
+| Code examples | Per check-id lookup | Extensible dictionary of common fixes |
+
+---
+
+## Open Questions (Future Phases)
+
+1. **Interactive overlay UX**: Mini compliance card vs simple icon on hover?
+2. **Agent-canvas integration**: Separate entry point or `--mode review` flag?
+3. **Figma auth**: How to handle Figma API authentication for comparison?
+4. **Real-time checks**: Run checks as page loads or only on demand?
+
+---
+
+## Files Overview
+
+```
+.claude/skills/design-review/
+├── SKILL.md                     # Skill documentation
+├── scripts/
+│   ├── design_review.py         # Main CLI (review, specs commands)
+│   ├── spec_loader.py           # Markdown spec parser
+│   └── annotator.py             # Screenshot annotation
+├── specs/
+│   ├── default.md               # Default spec (4 pillars, 21 checks)
+│   └── README.md                # Spec format documentation
+└── imgs/
+    └── README.md                # Reference image documentation (future)
 ```

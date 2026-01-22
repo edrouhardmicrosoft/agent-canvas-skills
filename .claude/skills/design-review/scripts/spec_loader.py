@@ -69,20 +69,22 @@ class DesignSpec:
     name: str
     version: str
     extends: Optional[str]
+    description: str = ""
     pillars: list[Pillar] = field(default_factory=list)
-    overrides: dict[str, dict] = field(
-        default_factory=dict
-    )  # check_id -> override dict
+    overrides: dict[str, dict] = field(default_factory=dict)
     source_path: Optional[Path] = None
+    format_type: str = "spec"  # "spec" or "skill"
 
     def to_dict(self) -> dict:
         return {
             "name": self.name,
             "version": self.version,
             "extends": self.extends,
+            "description": self.description,
             "pillars": [p.to_dict() for p in self.pillars],
             "overrides": self.overrides,
             "sourcePath": str(self.source_path) if self.source_path else None,
+            "formatType": self.format_type,
         }
 
     def get_all_checks(self) -> list[Check]:
@@ -121,6 +123,15 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
 
     remaining = parts[2].strip()
     return frontmatter, remaining
+
+
+def detect_frontmatter_format(frontmatter: dict) -> str:
+    """Detect if frontmatter is spec format or skill format."""
+    if "version" in frontmatter or "extends" in frontmatter:
+        return "spec"
+    if "description" in frontmatter and "name" in frontmatter:
+        return "skill"
+    return "spec"
 
 
 def parse_check_content(content: str, pillar_name: str, check_id: str) -> Check:
@@ -253,13 +264,7 @@ def parse_spec_content(content: str) -> tuple[list[Pillar], dict[str, dict]]:
 def load_spec(path: Path, specs_dir: Optional[Path] = None) -> DesignSpec:
     """
     Load a design spec from a markdown file.
-
-    Args:
-        path: Path to the spec file
-        specs_dir: Directory for resolving `extends` references
-
-    Returns:
-        DesignSpec object with all pillars and checks
+    Supports both spec format (version, extends) and skill format (name, description).
     """
     if not path.exists():
         raise FileNotFoundError(f"Spec file not found: {path}")
@@ -267,9 +272,12 @@ def load_spec(path: Path, specs_dir: Optional[Path] = None) -> DesignSpec:
     content = path.read_text()
     frontmatter, body = parse_frontmatter(content)
 
+    format_type = detect_frontmatter_format(frontmatter)
+
     name = frontmatter.get("name", path.stem)
     version = frontmatter.get("version", "1.0")
     extends = frontmatter.get("extends")
+    description = frontmatter.get("description", "")
 
     pillars, overrides = parse_spec_content(body)
 
@@ -277,12 +285,13 @@ def load_spec(path: Path, specs_dir: Optional[Path] = None) -> DesignSpec:
         name=name,
         version=version,
         extends=extends,
+        description=description,
         pillars=pillars,
         overrides=overrides,
         source_path=path,
+        format_type=format_type,
     )
 
-    # Handle inheritance
     if extends and specs_dir:
         parent_path = specs_dir / extends
         if parent_path.exists():
@@ -346,16 +355,65 @@ def merge_specs(parent: DesignSpec, child: DesignSpec) -> DesignSpec:
         pillars=list(merged_pillars.values()),
         overrides={},  # Already applied
         source_path=child.source_path,
+        format_type=child.format_type,
     )
 
 
 def get_default_spec_path() -> Path:
-    """Get the path to the default spec."""
     return Path(__file__).parent.parent / "specs" / "default.md"
 
 
+def find_project_spec(project_root: Optional[Path] = None) -> Optional[Path]:
+    """
+    Find DESIGN-SPEC.md in project root.
+    Returns None if not found.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+
+    candidates = [
+        project_root / "DESIGN-SPEC.md",
+        project_root / "design-spec.md",
+        project_root / ".claude" / "DESIGN-SPEC.md",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
+def resolve_spec(
+    spec_arg: Optional[str] = None,
+    project_root: Optional[Path] = None,
+) -> Path:
+    """
+    Resolve which spec to use with priority:
+    1. Explicit --spec argument
+    2. DESIGN-SPEC.md in project root
+    3. Default spec (default.md)
+    """
+    specs_dir = Path(__file__).parent.parent / "specs"
+
+    if spec_arg:
+        spec_path = Path(spec_arg)
+        if spec_path.is_absolute():
+            return spec_path
+        if (specs_dir / spec_arg).exists():
+            return specs_dir / spec_arg
+        if project_root and (project_root / spec_arg).exists():
+            return project_root / spec_arg
+        return specs_dir / spec_arg
+
+    project_spec = find_project_spec(project_root)
+    if project_spec:
+        return project_spec
+
+    return get_default_spec_path()
+
+
 def list_specs(specs_dir: Optional[Path] = None) -> list[dict]:
-    """List all available specs in the specs directory."""
     if specs_dir is None:
         specs_dir = Path(__file__).parent.parent / "specs"
 

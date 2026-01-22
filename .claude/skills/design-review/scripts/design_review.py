@@ -263,11 +263,12 @@ def run_spec_checks(
 
 def cmd_review(args: argparse.Namespace) -> None:
     """Review a page against design specs."""
-    from spec_loader import get_default_spec_path, load_spec
+    from spec_loader import load_spec, resolve_spec
 
     from playwright.sync_api import sync_playwright
 
-    spec_path = SPECS_DIR / args.spec if args.spec else get_default_spec_path()
+    project_root = Path.cwd()
+    spec_path = resolve_spec(args.spec, project_root)
     try:
         spec = load_spec(spec_path, SPECS_DIR)
     except FileNotFoundError:
@@ -277,115 +278,456 @@ def cmd_review(args: argparse.Namespace) -> None:
     session_id = generate_session_id()
     session_dir = ensure_reviews_dir(session_id)
 
+    # Initialize session event log
+    session_events: list[dict] = []
+    session_start = get_timestamp()
+
+    def log_event(event_type: str, data: dict) -> None:
+        session_events.append(
+            {
+                "timestamp": get_timestamp(),
+                "type": event_type,
+                "data": data,
+            }
+        )
+
+    log_event(
+        "session_start",
+        {
+            "sessionId": session_id,
+            "url": args.url,
+            "spec": str(spec_path),
+            "selector": args.selector,
+            "annotate": args.annotate,
+            "generateTasks": args.generate_tasks,
+        },
+    )
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1280, "height": 720})
 
+        log_event("browser_launched", {"viewport": {"width": 1280, "height": 720}})
+
         try:
             page.goto(args.url, wait_until="networkidle")
+            log_event("page_loaded", {"url": args.url})
         except Exception as e:
+            log_event("page_load_error", {"error": str(e)})
             error_output(f"Failed to load URL: {e}")
             browser.close()
             sys.exit(1)
 
+        # Take original screenshot
         screenshot_path = session_dir / "screenshot.png"
         page.screenshot(path=str(screenshot_path), full_page=True)
+        log_event("screenshot_captured", {"path": str(screenshot_path)})
 
+        # Run spec checks
         issues = run_spec_checks(page, spec, args.selector)
+        log_event(
+            "spec_checks_completed",
+            {
+                "checkCount": len(spec.get_all_checks()),
+                "issueCount": len(issues),
+            },
+        )
 
         browser.close()
+        log_event("browser_closed", {})
 
+    # Calculate summary
     summary = {"blocking": 0, "major": 0, "minor": 0}
     for issue in issues:
         severity = issue.get("severity", "minor")
         if severity in summary:
             summary[severity] += 1
 
+    # Build result object
     result = {
         "ok": True,
         "url": args.url,
         "spec": spec.name,
+        "specPath": str(spec_path),
         "sessionId": session_id,
         "summary": summary,
         "issues": issues,
         "artifacts": {
             "screenshot": str(screenshot_path),
+            "sessionDir": str(session_dir),
         },
     }
 
+    # Generate annotated screenshot if requested
+    annotated_path: Optional[Path] = None
+    if args.annotate and issues:
+        from annotator import annotate_screenshot
+
+        annotated_path = session_dir / "annotated.png"
+        annotate_result = annotate_screenshot(
+            screenshot_path=screenshot_path,
+            issues=issues,
+            output_path=annotated_path,
+            include_legend=True,
+        )
+
+        if annotate_result.get("ok"):
+            result["artifacts"]["annotated"] = str(annotated_path)
+            log_event(
+                "annotated_screenshot_created",
+                {
+                    "path": str(annotated_path),
+                    "annotatedIssues": annotate_result.get("annotatedIssues", []),
+                },
+            )
+        else:
+            log_event("annotate_error", {"error": annotate_result.get("error")})
+
+    # Generate tasks file if requested
     if args.generate_tasks and issues:
         tasks_path = Path("DESIGN-REVIEW-TASKS.md")
-        generate_tasks_file(result, tasks_path)
+        generate_tasks_file(result, tasks_path, annotated_path)
         result["artifacts"]["tasks"] = str(tasks_path)
+        log_event("tasks_file_generated", {"path": str(tasks_path)})
 
-    session_file = session_dir / "report.json"
-    session_file.write_text(json.dumps(result, indent=2))
+    # Save report.json (structured issue data)
+    report_file = session_dir / "report.json"
+    report_file.write_text(json.dumps(result, indent=2))
+    log_event("report_saved", {"path": str(report_file)})
+
+    # Save session.json (full event log + metadata)
+    session_data = {
+        "sessionId": session_id,
+        "startTime": session_start,
+        "endTime": get_timestamp(),
+        "url": args.url,
+        "spec": {
+            "name": spec.name,
+            "path": str(spec_path),
+            "pillars": len(spec.pillars),
+            "checks": len(spec.get_all_checks()),
+        },
+        "options": {
+            "selector": args.selector,
+            "annotate": args.annotate,
+            "generateTasks": args.generate_tasks,
+        },
+        "summary": summary,
+        "events": session_events,
+    }
+    session_file = session_dir / "session.json"
+    session_file.write_text(json.dumps(session_data, indent=2))
 
     json_output(result)
 
 
-def generate_tasks_file(result: dict, output_path: Path) -> None:
-    """Generate DESIGN-REVIEW-TASKS.md from review results."""
+def generate_tasks_file(
+    result: dict, output_path: Path, annotated_path: Optional[Path] = None
+) -> None:
+    """Generate DESIGN-REVIEW-TASKS.md from review results.
+
+    Enhanced version with:
+    - Annotated screenshot reference
+    - Better formatting with issue numbers matching visual annotations
+    - Source file location hints (when detectable from element selectors)
+    - Suggested fixes with code examples where applicable
+    """
+    severity_icons = {
+        "blocking": "🔴",
+        "major": "🟠",
+        "minor": "🟡",
+    }
+    severity_labels = {
+        "blocking": "Blocking",
+        "major": "Major",
+        "minor": "Minor",
+    }
+
     lines = [
         "# Design Review Tasks",
         "",
-        f"> Generated: {get_timestamp()}",
-        f"> URL: {result['url']}",
-        f"> Spec: {result['spec']}",
-        f"> Session: {result['sessionId']}",
-        "",
-        "## Summary",
-        "",
-        "| Severity | Count |",
-        "|----------|-------|",
-        f"| Blocking | {result['summary']['blocking']} |",
-        f"| Major | {result['summary']['major']} |",
-        f"| Minor | {result['summary']['minor']} |",
+        f"> **Generated**: {get_timestamp()}  ",
+        f"> **URL**: {result['url']}  ",
+        f"> **Spec**: {result['spec']}  ",
+        f"> **Session**: `{result['sessionId']}`",
         "",
     ]
 
+    # Add annotated screenshot reference if available
+    if annotated_path and annotated_path.exists():
+        lines.extend(
+            [
+                "## 📸 Annotated Screenshot",
+                "",
+                f"![Annotated Screenshot]({annotated_path})",
+                "",
+                "*Issue numbers in the screenshot correspond to the issues below.*",
+                "",
+            ]
+        )
+
+    # Summary section
+    lines.extend(
+        [
+            "## Summary",
+            "",
+            "| Severity | Count |",
+            "|----------|-------|",
+            f"| {severity_icons['blocking']} Blocking | {result['summary']['blocking']} |",
+            f"| {severity_icons['major']} Major | {result['summary']['major']} |",
+            f"| {severity_icons['minor']} Minor | {result['summary']['minor']} |",
+            "",
+        ]
+    )
+
     severity_order = ["blocking", "major", "minor"]
-    severity_icons = {"blocking": "Blocking", "major": "Major", "minor": "Minor"}
 
     for severity in severity_order:
         severity_issues = [i for i in result["issues"] if i.get("severity") == severity]
         if not severity_issues:
             continue
 
-        lines.append(f"## {severity_icons[severity]} Issues")
+        icon = severity_icons[severity]
+        label = severity_labels[severity]
+        lines.append(f"## {icon} {label} Issues")
         lines.append("")
 
         for issue in severity_issues:
-            lines.append(f"### {issue['id']}. {issue['checkId']}")
-            lines.append(f"- **Pillar**: {issue['pillar']}")
-            lines.append(f"- **Severity**: {issue['severity']}")
-            if "element" in issue:
-                lines.append(f"- **Element**: `{issue['element']}`")
-            lines.append(f"- **Issue**: {issue['description']}")
-            if "recommendation" in issue:
-                lines.append(f"- **Fix**: {issue['recommendation']}")
+            issue_id = issue.get("id", "?")
+            check_id = issue.get("checkId", "unknown")
+            pillar = issue.get("pillar", "")
+            description = issue.get("description", "")
+            element = issue.get("element", "")
+            recommendation = issue.get("recommendation", "")
+            nodes = issue.get("nodes", [])
+            details = issue.get("details", [])
+
+            # Issue header with circled number for visual reference
+            circled_num = get_circled_number(issue_id)
+            lines.append(f"### {circled_num} Issue #{issue_id}: {check_id}")
             lines.append("")
+
+            # Metadata table for clean formatting
+            lines.append("| Property | Value |")
+            lines.append("|----------|-------|")
+            lines.append(f"| **Pillar** | {pillar} |")
+            lines.append(f"| **Severity** | {icon} {severity.capitalize()} |")
+            if element:
+                lines.append(f"| **Element** | `{element}` |")
+
+            # Detect potential source file from selector
+            source_hint = detect_source_file(element)
+            if source_hint:
+                lines.append(f"| **Likely Source** | `{source_hint}` |")
+
+            lines.append("")
+
+            # Issue description
+            lines.append(f"**Issue**: {description}")
+            lines.append("")
+
+            # Show affected nodes if available (from axe-core)
+            if nodes:
+                lines.append("**Affected Elements**:")
+                lines.append("```html")
+                for node in nodes[:3]:  # Limit to 3
+                    lines.append(node)
+                lines.append("```")
+                lines.append("")
+
+            # Show detailed violations if available
+            if details:
+                lines.append("<details>")
+                lines.append("<summary>View Details</summary>")
+                lines.append("")
+                for detail in details[:3]:
+                    if isinstance(detail, dict):
+                        lines.append(
+                            f"- **{detail.get('id', 'Unknown')}**: {detail.get('description', '')}"
+                        )
+                lines.append("")
+                lines.append("</details>")
+                lines.append("")
+
+            # Recommendation / suggested fix
+            if recommendation:
+                lines.append(f"**Suggested Fix**: {recommendation}")
+                lines.append("")
+
+                # Add code example for common fixes
+                code_example = get_fix_code_example(check_id, issue)
+                if code_example:
+                    lines.append("```tsx")
+                    lines.append(code_example)
+                    lines.append("```")
+                    lines.append("")
+
+            lines.append("---")
+            lines.append("")
+
+    # Reference section
+    lines.extend(
+        [
+            "## 📁 Reference",
+            "",
+            "| Artifact | Path |",
+            "|----------|------|",
+            f"| Session Directory | `.canvas/reviews/{result['sessionId']}/` |",
+            f"| Original Screenshot | `.canvas/reviews/{result['sessionId']}/screenshot.png` |",
+        ]
+    )
+
+    if annotated_path:
+        lines.append(f"| Annotated Screenshot | `{annotated_path}` |")
 
     lines.extend(
         [
+            f"| Full Report (JSON) | `.canvas/reviews/{result['sessionId']}/report.json` |",
+            "",
             "---",
             "",
-            f"*Review session: {result['sessionId']}*",
+            "*To fix these issues, review each task above and update your code accordingly.*  ",
+            "*Re-run the design review after making changes to verify fixes.*",
         ]
     )
 
     output_path.write_text("\n".join(lines))
 
 
+def get_circled_number(n: int) -> str:
+    """Get circled number character for visual reference."""
+    circled = [
+        "①",
+        "②",
+        "③",
+        "④",
+        "⑤",
+        "⑥",
+        "⑦",
+        "⑧",
+        "⑨",
+        "⑩",
+        "⑪",
+        "⑫",
+        "⑬",
+        "⑭",
+        "⑮",
+        "⑯",
+        "⑰",
+        "⑱",
+        "⑲",
+        "⑳",
+    ]
+    if isinstance(n, int) and 1 <= n <= len(circled):
+        return circled[n - 1]
+    return f"({n})"
+
+
+def detect_source_file(selector: str) -> Optional[str]:
+    """Attempt to detect likely source file from element selector.
+
+    Heuristics:
+    - data-testid="ComponentName" → components/ComponentName.tsx
+    - .className with component-like name → components/ClassName.tsx
+    - #id patterns → look for matching component
+    """
+    if not selector:
+        return None
+
+    import re
+
+    # Check for data-testid pattern
+    testid_match = re.search(
+        r'data-testid[=~*\^$]*["\']?([A-Z][a-zA-Z0-9-]+)', selector
+    )
+    if testid_match:
+        name = testid_match.group(1)
+        return f"components/{name}.tsx (inferred from data-testid)"
+
+    # Check for component-like class names (PascalCase or kebab-case with prefix)
+    class_match = re.search(r"\.([A-Z][a-zA-Z0-9]+)", selector)
+    if class_match:
+        name = class_match.group(1)
+        return f"components/{name}.tsx (inferred from class name)"
+
+    # Check for common container patterns
+    container_patterns = {
+        ".hero": "components/Hero.tsx",
+        ".header": "components/Header.tsx",
+        ".footer": "components/Footer.tsx",
+        ".nav": "components/Nav.tsx",
+        ".sidebar": "components/Sidebar.tsx",
+        ".modal": "components/Modal.tsx",
+        ".card": "components/Card.tsx",
+        ".button": "components/Button.tsx",
+    }
+
+    for pattern, file in container_patterns.items():
+        if pattern in selector.lower():
+            return f"{file} (inferred from pattern)"
+
+    return None
+
+
+def get_fix_code_example(check_id: str, issue: dict) -> Optional[str]:
+    """Generate code example for common fix patterns."""
+
+    examples = {
+        "color-contrast": """// Increase text contrast
+// Before: color: #767676 (3.2:1 ratio)
+// After: color: #595959 (7.0:1 ratio)
+<Text style={{ color: '#595959' }}>Your text here</Text>""",
+        "ai-disclaimer": """// Add AI-generated content disclaimer
+<MessageBar intent="warning" className="ai-disclaimer">
+  AI-generated content may contain inaccuracies
+</MessageBar>""",
+        "focus-indicators": """// Add visible focus indicator
+.interactive-element:focus-visible {
+  outline: 2px solid #0078D4;
+  outline-offset: 2px;
+}""",
+        "keyboard-navigation": """// Ensure keyboard accessibility
+<button
+  tabIndex={0}
+  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+>
+  Accessible Button
+</button>""",
+        "single-primary-action": """// Use Button variants for visual hierarchy
+<Button appearance="primary">Main Action</Button>
+<Button appearance="secondary">Secondary Action</Button>
+<Button appearance="subtle">Tertiary Action</Button>""",
+        "touch-targets": """// Ensure 44x44px minimum touch target
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px;
+}""",
+        "destructive-confirmation": """// Add confirmation for destructive actions
+const handleDelete = () => {
+  if (confirm('Are you sure you want to delete this item?')) {
+    performDelete();
+  }
+};""",
+    }
+
+    return examples.get(check_id)
+
+
 def cmd_specs(args: argparse.Namespace) -> None:
     """Manage design specs."""
-    from spec_loader import list_specs, load_spec
+    from spec_loader import find_project_spec, list_specs, load_spec, resolve_spec
 
     if args.list:
         specs = list_specs(SPECS_DIR)
-        json_output({"ok": True, "specs": specs})
+        project_spec = find_project_spec(Path.cwd())
+        result = {"ok": True, "specs": specs}
+        if project_spec:
+            result["projectSpec"] = str(project_spec)
+        json_output(result)
     elif args.validate:
-        spec_path = SPECS_DIR / args.validate
+        project_root = Path.cwd()
+        spec_path = resolve_spec(args.validate, project_root)
         try:
             spec = load_spec(spec_path, SPECS_DIR)
             checks = spec.get_all_checks()
@@ -396,12 +738,14 @@ def cmd_specs(args: argparse.Namespace) -> None:
                     "name": spec.name,
                     "pillars": len(spec.pillars),
                     "checks": len(checks),
+                    "formatType": spec.format_type,
                 }
             )
         except Exception as e:
             json_output({"ok": False, "valid": False, "error": str(e)})
     elif args.show:
-        spec_path = SPECS_DIR / args.show
+        project_root = Path.cwd()
+        spec_path = resolve_spec(args.show, project_root)
         try:
             spec = load_spec(spec_path, SPECS_DIR)
             json_output({"ok": True, "spec": spec.to_dict()})
