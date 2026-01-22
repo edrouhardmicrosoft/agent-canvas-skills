@@ -120,11 +120,12 @@ canvas verify <url> --baseline <session>
 - [x] Before/after screenshot comparison
 - [x] A11y rerun to prove fixes
 
-### Phase 4: UX Unification (1 day)
-- [ ] Create unified `canvas session <url>` entrypoint
-- [ ] Starts picker + editor
-- [ ] Records to session artifact
-- [ ] Ends with "Apply to code?" prompt
+### Phase 4: UX Unification (1 day) ✅ COMPLETE
+- [x] Extended `agent-canvas pick` with new flags instead of new command
+- [x] Added `--interactive` flag for post-session prompts
+- [x] Added `--auto-apply` flag for automatic apply (CI mode)
+- [x] Added `--auto-verify` flag for automatic verify (CI mode)
+- [x] Integrated apply/verify workflows from sibling skills
 
 ### Phase 5: Enhancements (Later)
 - [ ] Tailwind class detection and suggestion

@@ -14,6 +14,8 @@ captures selection info and optionally enriches with agent-eyes data IN-PROCESS
 
 Usage:
     uv run agent_canvas.py pick <url> [--with-eyes] [--with-edit] [--output PATH]
+    uv run agent_canvas.py pick <url> --with-edit --with-eyes --interactive
+    uv run agent_canvas.py pick <url> --with-edit --with-eyes --auto-apply --auto-verify
     uv run agent_canvas.py watch <url> [--interval SECONDS]
 """
 
@@ -158,6 +160,172 @@ except ImportError:
 
 def get_timestamp() -> str:
     return datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S-%f")[:-3] + "Z"
+
+
+# =============================================================================
+# Canvas Apply/Verify integration (for interactive mode)
+# =============================================================================
+
+
+def _setup_apply_verify_imports():
+    """Add canvas-apply and canvas-verify to path for imports."""
+    apply_path = Path(__file__).parent.parent.parent / "canvas-apply" / "scripts"
+    verify_path = Path(__file__).parent.parent.parent / "canvas-verify" / "scripts"
+    for p in [apply_path, verify_path]:
+        if p.exists() and str(p) not in sys.path:
+            sys.path.insert(0, str(p))
+
+
+_setup_apply_verify_imports()
+
+# Lazy imports - only loaded when interactive mode is used
+HAS_CANVAS_APPLY = False
+HAS_CANVAS_VERIFY = False
+
+try:
+    from session_parser import parse_session
+    from diff_generator import generate_diffs, result_to_dict
+
+    HAS_CANVAS_APPLY = True
+except ImportError:
+    pass
+
+try:
+    # canvas_verify needs playwright, so we'll call it via subprocess
+    HAS_CANVAS_VERIFY = True
+except ImportError:
+    pass
+
+
+# =============================================================================
+# Interactive mode helpers
+# =============================================================================
+
+
+def prompt_yes_no(question: str, default: bool = False) -> bool:
+    """Prompt user for yes/no answer."""
+    suffix = " [Y/n] " if default else " [y/N] "
+    try:
+        answer = input(question + suffix).strip().lower()
+        if not answer:
+            return default
+        return answer in ("y", "yes")
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+
+
+def run_apply_workflow(session_id: str, auto: bool = False) -> bool:
+    """
+    Run the apply workflow for a session.
+
+    Returns True if changes were applied successfully.
+    """
+    if not HAS_CANVAS_APPLY:
+        print("⚠️  canvas-apply not available", file=sys.stderr)
+        return False
+
+    print(f"\n{'=' * 60}")
+    print(f"Session: {session_id}")
+    print(f"{'=' * 60}\n")
+
+    # Parse session and generate diffs
+    manifest = parse_session(session_id)
+    if not manifest:
+        print(f"❌ Could not parse session: {session_id}", file=sys.stderr)
+        return False
+
+    if not manifest.style_changes and not manifest.text_changes:
+        print("ℹ️  No changes to apply (did you click 'Save All to Code'?)")
+        return False
+
+    # Generate diffs
+    diff_result = generate_diffs(manifest)
+    result_dict = result_to_dict(diff_result)
+
+    if not result_dict["fileDiffs"]:
+        print("ℹ️  No file changes generated.")
+        if result_dict.get("unmappedChanges"):
+            print("\nUnmapped changes (couldn't find source location):")
+            for change in result_dict["unmappedChanges"]:
+                print(f"  - {change}")
+        return False
+
+    # Show diff preview
+    print(f"Files to modify: {result_dict['summary']['filesModified']}\n")
+
+    for diff in result_dict["fileDiffs"]:
+        confidence = diff["confidence"]
+        confidence_str = f" (confidence: {confidence:.0%})"
+
+        if confidence < 0.70:
+            print(f"⚠️  LOW CONFIDENCE{confidence_str}: {diff['filePath']}")
+        else:
+            print(f"📝 {diff['filePath']}{confidence_str}")
+
+        print()
+        print(diff["unifiedDiff"])
+        print()
+
+    # Prompt for apply (unless auto mode)
+    if not auto:
+        if not prompt_yes_no("Apply these changes?", default=False):
+            print("Skipped applying changes.")
+            return False
+
+    # Apply changes
+    applied = 0
+    for file_diff in diff_result.file_diffs:
+        try:
+            Path(file_diff.file_path).write_text(file_diff.modified_content)
+            print(f"✅ Modified: {file_diff.file_path}")
+            applied += 1
+        except Exception as e:
+            print(f"❌ Failed to modify {file_diff.file_path}: {e}", file=sys.stderr)
+
+    if applied > 0:
+        print(f"\n✅ Applied changes to {applied} file(s).")
+        return True
+
+    return False
+
+
+def run_verify_workflow(url: str, session_id: str, auto: bool = False) -> bool:
+    """
+    Run the verify workflow for a session.
+
+    Returns True if verification passed.
+    """
+    import subprocess
+
+    verify_script = (
+        Path(__file__).parent.parent.parent
+        / "canvas-verify"
+        / "scripts"
+        / "canvas_verify.py"
+    )
+
+    if not verify_script.exists():
+        print("⚠️  canvas-verify not available", file=sys.stderr)
+        return False
+
+    print(f"\n{'=' * 60}")
+    print("Running verification...")
+    print(f"{'=' * 60}\n")
+
+    try:
+        result = subprocess.run(
+            ["uv", "run", str(verify_script), url, "--session", session_id, "--save"],
+            capture_output=False,
+            timeout=60,
+        )
+        return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        print("❌ Verification timed out", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"❌ Verification failed: {e}", file=sys.stderr)
+        return False
 
 
 # =============================================================================
@@ -416,6 +584,9 @@ def pick_element(
     with_edit: bool = False,
     output_path: Optional[str] = None,
     stream: bool = False,
+    interactive: bool = False,
+    auto_apply: bool = False,
+    auto_verify: bool = False,
 ) -> dict:
     """
     Launch browser with element picker, stream selection events until window closes.
@@ -424,6 +595,12 @@ def pick_element(
     (using the same Page object - no subprocess spawning).
 
     Session artifacts are automatically written to .canvas/sessions/<sessionId>/
+
+    Interactive mode (--interactive):
+        After browser closes, prompts user to apply changes and verify.
+
+    Auto mode (--auto-apply, --auto-verify):
+        Automatically applies and/or verifies without prompting.
     """
 
     all_selections = []
@@ -648,6 +825,46 @@ def pick_element(
                 Path(output_path).parent.mkdir(parents=True, exist_ok=True)
                 Path(output_path).write_text(json.dumps(result, indent=2))
 
+            # Interactive/auto workflow (after browser closes)
+            if interactive or auto_apply or auto_verify:
+                # Check if there are changes to apply
+                has_save_request = any(
+                    e.get("type") == "save_request" or e.get("event") == "save_request"
+                    for e in all_edit_events
+                )
+
+                applied = False
+
+                if has_save_request:
+                    if auto_apply:
+                        applied = run_apply_workflow(session_id, auto=True)
+                    elif interactive:
+                        if prompt_yes_no("\nApply changes to code?", default=False):
+                            applied = run_apply_workflow(session_id, auto=True)
+                        else:
+                            print("Skipped applying changes.")
+                else:
+                    if interactive or auto_apply:
+                        print(
+                            "\nℹ️  No save_request found (did you click 'Save All to Code'?)"
+                        )
+
+                # Verify workflow
+                if applied and (auto_verify or interactive):
+                    if auto_verify:
+                        result["verified"] = run_verify_workflow(
+                            url, session_id, auto=True
+                        )
+                    elif interactive:
+                        if prompt_yes_no("\nVerify changes?", default=False):
+                            result["verified"] = run_verify_workflow(
+                                url, session_id, auto=True
+                            )
+                        else:
+                            print("Skipped verification.")
+
+                result["applied"] = applied
+
             return result
 
         except Exception as e:
@@ -794,6 +1011,22 @@ def main():
         help="Load canvas-edit panel for live style editing",
     )
     pick_parser.add_argument("--output", "-o", help="Save result to file")
+    pick_parser.add_argument(
+        "--interactive",
+        "-i",
+        action="store_true",
+        help="Interactive mode: prompt to apply/verify after browser closes",
+    )
+    pick_parser.add_argument(
+        "--auto-apply",
+        action="store_true",
+        help="Automatically apply changes after browser closes (no prompt)",
+    )
+    pick_parser.add_argument(
+        "--auto-verify",
+        action="store_true",
+        help="Automatically verify changes after applying (no prompt)",
+    )
 
     # Watch command
     watch_parser = subparsers.add_parser("watch", help="Watch page for changes")
@@ -815,6 +1048,9 @@ def main():
             with_eyes=args.with_eyes,
             with_edit=args.with_edit,
             output_path=args.output,
+            interactive=args.interactive,
+            auto_apply=args.auto_apply,
+            auto_verify=args.auto_verify,
         )
         # Final summary already streamed, just exit
         sys.exit(0 if result.get("ok") else 1)
