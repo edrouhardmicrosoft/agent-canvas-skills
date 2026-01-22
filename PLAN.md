@@ -454,34 +454,34 @@ Instead of the blue "picker" overlay, design-review injects a "review" overlay t
 ## Implementation Phases
 
 ### Phase 1: Core Review Engine
-- [ ] Markdown spec parser (`spec_loader.py`)
-- [ ] Default spec (`specs/default.md`)
-- [ ] Basic issue detection from agent-eyes data
-- [ ] CLI with `review` command
-- [ ] JSON output format
+- [x] Markdown spec parser (`spec_loader.py`)
+- [x] Default spec (`specs/default.md`)
+- [x] Basic issue detection from agent-eyes data
+- [x] CLI with `review` command
+- [x] JSON output format
 
 ### Phase 2: Annotation & Output
-- [ ] Screenshot annotator (`annotator.py`)
-- [ ] Redline drawing (numbered markers, severity colors)
-- [ ] DESIGN-REVIEW-TASKS.md generation
-- [ ] Session artifacts structure
+- [x] Screenshot annotator (`annotator.py`)
+- [x] Redline drawing (numbered markers, severity colors)
+- [x] DESIGN-REVIEW-TASKS.md generation
+- [x] Session artifacts structure
 
 ### Phase 3: Interactive Mode
-- [ ] Review overlay JS (modify picker overlay)
-- [ ] Compliance indicators on hover
-- [ ] Element-specific review flow
-- [ ] "Add to Review" workflow
+- [x] Review overlay JS (modify picker overlay)
+- [x] Compliance indicators on hover
+- [x] Element-specific review flow
+- [x] "Add to Review" workflow
 
 ### Phase 4: Comparison Features
-- [ ] Reference image comparison from `imgs/`
-- [ ] Visual diff output
-- [ ] Figma MCP integration (optional)
+- [x] Reference image comparison from `imgs/`
+- [x] Visual diff output
+- [x] Figma MCP integration (optional) - placeholder with helpful error message
 
 ### Phase 5: Smart Features
-- [ ] User prompt parsing (natural language → review type)
-- [ ] Editable context detection
-- [ ] Source file mapping for tasks
-- [ ] todowrite integration
+- [x] User prompt parsing (natural language → review type)
+- [x] Editable context detection
+- [x] Source file mapping for tasks
+- [x] todowrite integration
 
 ---
 

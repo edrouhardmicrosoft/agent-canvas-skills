@@ -36,6 +36,259 @@ IMGS_DIR = SCRIPT_DIR.parent / "imgs"
 REVIEWS_DIR = Path(".canvas") / "reviews"
 
 
+class EditableContext:
+    """
+    Detects if we're in a context where code changes can be applied.
+
+    Checks for:
+    1. Local dev server (localhost, 127.0.0.1)
+    2. Source files present in the project
+    3. Known frameworks (Next.js, Vite, Create React App, etc.)
+    4. Git repository (for safe changes)
+    """
+
+    def __init__(self, url: str, project_root: Optional[Path] = None):
+        self.url = url
+        self.project_root = project_root or Path.cwd()
+        self._analysis: Optional[dict] = None
+
+    def analyze(self) -> dict:
+        """Analyze the context and return detailed information."""
+        if self._analysis is not None:
+            return self._analysis
+
+        from urllib.parse import urlparse
+
+        parsed = urlparse(self.url)
+        hostname = parsed.hostname or ""
+        port = parsed.port
+
+        result = {
+            "editable": False,
+            "reasons": [],
+            "framework": None,
+            "source_dirs": [],
+            "has_git": False,
+            "confidence": "low",
+        }
+
+        # Check 1: Is this a local dev server?
+        is_local = hostname in ["localhost", "127.0.0.1", "0.0.0.0", "::1"]
+        common_dev_ports = [3000, 3001, 5173, 5174, 8080, 8000, 4200, 4321]
+        is_dev_port = port in common_dev_ports if port else False
+
+        if is_local:
+            result["reasons"].append("Local development server detected")
+            if is_dev_port:
+                result["reasons"].append(f"Common dev port {port}")
+
+        # Check 2: Detect framework
+        framework = self._detect_framework()
+        if framework:
+            result["framework"] = framework
+            result["reasons"].append(f"Framework detected: {framework}")
+
+        # Check 3: Find source directories
+        source_dirs = self._find_source_dirs()
+        result["source_dirs"] = [str(d) for d in source_dirs]
+        if source_dirs:
+            result["reasons"].append(f"Source directories found: {len(source_dirs)}")
+
+        # Check 4: Git repository
+        git_dir = self.project_root / ".git"
+        result["has_git"] = git_dir.exists()
+        if result["has_git"]:
+            result["reasons"].append("Git repository (changes can be tracked)")
+
+        # Determine if editable
+        if is_local and (source_dirs or framework):
+            result["editable"] = True
+            result["confidence"] = (
+                "high"
+                if (framework and source_dirs and result["has_git"])
+                else "medium"
+            )
+        elif source_dirs and framework:
+            result["editable"] = True
+            result["confidence"] = "low"
+            result["reasons"].append(
+                "Warning: Not a local server, changes may not reflect"
+            )
+
+        self._analysis = result
+        return result
+
+    def _detect_framework(self) -> Optional[str]:
+        """Detect the web framework being used."""
+        # Check package.json for framework indicators
+        package_json = self.project_root / "package.json"
+        if package_json.exists():
+            try:
+                pkg = json.loads(package_json.read_text())
+                deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+
+                if "next" in deps:
+                    return "Next.js"
+                elif "vite" in deps:
+                    return "Vite"
+                elif "react-scripts" in deps:
+                    return "Create React App"
+                elif "@angular/core" in deps:
+                    return "Angular"
+                elif "vue" in deps:
+                    return "Vue"
+                elif "svelte" in deps:
+                    return "Svelte"
+                elif "astro" in deps:
+                    return "Astro"
+                elif "nuxt" in deps:
+                    return "Nuxt"
+                elif "gatsby" in deps:
+                    return "Gatsby"
+                elif "remix" in deps:
+                    return "Remix"
+            except (json.JSONDecodeError, IOError):
+                pass
+
+        # Check for framework-specific files
+        framework_indicators = {
+            "next.config.js": "Next.js",
+            "next.config.ts": "Next.js",
+            "next.config.mjs": "Next.js",
+            "vite.config.js": "Vite",
+            "vite.config.ts": "Vite",
+            "angular.json": "Angular",
+            "vue.config.js": "Vue",
+            "svelte.config.js": "Svelte",
+            "astro.config.mjs": "Astro",
+            "nuxt.config.js": "Nuxt",
+            "nuxt.config.ts": "Nuxt",
+            "gatsby-config.js": "Gatsby",
+            "remix.config.js": "Remix",
+        }
+
+        for filename, framework in framework_indicators.items():
+            if (self.project_root / filename).exists():
+                return framework
+
+        return None
+
+    def _find_source_dirs(self) -> list[Path]:
+        """Find directories containing source files."""
+        potential_dirs = [
+            "src",
+            "app",
+            "pages",
+            "components",
+            "lib",
+            "src/components",
+            "app/components",
+        ]
+
+        found = []
+        for dir_name in potential_dirs:
+            dir_path = self.project_root / dir_name
+            if dir_path.exists() and dir_path.is_dir():
+                # Check if it contains source files
+                extensions = [".tsx", ".jsx", ".vue", ".svelte", ".ts", ".js"]
+                has_source = any(
+                    list(dir_path.rglob(f"*{ext}"))[:1]  # Just check if any exist
+                    for ext in extensions
+                )
+                if has_source:
+                    found.append(dir_path)
+
+        return found
+
+    @property
+    def is_editable(self) -> bool:
+        """Quick check if context is editable."""
+        return self.analyze()["editable"]
+
+    def get_summary(self) -> str:
+        """Get a human-readable summary of the context."""
+        analysis = self.analyze()
+        if analysis["editable"]:
+            framework = analysis["framework"] or "Unknown"
+            return f"Editable ({framework}, {analysis['confidence']} confidence)"
+        else:
+            return "Read-only (not a local dev environment)"
+
+
+def generate_todowrite_output(
+    issues: list[dict], result: dict, source_mapper: Optional["SourceMapper"] = None
+) -> dict:
+    """
+    Generate output in a format compatible with the todowrite tool.
+
+    Returns a dict with:
+    - todos: list of todo items in todowrite format
+    - summary: issue counts
+    - metadata: session info
+    """
+    todos = []
+
+    for issue in issues:
+        issue_id = issue.get("id", 0)
+        check_id = issue.get("checkId", "unknown")
+        severity = issue.get("severity", "minor")
+        description = issue.get("description", "")
+        element = issue.get("element", "")
+        pillar = issue.get("pillar", "")
+        recommendation = issue.get("recommendation", "")
+
+        # Map severity to priority
+        priority_map = {
+            "blocking": "high",
+            "major": "high",
+            "minor": "medium",
+        }
+        priority = priority_map.get(severity, "medium")
+
+        # Build todo content
+        content_parts = [f"[{check_id}] {description}"]
+        if element:
+            content_parts.append(f"Element: {element}")
+        if recommendation:
+            content_parts.append(f"Fix: {recommendation}")
+
+        # Get source file mapping
+        source_info = None
+        if source_mapper and element:
+            source_info = source_mapper.find_source_file(element)
+
+        todo = {
+            "id": f"design-review-{issue_id}",
+            "content": " | ".join(content_parts),
+            "status": "pending",
+            "priority": priority,
+            # Extended metadata for integration
+            "_metadata": {
+                "checkId": check_id,
+                "severity": severity,
+                "pillar": pillar,
+                "element": element,
+                "sourceFile": source_info["path"] if source_info else None,
+                "sourceConfidence": source_info["confidence"] if source_info else None,
+            },
+        }
+
+        todos.append(todo)
+
+    return {
+        "ok": True,
+        "format": "todowrite",
+        "todos": todos,
+        "summary": result.get("summary", {}),
+        "metadata": {
+            "sessionId": result.get("sessionId"),
+            "url": result.get("url"),
+            "spec": result.get("spec"),
+            "timestamp": get_timestamp(),
+        },
+    }
+
+
 def get_timestamp() -> str:
     return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
@@ -278,6 +531,15 @@ def cmd_review(args: argparse.Namespace) -> None:
     session_id = generate_session_id()
     session_dir = ensure_reviews_dir(session_id)
 
+    # Detect editable context
+    editable_ctx = EditableContext(args.url, project_root)
+    ctx_analysis = editable_ctx.analyze()
+
+    # Initialize source mapper if we have source directories
+    source_mapper: Optional[SourceMapper] = None
+    if ctx_analysis["source_dirs"]:
+        source_mapper = SourceMapper(project_root)
+
     # Initialize session event log
     session_events: list[dict] = []
     session_start = get_timestamp()
@@ -300,6 +562,7 @@ def cmd_review(args: argparse.Namespace) -> None:
             "selector": args.selector,
             "annotate": args.annotate,
             "generateTasks": args.generate_tasks,
+            "editableContext": ctx_analysis,
         },
     )
 
@@ -336,6 +599,17 @@ def cmd_review(args: argparse.Namespace) -> None:
         browser.close()
         log_event("browser_closed", {})
 
+    # Enhance issues with source file mapping
+    if source_mapper:
+        for issue in issues:
+            element = issue.get("element", "")
+            if element:
+                source_info = source_mapper.find_source_file(element)
+                if source_info:
+                    issue["sourceFile"] = source_info["path"]
+                    issue["sourceConfidence"] = source_info["confidence"]
+                    issue["sourceReason"] = source_info["reason"]
+
     # Calculate summary
     summary = {"blocking": 0, "major": 0, "minor": 0}
     for issue in issues:
@@ -352,6 +626,7 @@ def cmd_review(args: argparse.Namespace) -> None:
         "sessionId": session_id,
         "summary": summary,
         "issues": issues,
+        "editableContext": ctx_analysis,
         "artifacts": {
             "screenshot": str(screenshot_path),
             "sessionDir": str(session_dir),
@@ -386,9 +661,24 @@ def cmd_review(args: argparse.Namespace) -> None:
     # Generate tasks file if requested
     if args.generate_tasks and issues:
         tasks_path = Path("DESIGN-REVIEW-TASKS.md")
-        generate_tasks_file(result, tasks_path, annotated_path)
+        generate_tasks_file(result, tasks_path, annotated_path, source_mapper)
         result["artifacts"]["tasks"] = str(tasks_path)
         log_event("tasks_file_generated", {"path": str(tasks_path)})
+
+    # Handle todowrite output format
+    todowrite_mode = getattr(args, "todowrite", False)
+    if todowrite_mode:
+        todowrite_output = generate_todowrite_output(issues, result, source_mapper)
+
+        # Save todowrite JSON
+        todowrite_path = session_dir / "todowrite.json"
+        todowrite_path.write_text(json.dumps(todowrite_output, indent=2))
+        result["artifacts"]["todowrite"] = str(todowrite_path)
+        log_event("todowrite_output_generated", {"path": str(todowrite_path)})
+
+        # Output in todowrite format instead of standard format
+        json_output(todowrite_output)
+        return
 
     # Save report.json (structured issue data)
     report_file = session_dir / "report.json"
@@ -412,6 +702,7 @@ def cmd_review(args: argparse.Namespace) -> None:
             "annotate": args.annotate,
             "generateTasks": args.generate_tasks,
         },
+        "editableContext": ctx_analysis,
         "summary": summary,
         "events": session_events,
     }
@@ -422,7 +713,10 @@ def cmd_review(args: argparse.Namespace) -> None:
 
 
 def generate_tasks_file(
-    result: dict, output_path: Path, annotated_path: Optional[Path] = None
+    result: dict,
+    output_path: Path,
+    annotated_path: Optional[Path] = None,
+    source_mapper: Optional["SourceMapper"] = None,
 ) -> None:
     """Generate DESIGN-REVIEW-TASKS.md from review results.
 
@@ -431,6 +725,7 @@ def generate_tasks_file(
     - Better formatting with issue numbers matching visual annotations
     - Source file location hints (when detectable from element selectors)
     - Suggested fixes with code examples where applicable
+    - Editable context information
     """
     severity_icons = {
         "blocking": "🔴",
@@ -502,6 +797,24 @@ def generate_tasks_file(
             nodes = issue.get("nodes", [])
             details = issue.get("details", [])
 
+            # Source file info - first check if already computed in issue
+            source_file = issue.get("sourceFile")
+            source_confidence = issue.get("sourceConfidence")
+            source_reason = issue.get("sourceReason")
+
+            # Fallback to source_mapper or detect_source_file
+            if not source_file and source_mapper and element:
+                source_info = source_mapper.find_source_file(element)
+                if source_info:
+                    source_file = source_info["path"]
+                    source_confidence = source_info["confidence"]
+                    source_reason = source_info["reason"]
+            elif not source_file:
+                source_hint = detect_source_file(element)
+                if source_hint:
+                    source_file = source_hint
+                    source_confidence = "low"
+
             # Issue header with circled number for visual reference
             circled_num = get_circled_number(issue_id)
             lines.append(f"### {circled_num} Issue #{issue_id}: {check_id}")
@@ -515,10 +828,18 @@ def generate_tasks_file(
             if element:
                 lines.append(f"| **Element** | `{element}` |")
 
-            # Detect potential source file from selector
-            source_hint = detect_source_file(element)
-            if source_hint:
-                lines.append(f"| **Likely Source** | `{source_hint}` |")
+            # Show enhanced source file info
+            if source_file:
+                confidence_badge = ""
+                if source_confidence == "high":
+                    confidence_badge = " ✅"
+                elif source_confidence == "medium":
+                    confidence_badge = " 🔶"
+                else:
+                    confidence_badge = " ❓"
+                lines.append(f"| **Source File** | `{source_file}`{confidence_badge} |")
+                if source_reason:
+                    lines.append(f"| **Detection** | {source_reason} |")
 
             lines.append("")
 
@@ -623,6 +944,171 @@ def get_circled_number(n: int) -> str:
     return f"({n})"
 
 
+class SourceMapper:
+    """
+    Maps DOM elements/selectors to source files in the project.
+
+    Uses multiple strategies:
+    1. data-testid attributes
+    2. Component-like class names (PascalCase)
+    3. Common UI patterns (hero, header, footer, etc.)
+    4. Source map lookup (if available)
+    5. Glob-based file search in common directories
+    """
+
+    def __init__(self, project_root: Optional[Path] = None):
+        self.project_root = project_root or Path.cwd()
+        self._file_cache: dict[str, list[Path]] = {}
+        self._build_file_index()
+
+    def _build_file_index(self) -> None:
+        """Build an index of component files in the project."""
+        # Common component directories to search
+        search_dirs = [
+            "components",
+            "src/components",
+            "app/components",
+            "lib/components",
+            "src",
+            "app",
+            "pages",
+        ]
+
+        extensions = [".tsx", ".jsx", ".vue", ".svelte", ".astro"]
+
+        for search_dir in search_dirs:
+            dir_path = self.project_root / search_dir
+            if dir_path.exists():
+                for ext in extensions:
+                    for file_path in dir_path.rglob(f"*{ext}"):
+                        # Index by lowercase filename without extension
+                        key = file_path.stem.lower()
+                        if key not in self._file_cache:
+                            self._file_cache[key] = []
+                        self._file_cache[key].append(file_path)
+
+    def find_source_file(
+        self, selector: str, element_info: Optional[dict] = None
+    ) -> Optional[dict]:
+        """
+        Find the likely source file for an element.
+
+        Returns a dict with:
+        - path: relative path to source file
+        - confidence: 'high', 'medium', or 'low'
+        - reason: explanation of how it was found
+        - line_hint: optional line number hint
+        """
+        if not selector:
+            return None
+
+        import re
+
+        # Strategy 1: data-testid attribute
+        testid_match = re.search(
+            r'data-testid[=~*\^$]*["\']?([A-Za-z][a-zA-Z0-9_-]+)', selector
+        )
+        if testid_match:
+            name = testid_match.group(1)
+            # Convert kebab-case to PascalCase for component lookup
+            component_name = "".join(word.capitalize() for word in name.split("-"))
+            found = self._lookup_component(component_name)
+            if found:
+                return {
+                    "path": str(found.relative_to(self.project_root)),
+                    "confidence": "high",
+                    "reason": f"data-testid='{name}' matches component file",
+                    "line_hint": None,
+                }
+
+        # Strategy 2: PascalCase class names (React/component patterns)
+        class_match = re.search(r"\.([A-Z][a-zA-Z0-9]+)", selector)
+        if class_match:
+            component_name = class_match.group(1)
+            found = self._lookup_component(component_name)
+            if found:
+                return {
+                    "path": str(found.relative_to(self.project_root)),
+                    "confidence": "medium",
+                    "reason": f"PascalCase class '.{component_name}' suggests component",
+                    "line_hint": None,
+                }
+
+        # Strategy 3: CSS Module patterns (ComponentName_className__hash)
+        module_match = re.search(r"\.([A-Z][a-zA-Z0-9]+)_", selector)
+        if module_match:
+            component_name = module_match.group(1)
+            found = self._lookup_component(component_name)
+            if found:
+                return {
+                    "path": str(found.relative_to(self.project_root)),
+                    "confidence": "high",
+                    "reason": "CSS Module pattern detected",
+                    "line_hint": None,
+                }
+
+        # Strategy 4: Common UI pattern names
+        ui_patterns = {
+            "hero": ["Hero", "HeroSection", "HeroBanner"],
+            "header": ["Header", "AppHeader", "SiteHeader", "Navbar"],
+            "footer": ["Footer", "AppFooter", "SiteFooter"],
+            "nav": ["Nav", "Navigation", "Navbar", "NavMenu"],
+            "sidebar": ["Sidebar", "SideNav", "SideMenu"],
+            "modal": ["Modal", "Dialog", "Popup"],
+            "card": ["Card", "CardComponent"],
+            "button": ["Button", "Btn"],
+            "form": ["Form", "FormComponent"],
+            "input": ["Input", "TextField", "TextInput"],
+            "menu": ["Menu", "DropdownMenu", "MenuList"],
+            "toast": ["Toast", "Notification", "Alert"],
+            "badge": ["Badge", "Tag", "Chip"],
+            "avatar": ["Avatar", "UserAvatar"],
+            "table": ["Table", "DataTable"],
+            "list": ["List", "ListView"],
+        }
+
+        selector_lower = selector.lower()
+        for pattern, component_names in ui_patterns.items():
+            if pattern in selector_lower:
+                for component_name in component_names:
+                    found = self._lookup_component(component_name)
+                    if found:
+                        return {
+                            "path": str(found.relative_to(self.project_root)),
+                            "confidence": "low",
+                            "reason": f"UI pattern '{pattern}' in selector",
+                            "line_hint": None,
+                        }
+
+        # Strategy 5: Extract class/id and search files
+        identifiers = re.findall(r"[.#]([a-zA-Z][a-zA-Z0-9_-]+)", selector)
+        for ident in identifiers:
+            # Convert kebab-case to possible component name
+            possible_name = "".join(word.capitalize() for word in ident.split("-"))
+            found = self._lookup_component(possible_name)
+            if found:
+                return {
+                    "path": str(found.relative_to(self.project_root)),
+                    "confidence": "low",
+                    "reason": f"Identifier '{ident}' may correspond to component",
+                    "line_hint": None,
+                }
+
+        return None
+
+    def _lookup_component(self, name: str) -> Optional[Path]:
+        """Look up a component by name in the file index."""
+        key = name.lower()
+        if key in self._file_cache:
+            # Return first match (prefer .tsx over .jsx, etc.)
+            files = self._file_cache[key]
+            tsx_files = [f for f in files if f.suffix == ".tsx"]
+            if tsx_files:
+                return tsx_files[0]
+            return files[0]
+        return None
+
+
 def detect_source_file(selector: str) -> Optional[str]:
     """Attempt to detect likely source file from element selector.
 
@@ -630,6 +1116,8 @@ def detect_source_file(selector: str) -> Optional[str]:
     - data-testid="ComponentName" → components/ComponentName.tsx
     - .className with component-like name → components/ClassName.tsx
     - #id patterns → look for matching component
+
+    Note: For more advanced source mapping, use SourceMapper class.
     """
     if not selector:
         return None
@@ -1079,9 +1567,543 @@ def get_recommendation_for_check(check_id: str) -> str:
 
 
 def cmd_compare(args: argparse.Namespace) -> None:
-    """Compare page against reference image."""
-    error_output("Compare mode not yet implemented. Use 'review' command.")
-    sys.exit(1)
+    """Compare page against reference image or Figma frame."""
+    from playwright.sync_api import sync_playwright
+
+    # Validate inputs
+    if not args.reference and not args.figma:
+        error_output("Either --reference or --figma is required")
+        sys.exit(1)
+
+    if args.figma:
+        # Figma integration placeholder
+        error_output(
+            "Figma integration not yet implemented. "
+            "Export your Figma frame as PNG and use --reference instead."
+        )
+        sys.exit(1)
+
+    # Resolve reference image path
+    reference_path = resolve_reference_image(args.reference)
+    if not reference_path:
+        error_output(f"Reference image not found: {args.reference}")
+        sys.exit(1)
+
+    session_id = generate_session_id()
+    session_dir = ensure_reviews_dir(session_id)
+
+    # Session event logging
+    session_events: list[dict] = []
+    session_start = get_timestamp()
+
+    def log_event(event_type: str, data: dict) -> None:
+        session_events.append(
+            {
+                "timestamp": get_timestamp(),
+                "type": event_type,
+                "data": data,
+            }
+        )
+
+    log_event(
+        "session_start",
+        {
+            "sessionId": session_id,
+            "url": args.url,
+            "reference": str(reference_path),
+            "mode": "compare",
+        },
+    )
+
+    # Capture current screenshot
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1280, "height": 720})
+
+        log_event("browser_launched", {"viewport": {"width": 1280, "height": 720}})
+
+        try:
+            page.goto(args.url, wait_until="networkidle")
+            log_event("page_loaded", {"url": args.url})
+        except Exception as e:
+            log_event("page_load_error", {"error": str(e)})
+            error_output(f"Failed to load URL: {e}")
+            browser.close()
+            sys.exit(1)
+
+        # Take screenshot
+        screenshot_path = session_dir / "screenshot.png"
+        page.screenshot(path=str(screenshot_path), full_page=not args.viewport_only)
+        log_event("screenshot_captured", {"path": str(screenshot_path)})
+
+        browser.close()
+        log_event("browser_closed", {})
+
+    # Run image comparison
+    from image_comparator import compare_images, CompareMethod
+
+    comparison_result = compare_images(
+        reference=reference_path,
+        current=screenshot_path,
+        output_diff=session_dir / "diff.png",
+        method=CompareMethod.HYBRID,
+        pixel_threshold=args.threshold,
+        ssim_threshold=args.ssim_threshold,
+        diff_style=args.diff_style,
+    )
+
+    log_event(
+        "comparison_completed",
+        {
+            "match": comparison_result.match,
+            "pixelDiffPercent": comparison_result.pixel_diff_percent,
+            "ssimScore": comparison_result.ssim_score,
+            "diffRegions": len(comparison_result.diff_regions),
+        },
+    )
+
+    # Build result
+    result = {
+        "ok": comparison_result.ok,
+        "url": args.url,
+        "sessionId": session_id,
+        "mode": "compare",
+        "reference": str(reference_path),
+        "match": comparison_result.match,
+        "comparison": {
+            "method": comparison_result.method,
+            "pixelDiffPercent": comparison_result.pixel_diff_percent,
+            "ssimScore": comparison_result.ssim_score,
+            "pixelThreshold": comparison_result.pixel_threshold,
+            "ssimThreshold": comparison_result.ssim_threshold,
+            "sizeMismatch": comparison_result.size_mismatch,
+            "referenceSize": comparison_result.reference_size,
+            "currentSize": comparison_result.current_size,
+        },
+        "diffRegions": [r.to_dict() for r in comparison_result.diff_regions],
+        "artifacts": {
+            "screenshot": str(screenshot_path),
+            "reference": str(reference_path),
+            "sessionDir": str(session_dir),
+        },
+    }
+
+    if comparison_result.diff_path:
+        result["artifacts"]["diff"] = comparison_result.diff_path
+
+    # Generate annotated screenshot if there are differences
+    if not comparison_result.match and comparison_result.diff_regions:
+        from annotator import annotate_screenshot
+
+        # Convert diff regions to issue format for annotator
+        issues = []
+        for i, region in enumerate(comparison_result.diff_regions, 1):
+            issues.append(
+                {
+                    "id": i,
+                    "severity": region.severity,
+                    "description": f"Visual difference ({region.width}x{region.height}px)",
+                    "boundingBox": {
+                        "x": region.x,
+                        "y": region.y,
+                        "width": region.width,
+                        "height": region.height,
+                    },
+                }
+            )
+
+        annotated_path = session_dir / "annotated.png"
+        annotate_result = annotate_screenshot(
+            screenshot_path=screenshot_path,
+            issues=issues,
+            output_path=annotated_path,
+            include_legend=True,
+        )
+
+        if annotate_result.get("ok"):
+            result["artifacts"]["annotated"] = str(annotated_path)
+            log_event(
+                "annotated_screenshot_created",
+                {"path": str(annotated_path)},
+            )
+
+    # Generate tasks file if requested and there are differences
+    if args.generate_tasks and not comparison_result.match:
+        tasks_path = Path("DESIGN-REVIEW-TASKS.md")
+        generate_compare_tasks_file(result, tasks_path)
+        result["artifacts"]["tasks"] = str(tasks_path)
+        log_event("tasks_file_generated", {"path": str(tasks_path)})
+
+    # Save report.json
+    report_file = session_dir / "report.json"
+    report_file.write_text(json.dumps(result, indent=2))
+    log_event("report_saved", {"path": str(report_file)})
+
+    # Save session.json
+    session_data = {
+        "sessionId": session_id,
+        "startTime": session_start,
+        "endTime": get_timestamp(),
+        "url": args.url,
+        "mode": "compare",
+        "reference": str(reference_path),
+        "match": comparison_result.match,
+        "comparison": result["comparison"],
+        "events": session_events,
+    }
+    session_file = session_dir / "session.json"
+    session_file.write_text(json.dumps(session_data, indent=2))
+
+    json_output(result)
+
+
+def resolve_reference_image(ref_arg: str) -> Optional[Path]:
+    """
+    Resolve reference image path.
+
+    Checks:
+    1. Absolute path
+    2. Relative to current directory
+    3. In imgs/ directory of the skill
+    """
+    ref_path = Path(ref_arg)
+
+    # Absolute path
+    if ref_path.is_absolute() and ref_path.exists():
+        return ref_path
+
+    # Relative to cwd
+    if ref_path.exists():
+        return ref_path.resolve()
+
+    # In imgs/ directory
+    imgs_path = IMGS_DIR / ref_arg
+    if imgs_path.exists():
+        return imgs_path
+
+    # Try with common extensions
+    for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+        for base_path in [ref_path, imgs_path]:
+            with_ext = base_path.with_suffix(ext)
+            if with_ext.exists():
+                return with_ext
+
+    return None
+
+
+def generate_compare_tasks_file(result: dict, output_path: Path) -> None:
+    """Generate DESIGN-REVIEW-TASKS.md from comparison results."""
+    severity_icons = {
+        "minor": "🟡",
+        "moderate": "🟠",
+        "major": "🔴",
+    }
+
+    lines = [
+        "# Visual Comparison Tasks",
+        "",
+        f"> **Generated**: {get_timestamp()}  ",
+        f"> **URL**: {result['url']}  ",
+        f"> **Reference**: {result['reference']}  ",
+        f"> **Session**: `{result['sessionId']}`",
+        "",
+    ]
+
+    # Comparison summary
+    comparison = result.get("comparison", {})
+    match_status = "✅ MATCH" if result.get("match") else "❌ MISMATCH"
+
+    lines.extend(
+        [
+            "## Comparison Summary",
+            "",
+            f"**Status**: {match_status}",
+            "",
+            "| Metric | Value | Threshold |",
+            "|--------|-------|-----------|",
+        ]
+    )
+
+    if comparison.get("pixelDiffPercent") is not None:
+        lines.append(
+            f"| Pixel Difference | {comparison['pixelDiffPercent']}% | {comparison['pixelThreshold']}% |"
+        )
+
+    if comparison.get("ssimScore") is not None:
+        lines.append(
+            f"| SSIM Score | {comparison['ssimScore']} | {comparison['ssimThreshold']} |"
+        )
+
+    if comparison.get("sizeMismatch"):
+        lines.append(
+            f"| Size Mismatch | ⚠️ Yes | Reference: {comparison['referenceSize']}, Current: {comparison['currentSize']} |"
+        )
+
+    lines.append("")
+
+    # Diff regions
+    diff_regions = result.get("diffRegions", [])
+    if diff_regions:
+        lines.extend(
+            [
+                "## Difference Regions",
+                "",
+                f"Found **{len(diff_regions)}** regions with visual differences:",
+                "",
+            ]
+        )
+
+        for i, region in enumerate(diff_regions, 1):
+            icon = severity_icons.get(region.get("severity", "moderate"), "🟠")
+            lines.append(
+                f"### {icon} Region {i}",
+            )
+            lines.append("")
+            lines.append(f"- **Location**: ({region['x']}, {region['y']})")
+            lines.append(f"- **Size**: {region['width']}x{region['height']}px")
+            lines.append(f"- **Severity**: {region.get('severity', 'unknown')}")
+            lines.append("")
+
+    # Artifacts
+    artifacts = result.get("artifacts", {})
+    lines.extend(
+        [
+            "## 📁 Artifacts",
+            "",
+            "| File | Path |",
+            "|------|------|",
+            f"| Current Screenshot | `{artifacts.get('screenshot', 'N/A')}` |",
+            f"| Reference Image | `{artifacts.get('reference', 'N/A')}` |",
+        ]
+    )
+
+    if artifacts.get("diff"):
+        lines.append(f"| Visual Diff | `{artifacts['diff']}` |")
+
+    if artifacts.get("annotated"):
+        lines.append(f"| Annotated Screenshot | `{artifacts['annotated']}` |")
+
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "*Review the diff image to identify specific changes.*  ",
+            "*Update your implementation to match the reference design.*",
+        ]
+    )
+
+    output_path.write_text("\n".join(lines))
+
+
+def parse_user_intent(user_input: str) -> dict[str, Any]:
+    """
+    Parse natural language input to determine review type and parameters.
+
+    Returns a dict with:
+    - command: 'review', 'interactive', 'compare', or 'accessibility'
+    - spec_hints: list of spec-related keywords found
+    - selector_hint: selector if user mentioned specific element
+    - focus_areas: list of areas to focus on
+    """
+    user_input_lower = user_input.lower()
+
+    result = {
+        "command": "review",  # default
+        "spec_hints": [],
+        "selector_hint": None,
+        "focus_areas": [],
+    }
+
+    # Detect command type
+    if any(
+        word in user_input_lower
+        for word in ["compare", "reference", "design image", "figma", "mockup"]
+    ):
+        result["command"] = "compare"
+    elif any(
+        word in user_input_lower
+        for word in ["interactive", "pick", "select", "browse", "explore"]
+    ):
+        result["command"] = "interactive"
+    elif any(
+        word in user_input_lower
+        for word in ["accessibility", "a11y", "wcag", "screen reader", "aria"]
+    ):
+        result["command"] = "accessibility"
+
+    # Detect focus areas
+    focus_keywords = {
+        "contrast": ["contrast", "color contrast", "text contrast", "readable"],
+        "typography": ["font", "typography", "text size", "font-size", "typeface"],
+        "spacing": ["spacing", "margin", "padding", "whitespace", "gap"],
+        "brand": ["brand", "brand colors", "brand guidelines", "style guide"],
+        "buttons": ["button", "buttons", "cta", "call to action", "primary action"],
+        "navigation": ["navigation", "nav", "menu", "breadcrumb"],
+        "forms": ["form", "input", "field", "validation"],
+        "accessibility": ["accessibility", "a11y", "keyboard", "focus", "aria"],
+        "images": ["image", "images", "alt text", "alt", "icons"],
+        "responsive": ["responsive", "mobile", "tablet", "breakpoint"],
+    }
+
+    for area, keywords in focus_keywords.items():
+        if any(kw in user_input_lower for kw in keywords):
+            result["focus_areas"].append(area)
+
+    # Detect specific element mentions (common patterns)
+    import re
+
+    selector_patterns = [
+        r"\.[\w-]+",  # .class-name
+        r"#[\w-]+",  # #id
+        r"the\s+(\w+)\s+(?:section|component|button|header|footer|nav)",  # "the hero section"
+    ]
+
+    for pattern in selector_patterns:
+        match = re.search(pattern, user_input)
+        if match:
+            result["selector_hint"] = match.group(0)
+            break
+
+    return result
+
+
+def cmd_prompt(args: argparse.Namespace) -> None:
+    """
+    Interactive prompt mode - ask user what they want to review.
+
+    This is triggered when the user runs `design_review.py <url>` without a command.
+    """
+    url = args.url
+
+    # Display prompt menu
+    menu = """
+🎨 Design Review - What would you like to check?
+
+  1. Full page review (check entire page against spec)
+  2. Specific element (select an element to review)
+  3. Compare to reference (compare against design image)
+  4. Accessibility audit (deep-dive a11y checks)
+  5. Custom (describe what you're looking for)
+
+Enter choice [1-5] or describe your goal: """
+
+    try:
+        choice = input(menu).strip()
+    except (EOFError, KeyboardInterrupt):
+        print("\nCancelled.")
+        sys.exit(0)
+
+    if not choice:
+        print("No input provided. Running full page review.")
+        choice = "1"
+
+    # Handle numeric choices
+    if choice == "1":
+        # Full page review
+        args.spec = None
+        args.selector = None
+        args.annotate = True
+        args.generate_tasks = True
+        cmd_review(args)
+    elif choice == "2":
+        # Interactive mode
+        args.spec = None
+        cmd_interactive(args)
+    elif choice == "3":
+        # Compare mode - prompt for reference
+        ref = input(
+            "Enter reference image path (or press Enter to list available): "
+        ).strip()
+        if not ref:
+            # List available images
+            if IMGS_DIR.exists():
+                images = list(IMGS_DIR.glob("*.png")) + list(IMGS_DIR.glob("*.jpg"))
+                if images:
+                    print("\nAvailable reference images:")
+                    for i, img in enumerate(images, 1):
+                        print(f"  {i}. {img.name}")
+                    ref_choice = input("Enter number or path: ").strip()
+                    if ref_choice.isdigit() and 1 <= int(ref_choice) <= len(images):
+                        ref = str(images[int(ref_choice) - 1])
+                    else:
+                        ref = ref_choice
+                else:
+                    print("No reference images found in imgs/ directory.")
+                    ref = input("Enter reference image path: ").strip()
+            else:
+                ref = input("Enter reference image path: ").strip()
+
+        if not ref:
+            print("No reference image specified. Cannot proceed with comparison.")
+            sys.exit(1)
+
+        args.reference = ref
+        args.figma = None
+        args.frame = None
+        args.threshold = 5.0
+        args.ssim_threshold = 0.95
+        args.diff_style = "overlay"
+        args.viewport_only = False
+        args.generate_tasks = True
+        cmd_compare(args)
+    elif choice == "4":
+        # Accessibility audit - review with accessibility focus
+        args.spec = None
+        args.selector = None
+        args.annotate = True
+        args.generate_tasks = True
+        # TODO: Add accessibility-focused spec or mode
+        cmd_review(args)
+    elif choice == "5" or not choice.isdigit():
+        # Custom - parse natural language
+        if choice == "5":
+            custom_input = input("Describe what you want to check: ").strip()
+        else:
+            custom_input = choice
+
+        intent = parse_user_intent(custom_input)
+
+        print(f"\nUnderstood: Running {intent['command']} mode")
+        if intent["focus_areas"]:
+            print(f"Focus areas: {', '.join(intent['focus_areas'])}")
+        if intent["selector_hint"]:
+            print(f"Target element: {intent['selector_hint']}")
+        print()
+
+        if intent["command"] == "interactive":
+            args.spec = None
+            cmd_interactive(args)
+        elif intent["command"] == "compare":
+            print("Note: Compare mode requires a reference image.")
+            ref = input("Enter reference image path: ").strip()
+            if not ref:
+                print("No reference image. Falling back to full page review.")
+                args.spec = None
+                args.selector = intent["selector_hint"]
+                args.annotate = True
+                args.generate_tasks = True
+                cmd_review(args)
+            else:
+                args.reference = ref
+                args.figma = None
+                args.frame = None
+                args.threshold = 5.0
+                args.ssim_threshold = 0.95
+                args.diff_style = "overlay"
+                args.viewport_only = False
+                args.generate_tasks = True
+                cmd_compare(args)
+        else:
+            # Default to review
+            args.spec = None
+            args.selector = intent["selector_hint"]
+            args.annotate = True
+            args.generate_tasks = True
+            cmd_review(args)
+    else:
+        print(f"Invalid choice: {choice}")
+        sys.exit(1)
 
 
 def main() -> None:
@@ -1089,6 +2111,12 @@ def main() -> None:
         description="Design Review - Spec-driven design QA"
     )
     subparsers = parser.add_subparsers(dest="command", help="Commands")
+
+    # Prompt mode (default when only URL provided)
+    prompt_parser = subparsers.add_parser(
+        "prompt", help="Interactive prompt to choose review type"
+    )
+    prompt_parser.add_argument("url", help="URL to review")
 
     review_parser = subparsers.add_parser(
         "review", help="Review page against design specs"
@@ -1102,6 +2130,11 @@ def main() -> None:
     review_parser.add_argument(
         "--generate-tasks", action="store_true", help="Generate DESIGN-REVIEW-TASKS.md"
     )
+    review_parser.add_argument(
+        "--todowrite",
+        action="store_true",
+        help="Output in todowrite-compatible JSON format",
+    )
 
     interactive_parser = subparsers.add_parser(
         "interactive", help="Interactive review mode"
@@ -1109,11 +2142,44 @@ def main() -> None:
     interactive_parser.add_argument("url", help="URL to review")
     interactive_parser.add_argument("--spec", help="Spec file (default: default.md)")
 
-    compare_parser = subparsers.add_parser("compare", help="Compare against reference")
+    compare_parser = subparsers.add_parser(
+        "compare", help="Compare page against reference image"
+    )
     compare_parser.add_argument("url", help="URL to compare")
-    compare_parser.add_argument("--reference", help="Reference image path")
-    compare_parser.add_argument("--figma", help="Figma file URL")
-    compare_parser.add_argument("--frame", help="Figma frame name")
+    compare_parser.add_argument(
+        "--reference", "-r", help="Reference image path (in imgs/ or absolute/relative)"
+    )
+    compare_parser.add_argument("--figma", help="Figma file URL (not yet implemented)")
+    compare_parser.add_argument("--frame", help="Figma frame name (for --figma)")
+    compare_parser.add_argument(
+        "--threshold",
+        "-t",
+        type=float,
+        default=5.0,
+        help="Pixel diff threshold percentage (default: 5.0)",
+    )
+    compare_parser.add_argument(
+        "--ssim-threshold",
+        type=float,
+        default=0.95,
+        help="SSIM similarity threshold (default: 0.95)",
+    )
+    compare_parser.add_argument(
+        "--diff-style",
+        choices=["overlay", "sidebyside", "heatmap"],
+        default="overlay",
+        help="Diff visualization style (default: overlay)",
+    )
+    compare_parser.add_argument(
+        "--viewport-only",
+        action="store_true",
+        help="Capture only viewport (not full page)",
+    )
+    compare_parser.add_argument(
+        "--generate-tasks",
+        action="store_true",
+        help="Generate DESIGN-REVIEW-TASKS.md",
+    )
 
     specs_parser = subparsers.add_parser("specs", help="Manage specs")
     specs_parser.add_argument(
@@ -1124,11 +2190,24 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Handle case where user provides just a URL (no subcommand)
+    # argparse will have command=None, so we check if there's a positional arg that looks like a URL
     if not args.command:
-        parser.print_help()
-        sys.exit(1)
+        # Check if there's a URL-like argument
+        remaining = sys.argv[1:]
+        if remaining and (
+            remaining[0].startswith("http") or remaining[0].startswith("localhost")
+        ):
+            # Treat as prompt mode
+            args.url = remaining[0]
+            args.command = "prompt"
+        else:
+            parser.print_help()
+            sys.exit(1)
 
-    if args.command == "review":
+    if args.command == "prompt":
+        cmd_prompt(args)
+    elif args.command == "review":
         cmd_review(args)
     elif args.command == "interactive":
         cmd_interactive(args)

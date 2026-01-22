@@ -55,15 +55,65 @@ uv run $SKILL_DIR/design_review.py interactive http://localhost:3000
 
 ### Compare Against Reference
 
+Compare the current page against a reference image:
+
 ```bash
-# Compare against reference image
+# Compare against reference image (from imgs/ directory)
+uv run $SKILL_DIR/design_review.py compare http://localhost:3000 --reference homepage.png
+
+# Compare with full path
 uv run $SKILL_DIR/design_review.py compare http://localhost:3000 --reference imgs/homepage.png
 
-# Compare with Figma (if MCP connected)
+# Customize thresholds
+uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
+  --reference homepage.png \
+  --threshold 3.0 \
+  --ssim-threshold 0.98
+
+# Different diff visualization styles
+uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
+  --reference homepage.png \
+  --diff-style sidebyside  # or overlay, heatmap
+
+# Generate task file for differences
+uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
+  --reference homepage.png \
+  --generate-tasks
+```
+
+Options:
+- `--reference, -r`: Reference image path (checks imgs/, cwd, or absolute)
+- `--threshold, -t`: Pixel diff threshold % (default: 5.0)
+- `--ssim-threshold`: SSIM similarity threshold (default: 0.95)
+- `--diff-style`: Visualization style (overlay, sidebyside, heatmap)
+- `--viewport-only`: Capture only viewport (not full page)
+- `--generate-tasks`: Generate DESIGN-REVIEW-TASKS.md
+
+#### Standalone Image Comparator
+
+For direct image-to-image comparison:
+
+```bash
+# Compare two images directly
+uv run $SKILL_DIR/image_comparator.py reference.png current.png --output diff.png
+
+# Use SSIM only
+uv run $SKILL_DIR/image_comparator.py reference.png current.png --method ssim
+
+# JSON output
+uv run $SKILL_DIR/image_comparator.py reference.png current.png --json
+```
+
+#### Figma Integration (Planned)
+
+```bash
+# Compare with Figma (requires Figma MCP - not yet implemented)
 uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
   --figma "https://figma.com/file/xxx" \
   --frame "Homepage"
 ```
+
+Until Figma MCP is available, export frames as PNG and place them in `imgs/`.
 
 ### Manage Specs
 
@@ -81,6 +131,8 @@ uv run $SKILL_DIR/design_review.py specs --show default.md
 ## Output Format
 
 All commands return JSON:
+
+### Review Output
 
 ```json
 {
@@ -101,11 +153,46 @@ All commands return JSON:
       "recommendation": "Darken text to #595959 or darker"
     }
   ],
-  "sessionId": "ses_20260122...",
+  "sessionId": "review_20260122...",
   "artifacts": {
-    "screenshot": ".canvas/reviews/ses_.../screenshot.png",
-    "annotated": ".canvas/reviews/ses_.../annotated.png",
+    "screenshot": ".canvas/reviews/review_.../screenshot.png",
+    "annotated": ".canvas/reviews/review_.../annotated.png",
     "tasks": "DESIGN-REVIEW-TASKS.md"
+  }
+}
+```
+
+### Compare Output
+
+```json
+{
+  "ok": true,
+  "match": false,
+  "url": "http://localhost:3000",
+  "reference": "imgs/homepage.png",
+  "comparison": {
+    "method": "hybrid",
+    "pixelDiffPercent": 12.5,
+    "ssimScore": 0.92,
+    "pixelThreshold": 5.0,
+    "ssimThreshold": 0.95,
+    "sizeMismatch": false
+  },
+  "diffRegions": [
+    {
+      "x": 100,
+      "y": 200,
+      "width": 300,
+      "height": 50,
+      "pixelCount": 2500,
+      "severity": "moderate"
+    }
+  ],
+  "artifacts": {
+    "screenshot": ".canvas/reviews/review_.../screenshot.png",
+    "reference": "imgs/homepage.png",
+    "diff": ".canvas/reviews/review_.../diff.png",
+    "annotated": ".canvas/reviews/review_.../annotated.png"
   }
 }
 ```
@@ -154,8 +241,23 @@ Reviews are saved to `.canvas/reviews/<sessionId>/`:
 session.json       # Full event log + metadata
 report.json        # Structured issue data
 screenshot.png     # Original screenshot
-annotated.png      # Screenshot with redlines
+annotated.png      # Screenshot with redlines (for issues)
+diff.png           # Visual diff (for compare mode)
 ```
+
+## Reference Images
+
+Place reference images in `imgs/` for comparison:
+
+```
+.claude/skills/design-review/imgs/
+├── README.md
+├── homepage.png
+├── settings.png
+└── mobile-nav.png
+```
+
+Supported formats: PNG (recommended), JPG, WebP.
 
 ## Typical Workflow
 
@@ -176,4 +278,22 @@ annotated.png      # Screenshot with redlines
 |-------|-------------|
 | `agent-eyes` | Screenshots, accessibility scans, DOM analysis |
 | `agent-canvas` | Interactive element picker (review mode) |
-| `canvas-verify` | Visual comparison logic |
+| `canvas-verify` | Visual comparison logic (shared patterns) |
+
+## Comparison Methods
+
+The `compare` command supports three comparison methods:
+
+| Method | Description | Use Case |
+|--------|-------------|----------|
+| `pixel` | Fast pixel-by-pixel diff | Quick checks, exact matches |
+| `ssim` | Structural Similarity Index | Perceptual comparison, minor shifts OK |
+| `hybrid` (default) | Both methods combined | Comprehensive analysis |
+
+### Diff Styles
+
+| Style | Description |
+|-------|-------------|
+| `overlay` | Highlights diff regions on current screenshot |
+| `sidebyside` | Shows reference, diff, and current side by side |
+| `heatmap` | Color-coded intensity of changes |
