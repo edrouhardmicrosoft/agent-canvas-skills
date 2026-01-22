@@ -1,46 +1,125 @@
-# Canvas CLI Demo
+# Agent Canvas Skills
 
-A Next.js project with AI agent visual analysis and editing skills for web development workflows.
+> **DevTools for shipping UI changes with AI**
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Inspect, select, and live-edit a real web UI—then turn those edits into a reviewable code patch and verify visually.
 
 ---
 
-## AI Agent Skills
+## Overview
 
-This project includes four visual analysis and editing skills for AI agents located in `.claude/skills/`. These tools enable AI agents to "see" web pages, let users select elements interactively, make live style/text edits, and convert those edits into code changes.
+Agent Canvas Skills is a suite of 6 interconnected AI agent skills for visual web development. These tools work with **any web page** to let AI agents "see" the UI, let users select and edit elements visually, and convert those edits into actual code changes.
 
-### Prerequisites
+| Skill | Role | Description |
+|-------|------|-------------|
+| **agent-canvas-setup** | Installation | Dependency checker and installer |
+| **agent-eyes** | Visual context | Screenshots, accessibility scans, DOM snapshots |
+| **agent-canvas** | Element picker | Interactive browser overlay to select elements |
+| **canvas-edit** | Live editing | Floating DevTools panel for style/text changes |
+| **canvas-apply** | Code generation | Convert visual edits to actual code changes |
+| **canvas-verify** | Verification | Before/after screenshots + a11y comparison |
 
-All skills require:
+### The Complete Workflow
+
+```
+┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+│  PICK   │ ──▶ │  EDIT   │ ──▶ │  APPLY  │ ──▶ │ VERIFY  │
+│         │     │         │     │         │     │         │
+│ Select  │     │ Change  │     │ Generate│     │ Confirm │
+│ element │     │ styles  │     │ code    │     │ it works│
+└─────────┘     └─────────┘     └─────────┘     └─────────┘
+```
+
+1. **Pick**: User visually selects elements in the browser
+2. **Edit**: User makes visual changes (text, colors, spacing)
+3. **Apply**: AI converts visual edits to actual code changes
+4. **Verify**: Screenshots + a11y scans prove it worked
+
+---
+
+## Prerequisites
 
 - Python 3.10+
 - `uv` package manager
 - Playwright browsers: `playwright install chromium`
 
+### First-Time Setup
+
+Run the setup checker before using any canvas skill:
+
+```bash
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check
+```
+
+If checks fail, install dependencies:
+
+```bash
+# Recommended: minimal footprint
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
+```
+
 ---
 
-### Agent Eyes
+## Quick Start
 
-Visual context analyzer for AI agents. Provides screenshots, accessibility scans, DOM snapshots, and element descriptions.
+### Full Visual Editing Workflow
 
-**Use when:** You need to see what a web page looks like, analyze accessibility issues, inspect DOM structure, or get detailed element information.
+```bash
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+```
 
-#### Commands
+This opens a browser where you can:
+1. Click elements to select them
+2. Edit text and styles in the floating panel
+3. Click "Save All to Code" when done
+4. Close the browser to end the session
+
+### Interactive vs Auto Modes
+
+```bash
+# Interactive mode - prompts for apply/verify after editing
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edit --with-eyes --interactive
+
+# CI/Auto mode - automatically applies and verifies
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edit --with-eyes --auto-apply --auto-verify
+```
+
+---
+
+## Skills Reference
+
+### agent-canvas-setup
+
+Checks and installs dependencies for all canvas skills.
+
+**Trigger phrases:** "setup agent canvas", "install canvas dependencies", "canvas not working", "playwright not found"
+
+**Key commands:**
+
+```bash
+SKILL_DIR=".claude/skills/agent-canvas-setup/scripts"
+
+# Check if dependencies are installed
+uv run $SKILL_DIR/check_setup.py check
+
+# Install with minimal footprint (recommended)
+uv run $SKILL_DIR/check_setup.py install --scope temporary
+
+# Install with project-local .venv
+uv run $SKILL_DIR/check_setup.py install --scope local
+```
+
+See `.claude/skills/agent-canvas-setup/SKILL.md` for full documentation.
+
+---
+
+### agent-eyes
+
+Visual context analyzer. Provides AI agents with the ability to "see" web pages.
+
+**Trigger phrases:** "take a screenshot", "check accessibility", "what does this page look like", "analyze the UI", "inspect this element"
+
+**Key commands:**
 
 ```bash
 SKILL_DIR=".claude/skills/agent-eyes/scripts"
@@ -48,68 +127,49 @@ SKILL_DIR=".claude/skills/agent-eyes/scripts"
 # Screenshot (full page)
 uv run $SKILL_DIR/agent_eyes.py screenshot http://localhost:3000
 
-# Screenshot (specific element)
-uv run $SKILL_DIR/agent_eyes.py screenshot http://localhost:3000 --selector ".hero"
-
 # Accessibility scan (WCAG 2.1 AA)
 uv run $SKILL_DIR/agent_eyes.py a11y http://localhost:3000
 
-# DOM snapshot
-uv run $SKILL_DIR/agent_eyes.py dom http://localhost:3000
-
-# Describe element (styles, bounding box, attributes)
-uv run $SKILL_DIR/agent_eyes.py describe http://localhost:3000 --selector ".hero-button"
-
-# Full context bundle (screenshot + a11y + DOM + description)
+# Full context bundle (screenshot + a11y + DOM)
 uv run $SKILL_DIR/agent_eyes.py context http://localhost:3000
 ```
 
+See `.claude/skills/agent-eyes/SKILL.md` for full documentation.
+
 ---
 
-### Agent Canvas
+### agent-canvas
 
-Interactive element picker that opens a browser with a DevTools-like selection overlay. Users hover to highlight elements and click to select.
+Interactive element picker with DevTools-like selection overlay.
 
-**Use when:** You need to let users visually select DOM elements, identify element selectors, or get detailed element information interactively.
+**Trigger phrases:** "select an element", "pick element", "let me choose", "which element"
 
-#### Commands
+**Key commands:**
 
 ```bash
 SKILL_DIR=".claude/skills/agent-canvas/scripts"
 
-# Basic pick - opens browser, streams selections as JSON lines
+# Basic pick - streams selections as JSON
 uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000
 
-# Pick with agent-eyes integration (screenshot + detailed styles per selection)
-uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-eyes
-
-# Pick with edit panel (floating DevTools for live style editing)
-uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-edit
-
-# Full workflow: picker + edit panel + agent-eyes (recommended)
+# Full workflow: picker + edit panel + visual context
 uv run $SKILL_DIR/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
 
 # Watch for DOM changes
 uv run $SKILL_DIR/agent_canvas.py watch http://localhost:3000
 ```
 
-#### User Interaction Flow
-
-1. Browser opens with blue highlight overlay
-2. Hover over elements to see selector labels
-3. Click to select (overlay flashes green, counter increments)
-4. Keep clicking to select more elements
-5. Close browser window when done
+See `.claude/skills/agent-canvas/SKILL.md` for full documentation.
 
 ---
 
-### Canvas Edit
+### canvas-edit
 
-Floating DevTools-like panel for live UI editing (text and styles). Changes apply live to the page and stream as JSON events for AI agent implementation.
+Floating DevTools panel for live text and style editing.
 
-**Use when:** You need to edit text content, adjust colors, typography, or spacing on elements visually.
+**Trigger phrases:** "edit text", "change content", "edit styles", "change colors", "adjust spacing", "tweak UI"
 
-#### Commands
+**Key commands:**
 
 ```bash
 SKILL_DIR=".claude/skills/canvas-edit/scripts"
@@ -117,64 +177,89 @@ SKILL_DIR=".claude/skills/canvas-edit/scripts"
 # Open page with edit panel
 uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000
 
-# Save all changes to file
+# Save changes to file
 uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000 --output ./changes.json
 ```
 
-#### Panel Controls
-
-- **Text Content**: Textarea for editing selected element's text, or toggle for direct on-page editing
+**Panel controls:**
+- **Text**: Textarea or direct on-page editing
 - **Colors**: Background and text color pickers
-- **Typography**: Font size (8-72px) and font weight (100-900)
+- **Typography**: Font size (8-72px) and weight (100-900)
 - **Spacing**: Padding (0-64px) and border radius (0-50px)
-- **Actions**: Reset, Apply & Log, Save All to Code
 
-#### User Workflow
-
-1. Click an element to select it
-2. Edit text via textarea OR toggle "Edit text directly on page"
-3. Adjust styles using panel controls (changes apply live)
-4. Click **Apply & Log** to log individual style changes
-5. Click **Save All to Code** to emit all changes for agent implementation
-6. Close browser window to end session
+See `.claude/skills/canvas-edit/SKILL.md` for full documentation.
 
 ---
 
-### Recommended Workflow
+### canvas-apply
 
-For the best experience combining all three skills:
+Convert visual edit sessions into actual code changes.
+
+**Trigger phrases:** "apply canvas changes", "apply session", "convert edits to code", "apply visual edits"
+
+**Key commands:**
 
 ```bash
-# Full visual editing workflow
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+SKILL_DIR=".claude/skills/canvas-apply/scripts"
+
+# List available sessions
+python3 $SKILL_DIR/canvas_apply.py --list
+
+# Preview changes
+python3 $SKILL_DIR/canvas_apply.py <sessionId>
+
+# Show unified diff
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --diff
+
+# Apply changes to files
+python3 $SKILL_DIR/canvas_apply.py <sessionId> --apply
 ```
 
-This gives users:
-- Element selection with visual highlighting
-- Live style editing with preview
-- Screenshots and detailed element info for the AI agent
-- JSON event stream of all changes for code implementation
+**Confidence scoring:** The tool maps DOM selectors to source files using ID attributes (~95%), data-testid (~90%), className+tag (65-95%), and text content (60-80%).
+
+See `.claude/skills/canvas-apply/SKILL.md` for full documentation.
 
 ---
 
-### Session Artifacts
+### canvas-verify
 
-When running a canvas session with `--with-edit`, all interactions are recorded to `.canvas/sessions/` for later use by `canvas-apply` and `canvas-verify`.
+Verify that applied changes worked by comparing screenshots and accessibility.
 
-#### Directory Structure
+**Trigger phrases:** "verify canvas changes", "verify session", "check if changes worked", "compare before and after"
+
+**Key commands:**
+
+```bash
+SKILL_DIR=".claude/skills/canvas-verify/scripts"
+
+# Full verification (visual + a11y)
+uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId>
+
+# Visual comparison only
+uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --visual
+
+# Accessibility comparison only
+uv run $SKILL_DIR/canvas_verify.py <url> --session <sessionId> --a11y
+```
+
+See `.claude/skills/canvas-verify/SKILL.md` for full documentation.
+
+---
+
+## Session Artifacts
+
+Canvas sessions are recorded to `.canvas/sessions/` for use by canvas-apply and canvas-verify.
+
+### Directory Structure
 
 ```
 .canvas/sessions/
-├── ses-a1b2c3d4e5f6/           # 12-char hex session ID
-│   ├── session.json            # Full event log + metadata
-│   └── changes.json            # Extracted save_request (if "Save All" clicked)
+└── ses-a1b2c3d4e5f6/           # 12-char hex session ID
+    ├── session.json            # Full event log + metadata
+    └── changes.json            # Extracted save_request (if "Save All" clicked)
 ```
 
-#### Session ID Format
-
-Session IDs use the format `ses-<12-char-hex>` (e.g., `ses-a1b2c3d4e5f6`).
-
-#### Session JSON Structure
+### Session JSON Structure
 
 ```json
 {
@@ -182,24 +267,13 @@ Session IDs use the format `ses-<12-char-hex>` (e.g., `ses-a1b2c3d4e5f6`).
   "url": "http://localhost:3000",
   "startTime": "2026-01-21T15:30:45.123Z",
   "endTime": "2026-01-21T15:35:12.456Z",
-  "features": {
-    "withEdit": true,
-    "withEyes": true
-  },
+  "features": { "withEdit": true, "withEyes": true },
   "beforeScreenshot": "data:image/png;base64,...",
-  "events": [
-    {"type": "selection.changed", "timestamp": "...", "data": {...}},
-    {"type": "style.changed", "timestamp": "...", "data": {...}},
-    {"type": "save_request", "timestamp": "...", "data": {...}}
-  ]
+  "events": [...]
 }
 ```
 
-#### Screenshot Storage
-
-Screenshots are stored as **base64-encoded data URIs** within the JSON for portability. This keeps all session data self-contained in a single file.
-
-#### What Gets Recorded
+### Event Types
 
 | Event Type | Description |
 |------------|-------------|
@@ -210,60 +284,47 @@ Screenshots are stored as **base64-encoded data URIs** within the JSON for porta
 
 ---
 
-### Canvas Apply
+## For AI Agents
 
-Convert visual UI edit sessions into actual code changes. Maps DOM selectors to source files and generates diffs.
+Skills are located in `.claude/skills/` and follow a consistent structure:
 
-**Use when:** You have a canvas session with changes and want to apply them to your source files.
-
-#### Commands
-
-```bash
-SKILL_DIR=".claude/skills/canvas-apply/scripts"
-
-# List available sessions
-python3 $SKILL_DIR/canvas_apply.py --list
-
-# Preview changes (default)
-python3 $SKILL_DIR/canvas_apply.py <sessionId>
-
-# Show unified diff
-python3 $SKILL_DIR/canvas_apply.py <sessionId> --diff
-
-# Apply changes to files
-python3 $SKILL_DIR/canvas_apply.py <sessionId> --apply
-
-# Verbose mode with confidence scores
-python3 $SKILL_DIR/canvas_apply.py <sessionId> --verbose
-
-# Dry run (show what would be applied)
-python3 $SKILL_DIR/canvas_apply.py <sessionId> --apply --dry-run
+```
+.claude/skills/<skill-name>/
+├── SKILL.md              # Documentation with trigger phrases
+└── scripts/              # Python scripts to execute
 ```
 
-#### Confidence Scoring
+### Trigger Phrase Reference
 
-The tool uses multiple strategies to map DOM selectors to source files:
-
-| Strategy | Confidence | Description |
-|----------|------------|-------------|
-| ID attribute | ~0.95 | `id="myElement"` |
-| data-testid | ~0.90 | `data-testid="submit-btn"` |
-| className + tag | 0.65-0.95 | Matching classes in `<tag className="...">` |
-| Text content | 0.60-0.80 | Literal text fallback |
-
-Changes with confidence below 70% show a warning. Use `--force` to apply anyway.
+| Skill | Trigger Phrases |
+|-------|-----------------|
+| agent-canvas-setup | "setup agent canvas", "install dependencies", "canvas not working" |
+| agent-eyes | "take screenshot", "check accessibility", "analyze UI" |
+| agent-canvas | "select element", "pick element", "let me choose" |
+| canvas-edit | "edit text", "change colors", "adjust spacing" |
+| canvas-apply | "apply changes", "convert to code", "apply session" |
+| canvas-verify | "verify changes", "compare before after", "check if worked" |
 
 ---
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+.claude/skills/
+├── agent-canvas-setup/    # Dependency installer
+├── agent-eyes/            # Visual context analyzer
+├── agent-canvas/          # Element picker
+├── canvas-edit/           # Live style editor
+├── canvas-apply/          # Code generator
+├── canvas-verify/         # Verification tool
+└── shared/                # Shared utilities
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Skills work with **any web page**, not just the included demo
+- All tools output JSON for easy parsing by AI agents
+- Screenshots are stored as base64 data URIs for portability
+- The edit panel uses Shadow DOM, so it's invisible to screenshots
