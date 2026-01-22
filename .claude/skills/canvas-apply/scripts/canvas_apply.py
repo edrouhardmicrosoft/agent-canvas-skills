@@ -87,6 +87,13 @@ def print_diff_preview(result: dict, verbose: bool = False) -> None:
 
     print(f"Session: {result['sessionId']}")
     print(f"Files to modify: {result['summary']['filesModified']}")
+
+    # Phase 5: Show Tailwind and token detection info
+    if result.get("tailwindDetected"):
+        version = result.get("tailwindVersion", "unknown")
+        print(f"Tailwind CSS: ✅ Detected (v{version})")
+    if result.get("designTokensFound", 0) > 0:
+        print(f"Design tokens: ✅ {result['designTokensFound']} tokens found")
     print()
 
     for diff in result["fileDiffs"]:
@@ -106,6 +113,16 @@ def print_diff_preview(result: dict, verbose: bool = False) -> None:
             for change in diff["changes"]:
                 print(f"     - {change}")
 
+            # Phase 5: Show suggestions used
+            if diff.get("tailwindSuggestions"):
+                print("   Tailwind classes used:")
+                for sugg in diff["tailwindSuggestions"]:
+                    print(f"     🎨 {sugg}")
+            if diff.get("tokenSuggestions"):
+                print("   Design tokens used:")
+                for sugg in diff["tokenSuggestions"]:
+                    print(f"     🔧 {sugg}")
+
         print()
         print(diff["unifiedDiff"])
         print()
@@ -121,7 +138,12 @@ def print_diff_preview(result: dict, verbose: bool = False) -> None:
             print(f"  - {change}", file=sys.stderr)
 
 
-def apply_changes(result: dict, dry_run: bool = False) -> bool:
+def apply_changes(
+    result: dict,
+    dry_run: bool = False,
+    prefer_tailwind: bool = True,
+    prefer_tokens: bool = True,
+) -> bool:
     """Apply the changes to files. Returns True if successful."""
     if not result["fileDiffs"]:
         print("No changes to apply.", file=sys.stderr)
@@ -151,7 +173,11 @@ def apply_changes(result: dict, dry_run: bool = False) -> bool:
         print(f"Could not reload session: {result['sessionId']}", file=sys.stderr)
         return False
 
-    diff_result = generate_diffs(manifest)
+    diff_result = generate_diffs(
+        manifest,
+        prefer_tailwind=prefer_tailwind,
+        prefer_tokens=prefer_tokens,
+    )
 
     applied = 0
     for file_diff in diff_result.file_diffs:
@@ -226,6 +252,16 @@ Examples:
         action="store_true",
         help="Output result as JSON",
     )
+    parser.add_argument(
+        "--no-tailwind",
+        action="store_true",
+        help="Disable Tailwind CSS class suggestions (use inline styles instead)",
+    )
+    parser.add_argument(
+        "--no-tokens",
+        action="store_true",
+        help="Disable design token suggestions (use hardcoded values instead)",
+    )
 
     args = parser.parse_args()
 
@@ -252,7 +288,11 @@ Examples:
                 print(f"  - {s['id']}", file=sys.stderr)
         return 1
 
-    result = generate_diffs(manifest)
+    result = generate_diffs(
+        manifest,
+        prefer_tailwind=not args.no_tailwind,
+        prefer_tokens=not args.no_tokens,
+    )
     result_dict = result_to_dict(result)
 
     if args.json:
@@ -263,7 +303,12 @@ Examples:
         if args.force:
             for diff in result_dict["fileDiffs"]:
                 diff["confidence"] = 1.0
-        success = apply_changes(result_dict, dry_run=args.dry_run)
+        success = apply_changes(
+            result_dict,
+            dry_run=args.dry_run,
+            prefer_tailwind=not args.no_tailwind,
+            prefer_tokens=not args.no_tokens,
+        )
         return 0 if success else 1
 
     print_diff_preview(result_dict, verbose=args.verbose)

@@ -46,11 +46,11 @@ We have four AI agent skills for visual web development that work together:
 
 | Rank | Feature | Gap | Solution |
 |------|---------|-----|----------|
-| **1** | **Patch Application Layer** | We emit `save_request` but don't convert it to code changes | Add `canvas-apply`: JSON → file candidates → proposed edits → git diff |
-| **2** | **Diff + Approval Trust Layer** | Engineers won't trust "AI changed the UI" | Generate reviewable diff + before/after screenshots |
-| **3** | **DOM→Code Mapping Hints** | No connection from selector to source file | Heuristics using `id`, `data-testid`, `className`, text anchors |
-| **4** | **Verification Loop** | No way to prove changes worked | apply → reload → screenshot + a11y rerun |
-| **5** | **Style Translation** (optional) | Raw CSS values, not Tailwind | Detect Tailwind → suggest classes |
+| **1** | **Patch Application Layer** | We emit `save_request` but don't convert it to code changes | ✅ `canvas-apply`: JSON → file candidates → proposed edits → git diff |
+| **2** | **Diff + Approval Trust Layer** | Engineers won't trust "AI changed the UI" | ✅ Generate reviewable diff + before/after screenshots |
+| **3** | **DOM→Code Mapping Hints** | No connection from selector to source file | ✅ Heuristics using `id`, `data-testid`, `className`, text anchors + component detection |
+| **4** | **Verification Loop** | No way to prove changes worked | ✅ apply → reload → screenshot + a11y rerun |
+| **5** | **Style Translation** | Raw CSS values, not Tailwind | ✅ Detect Tailwind → suggest classes; Design tokens → suggest var() |
 
 ---
 
@@ -127,10 +127,28 @@ canvas verify <url> --baseline <session>
 - [x] Added `--auto-verify` flag for automatic verify (CI mode)
 - [x] Integrated apply/verify workflows from sibling skills
 
-### Phase 5: Enhancements (Later)
-- [ ] Tailwind class detection and suggestion
-- [ ] Design token inference
-- [ ] Richer component boundary detection
+### Phase 5: Enhancements (Later) ✅ COMPLETE
+- [x] Tailwind class detection and suggestion
+  - Added `tailwind_detector.py`: Detects Tailwind v3/v4, extracts custom colors from @theme blocks
+  - Added `tailwind_mapper.py`: Maps CSS values to Tailwind utility classes with confidence scores
+- [x] Design token inference
+  - Added `design_tokens.py`: Extracts CSS custom properties from CSS/SCSS files and Tailwind @theme blocks
+  - Suggests design tokens instead of hardcoded values when available
+- [x] Richer component boundary detection
+  - Added `component_detector.py`: Regex-based detection for React, Vue, Svelte components
+  - Integrated into file_finder for improved file candidate selection
+- [x] CLI flags for feature control
+  - Added `--no-tailwind` flag to disable Tailwind class suggestions
+  - Added `--no-tokens` flag to disable design token suggestions
+
+---
+
+## Phase 6: Future Enhancements (Planned)
+- [ ] CSS-in-JS support (styled-components, emotion)
+- [ ] Full AST-based component analysis (tree-sitter)
+- [ ] Multi-file component detection (component + styles + tests)
+- [ ] Git integration for automatic commits
+- [ ] CI/CD integration examples
 
 ---
 

@@ -7,6 +7,7 @@ Uses a multi-strategy approach to find where elements are defined in code:
 2. data-testid -> search for data-testid="value"
 3. className + tag -> search for <tag className="..." containing classes
 4. Text content -> search for literal text in JSX/HTML
+5. Component detection (Phase 5) -> use component boundaries to prioritize candidates
 
 Returns candidates with confidence scores.
 """
@@ -16,6 +17,19 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
+
+# Phase 5: Component detection integration
+try:
+    from component_detector import (
+        detect_components,
+        find_component_for_selector,
+        ComponentInfo,
+    )
+
+    COMPONENT_DETECTION_AVAILABLE = True
+except ImportError:
+    COMPONENT_DETECTION_AVAILABLE = False
+    ComponentInfo = None
 
 # File extensions to search
 SOURCE_EXTENSIONS = {".tsx", ".jsx", ".js", ".ts", ".html", ".vue", ".svelte"}
@@ -393,9 +407,12 @@ def deduplicate_candidates(candidates: list[FileCandidate]) -> list[FileCandidat
 def find_element_in_source(
     query: ElementQuery,
     root: Optional[Path] = None,
+    use_component_detection: bool = True,
 ) -> list[FileCandidate]:
     """
     Find source file locations for an element.
+
+    Phase 5: Optionally uses component detection to improve accuracy.
 
     Returns candidates sorted by confidence (highest first).
     """
@@ -404,27 +421,84 @@ def find_element_in_source(
     files = get_source_files(root)
     all_candidates = []
 
+    # Phase 5: Pre-filter files using component detection if available
+    component_files: set[str] = set()
+    if use_component_detection and COMPONENT_DETECTION_AVAILABLE:
+        try:
+            components = detect_components(root)
+            matching_components = find_component_for_selector(
+                components,
+                selector=query.selector,
+                tag=query.tag if query.tag else None,
+                class_name=query.class_name,
+                element_id=query.element_id,
+                test_id=query.data_testid,
+            )
+            # Get files from matching components
+            component_files = {c.file_path for c in matching_components}
+        except Exception:
+            # Fall back to searching all files
+            pass
+
     # Strategy 1: ID (highest confidence)
     if query.element_id:
-        candidates = search_by_id(files, query.element_id)
+        # Search component files first if available, then all files
+        search_files = (
+            [f for f in files if str(f) in component_files]
+            if component_files
+            else files
+        )
+        candidates = search_by_id(search_files, query.element_id)
+        if not candidates and component_files:
+            # Fall back to all files
+            candidates = search_by_id(files, query.element_id)
         all_candidates.extend(candidates)
 
     # Strategy 2: data-testid (high confidence)
     if query.data_testid:
-        candidates = search_by_data_testid(files, query.data_testid)
+        search_files = (
+            [f for f in files if str(f) in component_files]
+            if component_files
+            else files
+        )
+        candidates = search_by_data_testid(search_files, query.data_testid)
+        if not candidates and component_files:
+            candidates = search_by_data_testid(files, query.data_testid)
         all_candidates.extend(candidates)
 
     # Strategy 3: className + tag (medium confidence)
     if query.class_name:
         classes = query.class_name.split()
         tag = query.tag or extract_tag_from_selector(query.selector)
-        candidates = search_by_classname(files, tag, classes)
+        search_files = (
+            [f for f in files if str(f) in component_files]
+            if component_files
+            else files
+        )
+        candidates = search_by_classname(search_files, tag, classes)
+        if not candidates and component_files:
+            candidates = search_by_classname(files, tag, classes)
+
+        # Phase 5: Boost confidence for candidates in component files
+        if component_files:
+            for c in candidates:
+                if c.file_path in component_files:
+                    c.confidence = min(c.confidence + 0.10, 0.99)
+                    c.match_reasons.append("component boundary match")
+
         all_candidates.extend(candidates)
 
     # Strategy 4: Text content (lower confidence, fallback)
     if query.text and not all_candidates:
         tag = query.tag or extract_tag_from_selector(query.selector)
-        candidates = search_by_text(files, query.text, tag)
+        search_files = (
+            [f for f in files if str(f) in component_files]
+            if component_files
+            else files
+        )
+        candidates = search_by_text(search_files, query.text, tag)
+        if not candidates and component_files:
+            candidates = search_by_text(files, query.text, tag)
         all_candidates.extend(candidates)
 
     # Deduplicate and sort
