@@ -312,6 +312,26 @@ def error_output(message: str) -> None:
     json_output({"ok": False, "error": message})
 
 
+def truncate_issue_for_compact(issue: dict, max_desc_len: int = 100) -> dict:
+    """
+    Truncate an issue for compact output mode.
+
+    Keeps: id, checkId, severity, element, description (truncated)
+    Removes: pillar, details, nodes, recommendation, sourceFile, etc.
+    """
+    desc = issue.get("description", "")
+    if len(desc) > max_desc_len:
+        desc = desc[: max_desc_len - 3] + "..."
+
+    return {
+        "id": issue.get("id"),
+        "checkId": issue.get("checkId"),
+        "severity": issue.get("severity"),
+        "element": issue.get("element"),
+        "description": desc,
+    }
+
+
 def run_accessibility_scan(page: "Page") -> dict[str, Any]:
     """Run axe-core accessibility scan on the page."""
     try:
@@ -617,21 +637,37 @@ def cmd_review(args: argparse.Namespace) -> None:
         if severity in summary:
             summary[severity] += 1
 
+    # Check for compact mode
+    compact_mode = getattr(args, "compact", False)
+
     # Build result object
-    result = {
-        "ok": True,
-        "url": args.url,
-        "spec": spec.name,
-        "specPath": str(spec_path),
-        "sessionId": session_id,
-        "summary": summary,
-        "issues": issues,
-        "editableContext": ctx_analysis,
-        "artifacts": {
-            "screenshot": str(screenshot_path),
-            "sessionDir": str(session_dir),
-        },
-    }
+    if compact_mode:
+        # Compact output: truncated issues, minimal artifacts, no editableContext
+        compact_issues = [truncate_issue_for_compact(issue) for issue in issues]
+        result = {
+            "ok": True,
+            "sessionId": session_id,
+            "summary": summary,
+            "issues": compact_issues,
+            "artifacts": {
+                "screenshot": str(screenshot_path),
+            },
+        }
+    else:
+        result = {
+            "ok": True,
+            "url": args.url,
+            "spec": spec.name,
+            "specPath": str(spec_path),
+            "sessionId": session_id,
+            "summary": summary,
+            "issues": issues,
+            "editableContext": ctx_analysis,
+            "artifacts": {
+                "screenshot": str(screenshot_path),
+                "sessionDir": str(session_dir),
+            },
+        }
 
     # Generate annotated screenshot if requested
     annotated_path: Optional[Path] = None
@@ -678,6 +714,11 @@ def cmd_review(args: argparse.Namespace) -> None:
 
         # Output in todowrite format instead of standard format
         json_output(todowrite_output)
+        return
+
+    # In compact mode, skip saving full report/session and output directly
+    if compact_mode:
+        json_output(result)
         return
 
     # Save report.json (structured issue data)
@@ -1663,6 +1704,28 @@ def cmd_compare(args: argparse.Namespace) -> None:
     )
 
     # Build result
+    compact_mode = getattr(args, "compact", False)
+
+    if compact_mode:
+        # Compact output: minimal comparison info, no full diffRegions
+        result = {
+            "ok": comparison_result.ok,
+            "sessionId": session_id,
+            "match": comparison_result.match,
+            "comparison": {
+                "pixelDiffPercent": comparison_result.pixel_diff_percent,
+                "ssimScore": comparison_result.ssim_score,
+            },
+            "diffRegionCount": len(comparison_result.diff_regions),
+            "artifacts": {
+                "screenshot": str(screenshot_path),
+            },
+        }
+        if comparison_result.diff_path:
+            result["artifacts"]["diff"] = comparison_result.diff_path
+        json_output(result)
+        return
+
     result = {
         "ok": comparison_result.ok,
         "url": args.url,
@@ -2135,6 +2198,11 @@ def main() -> None:
         action="store_true",
         help="Output in todowrite-compatible JSON format",
     )
+    review_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Token-efficient output: truncate descriptions, omit details/nodes/editableContext",
+    )
 
     interactive_parser = subparsers.add_parser(
         "interactive", help="Interactive review mode"
@@ -2179,6 +2247,11 @@ def main() -> None:
         "--generate-tasks",
         action="store_true",
         help="Generate DESIGN-REVIEW-TASKS.md",
+    )
+    compare_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Token-efficient output: reduced diff regions, minimal artifacts",
     )
 
     specs_parser = subparsers.add_parser("specs", help="Manage specs")

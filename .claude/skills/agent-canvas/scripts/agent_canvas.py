@@ -48,6 +48,51 @@ def get_session_dir(session_id: str) -> Path:
     return session_dir
 
 
+def _save_screenshot_to_session(
+    session_dir: Path,
+    filename: str,
+    page: Optional["Page"] = None,
+    selector: Optional[str] = None,
+) -> Optional[str]:
+    """
+    Save screenshot to session directory, return the path.
+
+    Captures directly to file using agent_eyes.take_screenshot().
+    Returns None if capture fails.
+
+    Args:
+        session_dir: Path to session directory
+        filename: Filename for the screenshot (e.g., "before.png", "selection_001.png")
+        page: Playwright Page object
+        selector: Optional CSS selector for element screenshot
+
+    Returns:
+        Path to saved screenshot file, or None if capture failed
+    """
+    if not HAS_AGENT_EYES:
+        return None
+
+    if page is None:
+        return None
+
+    screenshot_path = session_dir / filename
+
+    # Use agent_eyes.take_screenshot with output_path to save directly to file
+    # This avoids base64 encoding/decoding overhead
+    result = take_screenshot(
+        page,
+        selector=selector,
+        output_path=str(screenshot_path),
+        as_base64=False,
+        capture_mode_aware=True,  # Hides overlays during capture
+    )
+
+    if result.get("ok"):
+        return str(screenshot_path)
+
+    return None
+
+
 def write_session_artifact(
     session_dir: Path,
     session_id: str,
@@ -57,21 +102,34 @@ def write_session_artifact(
     features: dict,
     selections: list,
     edits: list,
-    before_screenshot_base64: Optional[str] = None,
+    before_screenshot_path: Optional[str] = None,
 ) -> Path:
     """
     Write the complete session artifact to disk.
 
+    Args:
+        session_dir: Path to session directory
+        session_id: Unique session identifier
+        url: URL that was being edited
+        start_time: ISO timestamp of session start
+        end_time: ISO timestamp of session end
+        features: Dict of enabled features (picker, eyes, edit)
+        selections: List of selection events
+        edits: List of edit events
+        before_screenshot_path: Path to before screenshot file (not base64!)
+
     Returns the path to session.json.
+
+    Schema version 1.1: Screenshots stored as file paths, not base64.
     """
     artifact = {
-        "schemaVersion": "1.0",
+        "schemaVersion": "1.1",  # Bumped for path-based screenshots
         "sessionId": session_id,
         "url": url,
         "startTime": start_time,
         "endTime": end_time,
         "features": features,
-        "beforeScreenshot": before_screenshot_base64,
+        "beforeScreenshotPath": before_screenshot_path,  # Path, not base64
         "events": {
             "selections": selections,
             "edits": edits,
@@ -610,7 +668,7 @@ def pick_element(
     session_id = generate_session_id()
     session_dir = get_session_dir(session_id)
     start_time = get_timestamp()
-    before_screenshot_base64 = None
+    before_screenshot_path = None
 
     with sync_playwright() as p:
         # Launch visible browser for interaction
@@ -621,11 +679,12 @@ def pick_element(
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
 
-            # Capture "before" screenshot immediately (as base64 for portability)
-            if HAS_AGENT_EYES:
-                before_result = take_screenshot(page, as_base64=True)
-                if before_result.get("ok"):
-                    before_screenshot_base64 = before_result.get("base64")
+            # Capture "before" screenshot immediately (as file for token efficiency)
+            before_screenshot_path = _save_screenshot_to_session(
+                session_dir=session_dir,
+                filename="before.png",
+                page=page,
+            )
 
             # Inject shared canvas bus FIRST
             session_info = {"sessionId": session_id, "seq": 0}
@@ -719,14 +778,28 @@ def pick_element(
                                         if eyes_result.get("ok"):
                                             event["eyes"] = eyes_result
 
-                                        screenshot_result = take_screenshot(
-                                            page,
-                                            selector,
-                                            as_base64=True,
-                                            capture_mode_aware=False,  # We already set it
+                                        # Save selection screenshot to file (not base64)
+                                        selection_count = len(all_selections)
+                                        screenshot_filename = (
+                                            f"selection_{selection_count:03d}.png"
                                         )
-                                        if screenshot_result.get("ok"):
-                                            event["screenshot"] = screenshot_result
+                                        screenshot_path = _save_screenshot_to_session(
+                                            session_dir=session_dir,
+                                            filename=screenshot_filename,
+                                            page=page,
+                                            selector=selector,
+                                        )
+                                        if screenshot_path:
+                                            # Get file size for metadata
+                                            screenshot_file = (
+                                                session_dir / screenshot_filename
+                                            )
+                                            event["screenshot"] = {
+                                                "path": screenshot_path,
+                                                "size": screenshot_file.stat().st_size
+                                                if screenshot_file.exists()
+                                                else 0,
+                                            }
                                     finally:
                                         if HAS_CANVAS_BUS:
                                             set_capture_mode(page, False)
@@ -788,12 +861,12 @@ def pick_element(
                 features=features,
                 selections=all_selections,
                 edits=all_edit_events,
-                before_screenshot_base64=before_screenshot_base64,
+                before_screenshot_path=before_screenshot_path,
             )
 
             # Emit session end
             end_event = {
-                "schemaVersion": "1.0",
+                "schemaVersion": "1.1",  # Matches artifact schema
                 "sessionId": session_id,
                 "seq": len(all_selections) + len(all_edit_events) + 1,
                 "type": "session.ended",

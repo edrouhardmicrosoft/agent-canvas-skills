@@ -1,7 +1,8 @@
 # Agent Canvas Performance Optimization Plan
 
-> **Version**: 1.0  
+> **Version**: 1.2  
 > **Created**: 2026-01-22  
+> **Last Updated**: 2026-01-23  
 > **Status**: Draft  
 > **Target**: Reduce agent prompt context to <80K tokens
 
@@ -22,6 +23,7 @@
    - [Phase 1: Compact Flag for agent_eyes.py](#phase-1-compact-flag-for-agent_eyespy)
    - [Phase 2: Remove Base64 from Session Storage](#phase-2-remove-base64-from-session-storage)
    - [Phase 3: Compact Flag for design_review.py](#phase-3-compact-flag-for-design_reviewpy)
+   - [Phase 3.5: CSS Selector Output & Markdown Export](#phase-35-css-selector-output--markdown-export)
    - [Phase 4: Create Sub-Agent Wrapper Scripts](#phase-4-create-sub-agent-wrapper-scripts)
    - [Phase 5: Update Documentation](#phase-5-update-documentation)
    - [Phase 6: Token Budget Tracking](#phase-6-token-budget-tracking)
@@ -30,10 +32,17 @@
    - [Compact Mode API](#compact-mode-api)
    - [Sub-Agent Communication Protocol](#sub-agent-communication-protocol)
    - [Token Budget Utilities](#token-budget-utilities)
-8. [Success Metrics](#success-metrics)
-9. [File Structure After Implementation](#file-structure-after-implementation)
-10. [Risk Assessment](#risk-assessment)
-11. [Next Steps](#next-steps)
+8. [Visual Design Guidelines](#visual-design-guidelines)
+   - [Color Palette](#color-palette)
+   - [Annotation Visual Style](#annotation-visual-style)
+   - [Annotated Screenshot Layout](#annotated-screenshot-layout)
+   - [Review Output Format](#review-output-format)
+   - [Accessibility Considerations](#accessibility-considerations)
+   - [Integration with Implementation Phases](#integration-with-implementation-phases)
+9. [Success Metrics](#success-metrics)
+10. [File Structure After Implementation](#file-structure-after-implementation)
+11. [Risk Assessment](#risk-assessment)
+12. [Next Steps](#next-steps)
 
 ---
 
@@ -323,16 +332,22 @@ For complex reviews, decompose into specialized sub-agents with controlled token
 
 **Priority**: High (Major Impact)  
 **Effort**: 1-2 hours  
-**Impact**: Eliminates 471K tokens from session files
+**Impact**: Eliminates 471K tokens from session files  
+**Status**: ✅ **COMPLETED** (2026-01-23)
 
-- [ ] Modify `agent_canvas.py:write_session_artifact()` to store screenshot path only
-- [ ] Update session schema to use `beforeScreenshotPath` instead of `beforeScreenshot`
-- [ ] Modify selection event handling to store screenshot path, not base64
-- [ ] Add migration note for existing sessions
+- [x] Add `_save_screenshot_to_session()` helper function
+- [x] Modify `agent_canvas.py:write_session_artifact()` to store screenshot path only
+- [x] Update session schema to use `beforeScreenshotPath` instead of `beforeScreenshot`
+- [x] Modify selection event handling to store screenshot path, not base64
+- [x] Add backward compatibility in `session_parser.py` and `canvas_verify.py`
+- [x] Bump schema version to `1.1`
 
-**Files to Modify**:
-- `.claude/skills/agent-canvas/scripts/agent_canvas.py`
-- `.claude/skills/shared/canvas_bus.py`
+**Files Modified**:
+- `.claude/skills/agent-canvas/scripts/agent_canvas.py` - Main session storage
+- `.claude/skills/canvas-apply/scripts/session_parser.py` - Backward-compatible parsing
+- `.claude/skills/canvas-verify/scripts/canvas_verify.py` - Backward-compatible verification
+
+**Breaking Change**: New sessions use `beforeScreenshotPath` (path string) instead of `beforeScreenshot` (base64). Old sessions are still readable via backward-compatible accessors.
 
 <details>
 <summary>Session Schema Changes</summary>
@@ -377,20 +392,28 @@ For complex reviews, decompose into specialized sub-agents with controlled token
 
 </details>
 
-### Phase 3: Compact Flag for design_review.py
+### Phase 3: Compact Flag for design_review.py ✅ COMPLETED
 
 **Priority**: Medium  
 **Effort**: 2-3 hours  
 **Impact**: Reduces review output size
+**Status**: ✅ Completed
 
-- [ ] Add `--compact` CLI argument
-- [ ] Implement compact review output format
-- [ ] Truncate issue details in compact mode
-- [ ] Update `generate_tasks_file()` for compact mode
+- [x] Add `--compact` CLI argument (both `review` and `compare` subcommands)
+- [x] Implement compact review output format
+- [x] Truncate issue details in compact mode (100 char max)
+- [x] Add `truncate_issue_for_compact()` helper function
+- [x] Compact mode skips saving full report/session files
 
-**Files to Modify**:
+**Files Modified**:
 - `.claude/skills/design-review/scripts/design_review.py`
-- `.claude/skills/design-review/SKILL.md`
+
+**Implementation Details**:
+- Added `--compact` flag to both `review` and `compare` subcommands
+- `truncate_issue_for_compact()` helper keeps: id, checkId, severity, element, description (truncated to 100 chars)
+- Removes: pillar, details, nodes, recommendation, sourceFile, editableContext
+- Compact mode returns immediately after output, skipping session/report file writes
+- Compare compact mode includes `diffRegionCount` instead of full `diffRegions` array
 
 <details>
 <summary>Compact Review Output Format</summary>
@@ -441,24 +464,328 @@ For complex reviews, decompose into specialized sub-agents with controlled token
 
 </details>
 
-### Phase 4: Create Sub-Agent Wrapper Scripts
+### Phase 3.5: CSS Selector Output & Markdown Export
+
+**Priority**: Medium  
+**Effort**: 3-4 hours  
+**Impact**: Improves actionability of review output for AI agents and developers
+
+#### Feature Overview
+
+Enhance the design review annotation system to include CSS selectors in the output, inspired by [agentation.dev](https://agentation.dev). This feature bridges the gap between visual issues and source code location, enabling faster AI-assisted fixes.
+
+**Three components**:
+1. **Enhanced Legend**: Add CSS selectors to annotated screenshot legend
+2. **Markdown Export**: Generate companion `issues.md` with full selector details
+3. **CLI Flag**: Add `--markdown` flag for agent-agnostic output format
+
+#### Rationale
+
+| Benefit | Description |
+|---------|-------------|
+| **Faster AI fixes** | Agents can use exact element references (e.g., `.sidebar > button.primary`) instead of searching |
+| **Visual → Code bridge** | Directly connects annotation markers to source code locations |
+| **Universal compatibility** | Markdown export works with any AI tool (Claude Code, Cursor, Windsurf, etc.) |
+| **Copy-paste workflow** | Developers can copy selectors directly from issues.md to their editor |
+
+#### Implementation Tasks
+
+- [ ] Modify `annotator.py` to extract and include CSS selectors in legend annotations
+- [ ] Create `_generate_css_selector()` helper function for robust selector generation
+- [ ] Add `generate_markdown_export()` function to `design_review.py`
+- [ ] Add `--markdown` CLI argument to `design_review.py`
+- [ ] Generate `issues.md` companion file alongside `annotated.png`
+- [ ] Update SKILL.md documentation with new flag and output format
+- [ ] Add tests for selector generation edge cases
+
+**Files to Modify**:
+- `.claude/skills/design-review/scripts/annotator.py`
+- `.claude/skills/design-review/scripts/design_review.py`
+- `.claude/skills/design-review/SKILL.md`
+
+<details>
+<summary>Enhanced Annotated Screenshot Legend Format</summary>
+
+**Current format** (without selectors):
+```
+┌────────────────────────────────────┐
+│ DESIGN REVIEW ISSUES               │
+├────────────────────────────────────┤
+│ [1] Color contrast too low         │
+│ [2] Missing focus indicator        │
+│ [3] Touch target too small         │
+└────────────────────────────────────┘
+```
+
+**Enhanced format** (with selectors):
+```
+┌─────────────────────────────────────────────────────────────┐
+│ DESIGN REVIEW ISSUES                                        │
+├─────────────────────────────────────────────────────────────┤
+│ [1] Color contrast too low                                  │
+│     → .hero-section > p.subtitle                            │
+│                                                             │
+│ [2] Missing focus indicator                                 │
+│     → nav.main-nav > ul > li:nth-child(3) > a               │
+│                                                             │
+│ [3] Touch target too small                                  │
+│     → .sidebar > button.close-btn                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+</details>
+
+<details>
+<summary>Markdown Export Format (issues.md)</summary>
+
+```markdown
+# Design Review Issues
+
+**URL**: http://localhost:3000  
+**Reviewed**: 2026-01-23 14:32:00  
+**Spec**: default.md  
+**Total Issues**: 3 (1 blocking, 2 major)
+
+---
+
+## Issue #1: Color contrast too low
+
+| Property | Value |
+|----------|-------|
+| **Severity** | major |
+| **Pillar** | Quality Craft |
+| **Check** | color-contrast |
+| **CSS Selector** | `.hero-section > p.subtitle` |
+| **XPath** | `/html/body/main/section[1]/p[2]` |
+
+**Description**: Contrast ratio 3.2:1 does not meet WCAG AA minimum of 4.5:1
+
+**Recommendation**: Darken text color to `#595959` or darker
+
+**Affected Element**:
+```html
+<p class="subtitle">Your AI-powered analytics dashboard</p>
+```
+
+---
+
+## Issue #2: Missing focus indicator
+
+| Property | Value |
+|----------|-------|
+| **Severity** | major |
+| **Pillar** | Quality Craft |
+| **Check** | focus-visible |
+| **CSS Selector** | `nav.main-nav > ul > li:nth-child(3) > a` |
+| **XPath** | `/html/body/header/nav/ul/li[3]/a` |
+
+**Description**: Interactive element has no visible focus indicator
+
+**Recommendation**: Add `outline` or `box-shadow` on `:focus-visible`
+
+**Affected Element**:
+```html
+<a href="/settings">Settings</a>
+```
+
+---
+
+## Issue #3: Touch target too small
+
+| Property | Value |
+|----------|-------|
+| **Severity** | blocking |
+| **Pillar** | Quality Craft |
+| **Check** | touch-target-size |
+| **CSS Selector** | `.sidebar > button.close-btn` |
+| **XPath** | `/html/body/aside/button` |
+
+**Description**: Touch target is 24x24px, minimum is 44x44px
+
+**Recommendation**: Increase button padding or add touch-action area
+
+**Affected Element**:
+```html
+<button class="close-btn" aria-label="Close sidebar">×</button>
+```
+
+---
+
+## Quick Fix Reference
+
+Copy these selectors for your AI assistant:
+
+```
+.hero-section > p.subtitle
+nav.main-nav > ul > li:nth-child(3) > a
+.sidebar > button.close-btn
+```
+```
+
+</details>
+
+<details>
+<summary>CSS Selector Generation Implementation</summary>
+
+```python
+# annotator.py - CSS selector generation
+
+def _generate_css_selector(element_info: dict) -> str:
+    """
+    Generate a unique CSS selector for an element.
+    
+    Prioritizes:
+    1. ID selector (if unique): #my-id
+    2. Class chain: .parent > .child.specific
+    3. Tag + attributes: button[aria-label="Close"]
+    4. Nth-child fallback: div > p:nth-child(2)
+    
+    Args:
+        element_info: Dict with tag, id, classes, attributes, parent chain
+        
+    Returns:
+        CSS selector string (e.g., ".sidebar > button.close-btn")
+    """
+    # If element has a unique ID, use it
+    if element_info.get("id"):
+        return f"#{element_info['id']}"
+    
+    # Build selector from tag and classes
+    parts = []
+    tag = element_info.get("tag", "div")
+    classes = element_info.get("classes", [])
+    
+    if classes:
+        # Use most specific classes (filter out utility classes)
+        specific_classes = [c for c in classes if not _is_utility_class(c)]
+        if specific_classes:
+            selector = f"{tag}.{'.'.join(specific_classes[:2])}"
+        else:
+            selector = tag
+    else:
+        selector = tag
+    
+    # Add parent context for uniqueness
+    parent_chain = element_info.get("parent_chain", [])
+    for parent in reversed(parent_chain[:3]):  # Max 3 parents
+        parent_selector = _build_parent_selector(parent)
+        if parent_selector:
+            parts.append(parent_selector)
+    
+    parts.append(selector)
+    return " > ".join(parts)
+
+
+def _is_utility_class(class_name: str) -> bool:
+    """Check if class is a utility/framework class to skip."""
+    utility_patterns = [
+        "flex", "grid", "p-", "m-", "text-", "bg-", "w-", "h-",  # Tailwind
+        "col-", "row-", "d-",  # Bootstrap
+        "css-",  # Emotion/styled-components
+    ]
+    return any(class_name.startswith(p) for p in utility_patterns)
+
+
+def _build_parent_selector(parent: dict) -> str:
+    """Build selector for a parent element."""
+    if parent.get("id"):
+        return f"#{parent['id']}"
+    
+    tag = parent.get("tag", "div")
+    classes = parent.get("classes", [])
+    
+    if classes:
+        main_class = next((c for c in classes if not _is_utility_class(c)), None)
+        if main_class:
+            return f"{tag}.{main_class}"
+    
+    return tag
+```
+
+</details>
+
+<details>
+<summary>Markdown Export CLI Usage</summary>
+
+```bash
+# Generate annotated screenshot with markdown export
+uv run design_review.py review http://localhost:3000 --annotate --markdown
+
+# Markdown-only (no annotated screenshot)
+uv run design_review.py review http://localhost:3000 --markdown
+
+# Compact mode with markdown (optimal for AI agents)
+uv run design_review.py review http://localhost:3000 --compact --markdown
+
+# Output files generated:
+# .canvas/reviews/<sessionId>/
+# ├── annotated.png      # Screenshot with issue markers + selector legend
+# ├── issues.md          # Full markdown report with selectors
+# ├── report.json        # Structured data (existing)
+# └── session.json       # Session metadata (existing)
+```
+
+</details>
+
+<details>
+<summary>Integration with Compact Mode</summary>
+
+The `--markdown` flag works independently and combines well with `--compact`:
+
+| Mode | Output | Use Case |
+|------|--------|----------|
+| `--annotate` | `annotated.png` with legend | Visual review |
+| `--markdown` | `issues.md` with selectors | AI agent consumption |
+| `--annotate --markdown` | Both files | Complete output |
+| `--compact --markdown` | Minimal JSON + `issues.md` | Token-efficient AI workflow |
+
+**Compact mode JSON enhancement**:
+```json
+{
+  "ok": true,
+  "summary": {"blocking": 1, "major": 2},
+  "issues": [
+    {
+      "id": 1,
+      "checkId": "color-contrast",
+      "severity": "major",
+      "selector": ".hero-section > p.subtitle",  // NEW
+      "description": "Contrast 3.2:1 < 4.5:1"
+    }
+  ],
+  "artifacts": {
+    "screenshot": "path/to/annotated.png",
+    "markdown": "path/to/issues.md"  // NEW
+  }
+}
+```
+
+</details>
+
+### Phase 4: Create Sub-Agent Wrapper Scripts ✅ COMPLETED
 
 **Priority**: Medium  
 **Effort**: 4-6 hours  
 **Impact**: Enables orchestrated reviews with controlled budgets
+**Status**: ✅ Completed (core agents created, orchestrator deferred)
 
-- [ ] Create `screenshot_agent.py` - Takes screenshots, returns paths only
-- [ ] Create `a11y_agent.py` - Runs scans, returns summaries
-- [ ] Create `dom_agent.py` - Analyzes DOM, returns compact structure
-- [ ] Create `orchestrator.py` - Coordinates sub-agents, enforces budgets
-- [ ] Add budget tracking to each sub-agent
+- [x] Create `screenshot_agent.py` - Takes screenshots, returns paths only (~1K tokens)
+- [x] Create `a11y_agent.py` - Runs scans, returns summaries (~5K tokens)
+- [x] Create `dom_agent.py` - Analyzes DOM, returns compact structure (~5K tokens)
+- [ ] Create `orchestrator.py` - Coordinates sub-agents, enforces budgets (DEFERRED)
+- [ ] Add budget tracking to each sub-agent (DEFERRED)
 
-**Files to Create**:
+**Files Created**:
 - `.claude/skills/design-review/scripts/agents/__init__.py`
 - `.claude/skills/design-review/scripts/agents/screenshot_agent.py`
 - `.claude/skills/design-review/scripts/agents/a11y_agent.py`
 - `.claude/skills/design-review/scripts/agents/dom_agent.py`
-- `.claude/skills/design-review/scripts/agents/orchestrator.py`
+
+**Implementation Details**:
+- All agents have CLI interfaces and can be imported as classes
+- ScreenshotAgent: Returns path + dimensions + size (no base64)
+- A11yAgent: Returns aggregated violations by severity/category + top N issues
+- DomAgent: Returns compact DOM tree with configurable depth/children limits
 
 <details>
 <summary>Sub-Agent Implementation Examples</summary>
@@ -578,35 +905,45 @@ class ReviewOrchestrator:
 
 </details>
 
-### Phase 5: Update Documentation
+### Phase 5: Update Documentation ✅ COMPLETED
 
 **Priority**: Low  
 **Effort**: 1 hour  
 **Impact**: Developer experience
+**Status**: ✅ Completed
 
-- [ ] Update `docs/AGENTS.md` with compact mode usage
-- [ ] Update skill SKILL.md files with `--compact` flag
-- [ ] Add sub-agent workflow documentation
-- [ ] Document token budget guidelines
+- [x] Update `docs/AGENTS.md` with compact mode usage
+- [x] Add design-review skill documentation
+- [x] Document agent-eyes compact mode
+- [x] Add sub-agent usage info
 
-**Files to Modify**:
+**Files Modified**:
 - `docs/AGENTS.md`
-- `.claude/skills/design-review/SKILL.md`
-- `.claude/skills/agent-eyes/SKILL.md`
 
-### Phase 6: Token Budget Tracking
+### Phase 6: Token Budget Tracking ✅ COMPLETED
 
 **Priority**: Low  
 **Effort**: 2 hours  
 **Impact**: Preventive guardrails
+**Status**: ✅ Completed
 
-- [ ] Create `token_budget.py` utility module
-- [ ] Add budget estimation function (`chars/4` heuristic)
-- [ ] Add warning when approaching limit
-- [ ] Integrate with orchestrator
+- [x] Create `token_budget.py` utility module
+- [x] Add budget estimation function (`chars/4` heuristic)
+- [x] Add warning when approaching limit
+- [x] Add preset budgets for common scenarios
+- [x] CLI interface for testing
 
-**Files to Create**:
+**Files Created**:
 - `.claude/skills/shared/token_budget.py`
+
+**Features**:
+- `estimate_tokens()`: Simple chars/4 heuristic (conservative)
+- `estimate_json_tokens()`: For JSON-serializable objects
+- `estimate_file_tokens()`: For file contents
+- `TokenBudget` class: Category-based tracking with warnings
+- `TokenBudgetExceeded` exception
+- Preset budgets: compact_review (20K), full_review (80K), sub_agent (10K), etc.
+- CLI: `python token_budget.py --list-budgets` or estimate from text/file
 
 <details>
 <summary>Token Budget Utility Implementation</summary>
@@ -808,6 +1145,28 @@ BUDGETS = {
 - Categories only: Can't identify specific elements
 - Full tree with depth limit: Still too large
 
+### Decision 6: CSS Selector Output (Option C)
+
+**Choice**: Add CSS selectors to annotation legend + companion markdown export file
+
+**Rationale**:
+- Inspired by [agentation.dev](https://agentation.dev) approach to AI-friendly output
+- CSS selectors provide exact element references for AI agents and developers
+- Markdown export enables universal compatibility (Claude Code, Cursor, Windsurf, etc.)
+- Copy-paste workflow: selectors can be used directly in code or AI prompts
+- Enhances existing annotation system without breaking changes
+- Optional `--markdown` flag maintains backward compatibility
+
+**Implementation Choice** (Option C selected over alternatives):
+- **Option A** (selector in legend only): Limited - no structured export for AI tools
+- **Option B** (markdown only): Loses visual context of annotated screenshot
+- **Option C** (both): Best of both worlds - visual + structured output ✓
+
+**Alternatives Considered**:
+- JSON-only selectors: Less human-readable, harder to copy-paste
+- Inline code comments: Requires source file access, not always available
+- Browser extension: Additional install burden, not agent-friendly
+
 ---
 
 ## Technical Specifications
@@ -930,6 +1289,438 @@ budget.add("a11y_result", result_tokens)
 
 ---
 
+## Visual Design Guidelines
+
+This section establishes the visual design standards for Agent Canvas annotation UI, ensuring consistent, professional, and accessible visual output across all design review features.
+
+### Design Philosophy
+
+**Core Principles**:
+- **Simple**: Black and white UI that doesn't distract from the content being reviewed
+- **Focused**: Red annotations draw attention to issues without overwhelming
+- **Accessible**: Fall back to high-contrast alternatives when needed
+- **Professional**: Clean, consistent styling inspired by technical redline documentation
+
+### Color Palette
+
+#### Primary UI Colors
+
+| Role | Color | Hex | Usage |
+|------|-------|-----|-------|
+| Background | White | `#FFFFFF` | Legend background, clean canvas |
+| Text | Black | `#000000` | Primary text, descriptions, labels |
+| Border | Light Gray | `#E0E0E0` | Legend borders, separators |
+| Secondary Background | Light Gray | `#F8F9FA` | Legend panel background |
+
+#### Annotation Colors
+
+| Role | Color | Hex | Usage |
+|------|-------|-----|-------|
+| Primary Annotation | Red | `#DC3545` | Issue markers, borders, redlines |
+| Accessibility Fallback | Black | `#000000` | When red contrast < 3:1 against background |
+| Marker Text | White | `#FFFFFF` | Numbers inside red markers |
+| Marker Border | White | `#FFFFFF` | 2px border around markers for visibility |
+
+#### Severity Indicator Colors
+
+Aligned with the CoreAI design review approach, using emoji status indicators in reports and color-coded markers on screenshots:
+
+| Severity | Emoji | Marker Color | Hex | Usage |
+|----------|-------|--------------|-----|-------|
+| Pass | 🟢 | Green | `#28A745` | Compliant items (reports only) |
+| Minor | 🟡 | Yellow | `#FFC107` | Low-priority polish issues |
+| Major | 🟠 | Orange | `#FF9100` | Should fix, significant impact |
+| Blocking | ⚫ | Red | `#DC3545` | Must fix before shipping |
+
+<details>
+<summary>Color Rationale</summary>
+
+**Why Black and White UI?**
+- Minimizes visual noise on annotated screenshots
+- Creates clear separation between content and annotations
+- Works well with any website color scheme
+- Professional appearance suitable for sharing with stakeholders
+
+**Why Red for Annotations?**
+- Industry-standard "redline" convention for design review
+- High visibility on most backgrounds
+- Clear association with "issues to fix"
+- Consistent with traditional design markup practices
+
+**Why Black Fallback for Accessibility?**
+- Some backgrounds (red/orange/brown) have insufficient contrast with red annotations
+- Black provides maximum contrast on virtually any background
+- Maintains visibility for colorblind users (protanopia, deuteranopia)
+- WCAG requires 3:1 minimum contrast for UI components
+
+</details>
+
+### Annotation Visual Style
+
+#### Issue Markers
+
+Numbered circles placed at the top-right corner of problematic elements:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  ┌─────────────────────────────────────────────┐                 │
+│  │                                          ┌──┴──┐              │
+│  │  [Element with issue]                    │  1  │ ← Marker     │
+│  │                                          └─────┘              │
+│  └─────────────────────────────────────────────────┘             │
+│     ↑ Red border (3px) around element                            │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Marker Specifications**:
+- Shape: Filled circle with white 2px border
+- Size: 32px diameter (16px radius)
+- Font: System sans-serif, 18px bold, white text
+- Position: Top-right of element bounding box, offset by radius
+- Numbering: Sequential integers (1, 2, 3...)
+- Overflow: For numbers > 20, use parenthetical format: (21), (22)
+
+**Element Border Specifications**:
+- Width: 3px
+- Style: Solid
+- Color: Matches severity (default: red `#DC3545`)
+- Position: Hugs the element bounding box
+
+#### Legend Box Style
+
+Clean, readable legend at the bottom of annotated screenshots:
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                                                                            │
+│                         [SCREENSHOT CONTENT]                               │
+│                                                                            │
+├────────────────────────────────────────────────────────────────────────────┤
+│  DESIGN REVIEW ISSUES                                                      │
+├────────────────────────────────────────────────────────────────────────────┤
+│  ⚫ #1: Color contrast too low (3.2:1 < 4.5:1)                             │
+│     → .hero-section > p.subtitle                                          │
+│                                                                            │
+│  🟠 #2: Missing focus indicator                                           │
+│     → nav.main-nav > ul > li:nth-child(3) > a                             │
+│                                                                            │
+│  🟡 #3: Touch target too small (24x24px < 44x44px)                        │
+│     → .sidebar > button.close-btn                                          │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Legend Specifications**:
+- Background: Light gray (`#F8F9FA`)
+- Border: 2px gray (`#C8C8C8`) separator line at top
+- Padding: 20px all sides
+- Header: "DESIGN REVIEW ISSUES" or "Issues Found:" in bold
+- Line height: 28px per issue
+- Max description length: 60 characters (truncate with "...")
+
+**Issue Entry Format**:
+```
+[severity_emoji] #[id]: [description_truncated]
+   → [css_selector]
+```
+
+#### CSS Selector Display
+
+Selectors displayed in monospace for easy copy-paste:
+
+| Element | Font | Size | Color |
+|---------|------|------|-------|
+| Selector text | `SF Mono`, `Monaco`, `Consolas`, monospace | 12px | `#6C757D` (gray) |
+| Arrow indicator | System font | 12px | `#6C757D` |
+
+### Annotated Screenshot Layout
+
+#### Full-Page Layout
+
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │ ← Original screenshot
+│              WEBPAGE CONTENT                    │    dimensions preserved
+│                                                 │
+│    ┌─────────────────────┐ ①                    │ ← Markers at issue
+│    │ [Issue element 1]   │                      │    locations
+│    └─────────────────────┘                      │
+│                                                 │
+│         ┌───────────────────────┐ ②             │
+│         │ [Issue element 2]    │               │
+│         └───────────────────────┘               │
+│                                                 │
+├─────────────────────────────────────────────────┤ ← Gray separator (2px)
+│  DESIGN REVIEW ISSUES                           │
+│                                                 │ ← Legend (auto-height)
+│  ⚫ #1: Issue description...                    │
+│     → .css-selector                             │
+│                                                 │
+│  🟠 #2: Issue description...                    │
+│     → .css-selector                             │
+└─────────────────────────────────────────────────┘
+```
+
+**Layout Specifications**:
+- Screenshot: Original dimensions, no scaling
+- Legend position: Below screenshot (appended)
+- Legend height: Dynamic based on issue count (padding + header + issues × line_height)
+- Total image height: `screenshot_height + legend_height`
+- Total image width: Same as screenshot width
+
+#### Marker Positioning Algorithm
+
+```python
+# Marker placement priority (top-right of element)
+marker_x = min(
+    element.x + element.width + MARKER_RADIUS,
+    screenshot_width - MARKER_RADIUS - 5  # Keep within bounds
+)
+marker_y = max(
+    element.y - MARKER_RADIUS,
+    MARKER_RADIUS + 5  # Keep within bounds
+)
+```
+
+#### Spacing Standards
+
+| Element | Value | Notes |
+|---------|-------|-------|
+| Legend padding | 20px | All sides |
+| Legend line height | 28px | Per issue entry |
+| Selector indent | 24px | Left padding for "→ .selector" line |
+| Marker radius | 16px | Circle radius |
+| Border width | 3px | Element highlight border |
+| Max legend width | 400px | Text wrap point (description) |
+
+### Review Output Format
+
+Structured review output aligned with CoreAI design review pillars and severity system:
+
+#### Pillar Assessment Table
+
+For markdown/report output, use this format for pillar-level summaries:
+
+```markdown
+## Pillar Assessment
+
+| Pillar | Grade | Pass | Attention | Blocking |
+|--------|-------|------|-----------|----------|
+| Frictionless Insight to Action | 🟢 B | 3 | 1 | 0 |
+| Progressive Clarity | 🟢 A | 4 | 0 | 0 |
+| Quality Craft | 🟠 C | 2 | 2 | 1 |
+| Trustworthy Building | 🟢 B | 3 | 1 | 0 |
+```
+
+**Grading Scale** (inspired by CoreAI):
+- **A** (🟢): All checks pass, exemplary implementation
+- **B** (🟢): Minor issues only, no major concerns
+- **C** (🟠): Has major issues, needs attention
+- **F** (⚫): Has blocking issues, must fix before shipping
+
+#### Issue Categorization
+
+```markdown
+## Issue Summary
+
+**Blocking (must fix)**: 1
+**Major (should fix)**: 3
+**Minor (nice to fix)**: 2
+
+---
+
+## Blocking Issues
+
+### #1: Missing AI disclaimer
+- **Pillar**: Trustworthy Building
+- **Check**: ai-disclaimer
+- **Element**: `.ai-response-container`
+- **Selector**: `section.chat-output > div.message.ai`
+- **Description**: AI-generated content lacks required disclaimer
+- **Recommendation**: Add "(AI-generated)" label with appropriate styling
+
+---
+
+## Major Issues
+...
+```
+
+#### JSON Output Schema
+
+```typescript
+interface ReviewOutput {
+  ok: boolean;
+  url: string;
+  timestamp: string;
+  specUsed: string;
+  
+  // Summary counts
+  summary: {
+    blocking: number;
+    major: number;
+    minor: number;
+    passing: number;
+  };
+  
+  // Pillar-level grades
+  pillarGrades: {
+    [pillarName: string]: {
+      grade: "A" | "B" | "C" | "F";
+      passing: number;
+      attention: number;  // major issues
+      blocking: number;
+    };
+  };
+  
+  // Individual issues
+  issues: Array<{
+    id: number;
+    severity: "blocking" | "major" | "minor";
+    checkId: string;
+    pillar: string;
+    element: string;
+    selector: string;           // NEW: CSS selector
+    xpath?: string;             // Optional XPath
+    description: string;
+    recommendation?: string;
+    boundingBox?: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+  }>;
+  
+  // File artifacts
+  artifacts: {
+    screenshot: string;
+    annotated?: string;
+    markdown?: string;          // NEW: issues.md path
+    report: string;
+  };
+}
+```
+
+### Accessibility Considerations
+
+#### Contrast Requirements
+
+| Element | Minimum Contrast | Against | Standard |
+|---------|-----------------|---------|----------|
+| Red markers | 3:1 | Any background | WCAG 2.1 AA (UI components) |
+| Marker text (white on red) | 4.5:1 | Red fill | WCAG 2.1 AA (text) |
+| Legend text | 4.5:1 | Legend background | WCAG 2.1 AA (text) |
+| Selector text | 4.5:1 | Legend background | WCAG 2.1 AA (text) |
+
+#### When to Fall Back to Black
+
+Use black (`#000000`) instead of red (`#DC3545`) when:
+
+1. **Background is red/orange/brown**: Contrast ratio < 3:1
+2. **Background is very dark**: Red appears muddy or invisible
+3. **User preference**: System high-contrast mode detected
+
+```python
+def get_annotation_color(background_rgb: tuple[int, int, int]) -> str:
+    """
+    Determine annotation color based on background contrast.
+    
+    Args:
+        background_rgb: Background color as (R, G, B) tuple
+        
+    Returns:
+        Hex color string for annotation (#DC3545 red or #000000 black)
+    """
+    red = (220, 53, 69)  # #DC3545
+    black = (0, 0, 0)    # #000000
+    
+    red_contrast = calculate_contrast_ratio(red, background_rgb)
+    
+    if red_contrast >= 3.0:
+        return "#DC3545"  # Red meets contrast requirement
+    else:
+        return "#000000"  # Fall back to black
+```
+
+#### Screen Reader Considerations
+
+For generated markdown reports (`issues.md`), ensure:
+
+1. **Proper heading hierarchy**: H1 → H2 → H3, no skipped levels
+2. **Alt text for images**: Include issue count in alt text
+3. **Tables have headers**: Use proper markdown table syntax
+4. **Link text is descriptive**: Avoid "click here"
+
+```markdown
+<!-- Good -->
+![Annotated screenshot showing 3 issues marked on the homepage](annotated.png)
+
+<!-- Avoid -->
+![Screenshot](annotated.png)
+```
+
+#### Colorblind-Safe Design
+
+The severity color system accounts for common color vision deficiencies:
+
+| Deficiency | Red (#DC3545) | Orange (#FF9100) | Yellow (#FFC107) | Solution |
+|------------|---------------|------------------|------------------|----------|
+| Protanopia | Appears brown | Appears yellow | Visible | Use emoji indicators |
+| Deuteranopia | Appears brown | Appears yellow | Visible | Use emoji indicators |
+| Tritanopia | Visible | Visible | Appears pink | Acceptable |
+
+**Mitigation**: Always pair color with:
+- Emoji indicators (⚫ 🟠 🟡 🟢) which are always visible
+- Numeric severity in legend text
+- Severity label in markdown output
+
+### Integration with Implementation Phases
+
+#### Phase 3.5: CSS Selector Output
+
+Apply visual guidelines to:
+- **annotator.py**: Update legend format to include CSS selectors
+- **Font choice**: Use monospace for selectors in legend
+- **Indentation**: 24px indent with "→" arrow prefix
+
+```python
+# annotator.py - Enhanced legend entry
+def format_legend_entry(issue: Issue) -> str:
+    """Format a legend entry with severity, description, and selector."""
+    emoji = SEVERITY_EMOJI[issue.severity]  # ⚫, 🟠, 🟡
+    desc = truncate(issue.description, 60)
+    selector = issue.selector or issue.element
+    
+    return f"{emoji} #{issue.id}: {desc}\n   → {selector}"
+```
+
+#### Phase 4: Sub-Agents
+
+Apply visual guidelines to:
+- **Report Generator Sub-Agent**: Use structured output format
+- **Pillar grades**: Include in orchestrator's final summary
+- **Artifact paths**: Consistent naming (screenshot.png, annotated.png, issues.md)
+
+#### annotator.py Implementation Updates
+
+Current state vs. target visual guidelines:
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| Severity colors | Red/Orange/Yellow | Same, with fallback logic |
+| Legend format | Description only | Description + CSS selector |
+| Selector font | N/A | Monospace, gray |
+| Emoji indicators | None | Add to legend entries |
+| Contrast fallback | None | Black when red < 3:1 |
+
+**Files to Update**:
+- `.claude/skills/design-review/scripts/annotator.py` - Add selector display, emoji indicators, contrast fallback
+- `.claude/skills/design-review/scripts/design_review.py` - Pass selector data to annotator
+- `.claude/skills/design-review/scripts/markdown_export.py` - (NEW) Generate issues.md with proper accessibility
+
+---
+
 ## Success Metrics
 
 ### Primary Metrics
@@ -984,7 +1775,7 @@ cat .canvas/reviews/$SESSION/budget_tracking.json | jq '.exceeded' | grep -q "fa
 │
 ├── design-review/
 │   ├── scripts/
-│   │   ├── design_review.py       # Updated with --compact
+│   │   ├── design_review.py       # Updated with --compact, --markdown
 │   │   ├── agents/                # NEW: Sub-agent wrappers
 │   │   │   ├── __init__.py
 │   │   │   ├── screenshot_agent.py
@@ -992,7 +1783,8 @@ cat .canvas/reviews/$SESSION/budget_tracking.json | jq '.exceeded' | grep -q "fa
 │   │   │   ├── dom_agent.py
 │   │   │   ├── review_agent.py
 │   │   │   └── orchestrator.py
-│   │   ├── annotator.py
+│   │   ├── annotator.py           # Updated: CSS selector extraction + legend
+│   │   ├── markdown_export.py     # NEW: issues.md generation
 │   │   ├── image_comparator.py
 │   │   └── spec_loader.py
 │   └── SKILL.md                   # Updated docs
@@ -1006,6 +1798,13 @@ cat .canvas/reviews/$SESSION/budget_tracking.json | jq '.exceeded' | grep -q "fa
 
 docs/
 └── AGENTS.md                      # Updated with sub-agent patterns, compact mode
+
+.canvas/reviews/<sessionId>/       # Review session artifacts
+├── session.json
+├── report.json
+├── screenshot.png
+├── annotated.png                  # Enhanced: legend includes CSS selectors
+└── issues.md                      # NEW: Markdown export with full selector details
 ```
 
 ---
@@ -1098,4 +1897,4 @@ docs/
 
 ---
 
-*Document maintained by the Agent Canvas team. Last updated: 2026-01-22*
+*Document maintained by the Agent Canvas team. Last updated: 2026-01-23 (v1.2 - Added Visual Design Guidelines)*

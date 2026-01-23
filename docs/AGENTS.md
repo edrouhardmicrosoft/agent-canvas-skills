@@ -8,6 +8,8 @@ Quick reference for AI agents to navigate and use canvas skills effectively.
 
 | User Intent | Skill to Use | Command |
 |-------------|--------------|---------|
+| Review design against spec | `design-review` | `uv run .claude/skills/design-review/scripts/design_review.py review <url>` |
+| Compare to reference image | `design-review` | `uv run .claude/skills/design-review/scripts/design_review.py compare <url> --reference <img>` |
 | See the page / take screenshot | `agent-eyes` | `uv run .claude/skills/agent-eyes/scripts/agent_eyes.py screenshot <url>` |
 | Check accessibility issues | `agent-eyes` | `uv run .claude/skills/agent-eyes/scripts/agent_eyes.py a11y <url>` |
 | Select an element interactively | `agent-canvas` | `uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url>` |
@@ -64,9 +66,84 @@ Quick reference for AI agents to navigate and use canvas skills effectively.
 - "compare before and after"
 - "run verification"
 
+### design-review
+- "review design"
+- "check compliance"
+- "design audit"
+- "spec review"
+- "check against spec"
+- "compare to reference"
+- "design QA"
+
 ---
 
 ## Command Quick Reference
+
+### design-review
+
+```bash
+# Full review against default spec
+uv run .claude/skills/design-review/scripts/design_review.py review <url>
+
+# With annotated screenshot
+uv run .claude/skills/design-review/scripts/design_review.py review <url> --annotate
+
+# Compact mode (token-efficient, for AI agents)
+uv run .claude/skills/design-review/scripts/design_review.py review <url> --compact
+
+# Generate task list
+uv run .claude/skills/design-review/scripts/design_review.py review <url> --generate-tasks
+
+# Compare to reference image
+uv run .claude/skills/design-review/scripts/design_review.py compare <url> --reference <image>
+
+# Compare in compact mode
+uv run .claude/skills/design-review/scripts/design_review.py compare <url> --reference <image> --compact
+```
+
+**Standard output format:**
+```json
+{
+  "ok": true,
+  "sessionId": "review_...",
+  "summary": {"blocking": 1, "major": 3, "minor": 2},
+  "issues": [...],
+  "editableContext": {...},
+  "artifacts": {
+    "screenshot": "path/to/screenshot.png",
+    "sessionDir": "path/to/session"
+  }
+}
+```
+
+**Compact output format (--compact):**
+```json
+{
+  "ok": true,
+  "sessionId": "review_...",
+  "summary": {"blocking": 1, "major": 3, "minor": 2},
+  "issues": [
+    {
+      "id": 1,
+      "checkId": "color-contrast",
+      "severity": "major",
+      "element": ".subtitle-text",
+      "description": "Contrast 3.2:1 < 4.5:1"
+    }
+  ],
+  "artifacts": {
+    "screenshot": "path/to/screenshot.png"
+  }
+}
+```
+
+**Compact mode benefits:**
+- ~2K tokens instead of ~10K+ tokens
+- No `editableContext`, `details`, `nodes`, `recommendation` fields
+- Descriptions truncated to 100 chars
+- Skips writing full session files
+
+---
 
 ### agent-canvas-setup
 
@@ -88,17 +165,23 @@ uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope 
 # Screenshot
 uv run .claude/skills/agent-eyes/scripts/agent_eyes.py screenshot <url>
 
+# Screenshot in compact mode (returns path, not base64)
+uv run .claude/skills/agent-eyes/scripts/agent_eyes.py screenshot <url> --compact
+
 # Accessibility scan
 uv run .claude/skills/agent-eyes/scripts/agent_eyes.py a11y <url>
 
 # Full context (screenshot + a11y + DOM)
 uv run .claude/skills/agent-eyes/scripts/agent_eyes.py context <url>
 
+# Full context in compact mode (token-efficient)
+uv run .claude/skills/agent-eyes/scripts/agent_eyes.py context <url> --compact
+
 # Element description
 uv run .claude/skills/agent-eyes/scripts/agent_eyes.py describe <url> --selector "<selector>"
 ```
 
-**Output format:**
+**Standard output format:**
 ```json
 {
   "ok": true,
@@ -106,6 +189,14 @@ uv run .claude/skills/agent-eyes/scripts/agent_eyes.py describe <url> --selector
   "violations": [...],
   "dom": {...}
 }
+```
+
+**Compact mode (--compact):**
+- Screenshots saved to file, path returned (no base64)
+- DOM depth limited to 3 (vs 5)
+- Max children per node: 10 (vs 20)
+- Max a11y issues: 3 (vs 10)
+- Text truncated to 50 chars (vs 100)
 ```
 
 ---

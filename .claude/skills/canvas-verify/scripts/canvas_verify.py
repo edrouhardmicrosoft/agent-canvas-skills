@@ -40,6 +40,32 @@ from session_parser import find_project_root, find_session_dir, load_session
 DEFAULT_VISUAL_DIFF_THRESHOLD = 5.0  # 5% difference allowed for "pass"
 
 
+def get_before_screenshot_b64(session: dict) -> Optional[str]:
+    """
+    Get before screenshot as base64, handling both v1.0 and v1.1+ session formats.
+
+    v1.0: beforeScreenshot contains base64 string directly
+    v1.1+: beforeScreenshotPath contains path to PNG file
+    """
+    import base64
+
+    # v1.1+ format: path to file
+    if path := session.get("beforeScreenshotPath"):
+        screenshot_file = Path(path)
+        if screenshot_file.exists():
+            return base64.b64encode(screenshot_file.read_bytes()).decode("utf-8")
+
+    # v1.0 format: inline base64
+    return session.get("beforeScreenshot")
+
+
+def has_before_screenshot(session: dict) -> bool:
+    """Check if session has a before screenshot (any format)."""
+    if session.get("beforeScreenshotPath"):
+        return Path(session["beforeScreenshotPath"]).exists()
+    return session.get("beforeScreenshot") is not None
+
+
 def resize_with_padding(img, target_width: int, target_height: int):
     """Resize image by padding with white to target dimensions."""
     from PIL import Image
@@ -70,8 +96,7 @@ def list_sessions() -> list[dict]:
                             "url": data.get("url", ""),
                             "startTime": data.get("startTime", ""),
                             "hasChanges": bool(data.get("events", {}).get("edits", [])),
-                            "hasBeforeScreenshot": data.get("beforeScreenshot")
-                            is not None,
+                            "hasBeforeScreenshot": has_before_screenshot(data),
                             "verified": data.get("verification") is not None,
                             "verificationStatus": data.get("verification", {}).get(
                                 "overallStatus"
@@ -335,7 +360,7 @@ def run_verification(
                 screenshot_result = take_screenshot(page, as_base64=True)
                 if screenshot_result.get("ok"):
                     after_screenshot = screenshot_result.get("base64")
-                    before_screenshot = session.get("beforeScreenshot")
+                    before_screenshot = get_before_screenshot_b64(session)
 
                     visual_result = compare_screenshots(
                         before_screenshot, after_screenshot, threshold=threshold

@@ -61,7 +61,21 @@ class ChangeManifest:
     style_changes: list[StyleChange] = field(default_factory=list)
     text_changes: list[TextChange] = field(default_factory=list)
     elements: dict[str, ElementInfo] = field(default_factory=dict)  # selector -> info
-    before_screenshot: Optional[str] = None
+    before_screenshot_path: Optional[str] = None  # Path to screenshot file (v1.1+)
+    before_screenshot_base64: Optional[str] = None  # Base64 data (v1.0 legacy)
+
+    @property
+    def before_screenshot(self) -> Optional[str]:
+        """
+        Backward-compatible accessor for before screenshot.
+        Returns path if available (v1.1+), falls back to base64 (v1.0).
+        """
+        return self.before_screenshot_path or self.before_screenshot_base64
+
+    @property
+    def has_before_screenshot(self) -> bool:
+        """Check if any form of before screenshot exists."""
+        return bool(self.before_screenshot_path or self.before_screenshot_base64)
 
 
 def find_project_root() -> Path:
@@ -312,11 +326,12 @@ def parse_session(session_id: str) -> Optional[ChangeManifest]:
     if not session:
         return None
 
-    # Extract basic info
+    # Handle both v1.0 (base64) and v1.1+ (path) screenshot formats
     manifest = ChangeManifest(
         session_id=session.get("sessionId", session_id),
         url=session.get("url", ""),
-        before_screenshot=session.get("beforeScreenshot"),
+        before_screenshot_path=session.get("beforeScreenshotPath"),
+        before_screenshot_base64=session.get("beforeScreenshot"),
     )
 
     # Get events
@@ -392,7 +407,8 @@ def manifest_to_dict(manifest: ChangeManifest) -> dict:
             }
             for selector, info in manifest.elements.items()
         },
-        "hasBeforeScreenshot": manifest.before_screenshot is not None,
+        "hasBeforeScreenshot": manifest.has_before_screenshot,
+        "beforeScreenshotPath": manifest.before_screenshot_path,
     }
 
 
