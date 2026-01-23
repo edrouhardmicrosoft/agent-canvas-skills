@@ -67,6 +67,10 @@
         badgeCounter: 0,
         visible: true,
         elementBadgeCounts: new Map(), // selector -> count (for stacking)
+        filters: {
+            severity: { blocking: true, major: true, minor: true },
+            pillars: new Set()
+        }
     };
 
     // =========================================================================
@@ -368,6 +372,36 @@
         .annotation-popover.annotations-hidden {
             display: none !important;
         }
+
+        /* Edge case: orphaned badge (target element removed) */
+        .annotation-badge.orphaned {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Edge case: badge for out-of-view element */
+        .annotation-badge.out-of-view {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Edge case: long popover content (5.4.3) */
+        .annotation-popover {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .popover-description {
+            max-height: 200px;
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
+
+        .popover-recommendation p {
+            max-height: 150px;
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
     `;
 
     // =========================================================================
@@ -390,6 +424,175 @@
     const highlight = document.createElement('div');
     highlight.className = 'annotation-highlight';
     layer.appendChild(highlight);
+
+    // =========================================================================
+    // Focus Trap for Popovers (5.3.6)
+    // =========================================================================
+    
+    const focusTrapHandlers = new WeakMap();
+    
+    function getFocusableElements(container) {
+        const focusableSelectors = [
+            'button:not([disabled])',
+            '[href]',
+            'input:not([disabled])',
+            'select:not([disabled])',
+            'textarea:not([disabled])',
+            '[tabindex]:not([tabindex="-1"])'
+        ].join(', ');
+        
+        return Array.from(container.querySelectorAll(focusableSelectors))
+            .filter(el => el.offsetParent !== null);
+    }
+    
+    function setupFocusTrap(popover, returnFocusTo) {
+        const focusableEls = getFocusableElements(popover);
+        if (focusableEls.length === 0) {
+            popover.setAttribute('tabindex', '-1');
+            popover.focus();
+            return;
+        }
+        
+        const firstFocusable = focusableEls[0];
+        const lastFocusable = focusableEls[focusableEls.length - 1];
+        
+        const trapHandler = (e) => {
+            if (e.key !== 'Tab') return;
+            
+            if (e.shiftKey && document.activeElement === firstFocusable) {
+                e.preventDefault();
+                lastFocusable.focus();
+            } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                e.preventDefault();
+                firstFocusable.focus();
+            }
+        };
+        
+        popover.addEventListener('keydown', trapHandler);
+        focusTrapHandlers.set(popover, trapHandler);
+        
+        firstFocusable.focus();
+    }
+    
+    function removeFocusTrap(popover) {
+        const handler = focusTrapHandlers.get(popover);
+        if (handler) {
+            popover.removeEventListener('keydown', handler);
+            focusTrapHandlers.delete(popover);
+        }
+    }
+
+    // =========================================================================
+    // Edge Case Handling (5.4.x)
+    // =========================================================================
+    
+    function isElementInDOM(element) {
+        return element && document.body.contains(element);
+    }
+    
+    function isElementInViewport(element) {
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top < window.innerHeight &&
+            rect.bottom > 0 &&
+            rect.left < window.innerWidth &&
+            rect.right > 0
+        );
+    }
+    
+    function handleOrphanedBadges() {
+        state.issues.forEach((entry, id) => {
+            if (entry.targetElement && !isElementInDOM(entry.targetElement)) {
+                entry.badge.classList.add('orphaned');
+                entry.badge.style.opacity = '0.5';
+                entry.targetElement = null;
+            }
+        });
+    }
+    
+    function handleScrollVisibility() {
+        state.issues.forEach((entry) => {
+            if (!entry.targetElement) return;
+            
+            const inView = isElementInViewport(entry.targetElement);
+            if (inView) {
+                entry.badge.classList.remove('out-of-view');
+                entry.badge.style.visibility = '';
+            } else {
+                entry.badge.classList.add('out-of-view');
+                entry.badge.style.visibility = 'hidden';
+            }
+        });
+    }
+    
+    const mutationObserver = new MutationObserver((mutations) => {
+        let needsOrphanCheck = false;
+        mutations.forEach(mutation => {
+            if (mutation.removedNodes.length > 0) {
+                needsOrphanCheck = true;
+            }
+        });
+        if (needsOrphanCheck) {
+            handleOrphanedBadges();
+        }
+    });
+    
+    mutationObserver.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+    });
+    
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            handleScrollVisibility();
+            repositionAll();
+        }, 50);
+    }, { passive: true });
+    
+    // =========================================================================
+    // Debounced Issue Addition (5.4.4)
+    // =========================================================================
+    
+    const pendingIssues = [];
+    let addIssueTimeout = null;
+    const BATCH_DELAY = 50;
+    
+    function flushPendingIssues() {
+        if (pendingIssues.length === 0) return;
+        
+        const batch = pendingIssues.splice(0, pendingIssues.length);
+        batch.forEach(issue => addIssueDirect(issue));
+        
+        emitEvent('annotations.batch_added', { 
+            count: batch.length,
+            totalCount: state.issues.size
+        });
+    }
+    
+    function addIssueDebounced(issue) {
+        pendingIssues.push(issue);
+        clearTimeout(addIssueTimeout);
+        addIssueTimeout = setTimeout(flushPendingIssues, BATCH_DELAY);
+    }
+
+    // =========================================================================
+    // Page Zoom Handling (5.4.5)
+    // =========================================================================
+    
+    let lastDevicePixelRatio = window.devicePixelRatio;
+    
+    function checkZoomChange() {
+        if (window.devicePixelRatio !== lastDevicePixelRatio) {
+            lastDevicePixelRatio = window.devicePixelRatio;
+            repositionAll();
+        }
+    }
+    
+    window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+        .addEventListener('change', checkZoomChange);
 
     // =========================================================================
     // Badge Positioning Algorithm
@@ -560,10 +763,12 @@
             emitEvent('annotation.clicked', { id: issue.id, badgeNumber, issue });
         });
         
-        // Popover focus management
+        // Popover focus management with focus trap (5.3.6)
         popover.addEventListener('toggle', (e) => {
-            if (e.newState === 'closed') {
-                // Return focus to badge
+            if (e.newState === 'open') {
+                setupFocusTrap(popover, badge);
+            } else if (e.newState === 'closed') {
+                removeFocusTrap(popover);
                 badge.focus();
             }
         });
@@ -597,13 +802,11 @@
     // Public API Methods
     // =========================================================================
     
-    function addIssue(issue) {
-        // Generate ID if not provided
+    function addIssueDirect(issue) {
         if (!issue.id) {
             issue.id = `issue-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         }
         
-        // Don't add duplicates
         if (state.issues.has(issue.id)) {
             console.warn(`[AnnotationLayer] Issue already exists: ${issue.id}`);
             return state.badgeCounter;
@@ -626,6 +829,14 @@
         });
         
         return state.badgeCounter;
+    }
+    
+    function addIssue(issue, options = {}) {
+        if (options.debounce === false) {
+            return addIssueDirect(issue);
+        }
+        addIssueDebounced(issue);
+        return state.badgeCounter + pendingIssues.length;
     }
 
     function removeIssue(id) {
@@ -690,6 +901,49 @@
         }
     }
 
+    function normalizeSeverity(severity) {
+        if (['blocking', 'critical', 'error'].includes(severity)) return 'blocking';
+        if (['major', 'warning'].includes(severity)) return 'major';
+        return 'minor';
+    }
+
+    function isIssueMatchingFilters(issue) {
+        const severity = normalizeSeverity(issue.severity || 'minor');
+        if (!state.filters.severity[severity]) return false;
+        
+        if (state.filters.pillars.size > 0) {
+            const pillar = issue.pillar || 'General';
+            if (!state.filters.pillars.has(pillar)) return false;
+        }
+        return true;
+    }
+
+    function updateBadgeVisibility(entry) {
+        const matchesFilter = isIssueMatchingFilters(entry.issue);
+        const shouldShow = state.visible && matchesFilter;
+        
+        if (shouldShow) {
+            entry.badge.classList.remove('filtered-out');
+            entry.badge.style.display = '';
+        } else {
+            entry.badge.classList.add('filtered-out');
+            entry.badge.style.display = 'none';
+        }
+    }
+
+    function applyFilters(filters) {
+        if (filters.severity) {
+            state.filters.severity = { ...filters.severity };
+        }
+        if (filters.pillars !== undefined) {
+            state.filters.pillars = new Set(filters.pillars);
+        }
+        
+        state.issues.forEach((entry) => {
+            updateBadgeVisibility(entry);
+        });
+    }
+
     function repositionAll() {
         state.issues.forEach((entry) => {
             if (entry.targetElement) {
@@ -746,6 +1000,11 @@
             setVisibility(event.payload.visible);
         });
         
+        // Listen for filter changes from toolbar
+        bus.subscribe('filters.changed', (event) => {
+            applyFilters(event.payload);
+        });
+        
         // Listen for dismiss from toolbar
         bus.subscribe('toolbar.dismiss_requested', () => {
             clearAll();
@@ -773,11 +1032,101 @@
         resizeTimeout = setTimeout(repositionAll, 100);
     });
 
-    // Keyboard handler for Escape to close popovers
+    // =========================================================================
+    // Keyboard Navigation (5.2.4, 5.2.5)
+    // =========================================================================
+    
+    /**
+     * Get all visible badges sorted by badge number
+     */
+    function getVisibleBadges() {
+        const badges = [];
+        state.issues.forEach((entry) => {
+            if (!entry.badge.classList.contains('filtered-out') && 
+                entry.badge.style.display !== 'none' &&
+                !entry.badge.classList.contains('annotations-hidden')) {
+                badges.push({
+                    badge: entry.badge,
+                    number: parseInt(entry.badge.dataset.badgeNumber, 10)
+                });
+            }
+        });
+        return badges.sort((a, b) => a.number - b.number);
+    }
+    
+    /**
+     * Focus badge by number (1-based)
+     */
+    function focusBadgeByNumber(num) {
+        const badges = getVisibleBadges();
+        const target = badges.find(b => b.number === num);
+        if (target) {
+            target.badge.focus();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Navigate to next/previous badge from current focus
+     */
+    function navigateBadge(direction) {
+        const badges = getVisibleBadges();
+        if (badges.length === 0) return;
+        
+        const focused = shadow ? null : document.activeElement;
+        const currentBadge = focused?.classList?.contains('annotation-badge') ? focused : null;
+        
+        // Find current index
+        let currentIndex = -1;
+        if (currentBadge) {
+            currentIndex = badges.findIndex(b => b.badge === currentBadge);
+        }
+        
+        let nextIndex;
+        if (currentIndex === -1) {
+            // No badge focused, focus first or last based on direction
+            nextIndex = direction === 'next' ? 0 : badges.length - 1;
+        } else {
+            nextIndex = direction === 'next' 
+                ? (currentIndex + 1) % badges.length
+                : (currentIndex - 1 + badges.length) % badges.length;
+        }
+        
+        badges[nextIndex].badge.focus();
+    }
+    
+    // Global keyboard handler for badge navigation
     document.addEventListener('keydown', (e) => {
+        // Skip if focus is in an input/textarea
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        // Skip if a popover is open (let it handle its own keys)
+        const openPopover = document.querySelector('.annotation-popover:popover-open');
+        if (openPopover && e.key !== 'Escape') return;
+        
+        // Number keys 1-9 jump to badge by number (5.2.5)
+        if (/^[1-9]$/.test(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            const num = parseInt(e.key, 10);
+            if (focusBadgeByNumber(num)) {
+                e.preventDefault();
+            }
+            return;
+        }
+        
+        // Arrow keys navigate between badges (5.2.4)
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            navigateBadge('next');
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            navigateBadge('prev');
+        }
+        
+        // Escape closes popover (native API handles this, but we ensure focus returns)
         if (e.key === 'Escape') {
-            // Native popover API handles Escape automatically, but we ensure
-            // focus returns to the badge (handled in toggle event)
+            // Native popover API handles Escape automatically
+            // Focus return is handled in toggle event listener
         }
     });
 
@@ -814,6 +1163,13 @@
         show: () => setVisibility(true),
         hide: () => setVisibility(false),
         isVisible: () => state.visible,
+        
+        // Filtering
+        applyFilters,
+        getFilters: () => ({
+            severity: { ...state.filters.severity },
+            pillars: Array.from(state.filters.pillars)
+        }),
         
         // Positioning
         repositionAll,

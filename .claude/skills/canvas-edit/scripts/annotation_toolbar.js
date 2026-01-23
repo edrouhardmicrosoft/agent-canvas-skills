@@ -67,7 +67,14 @@
         annotationsVisible: true,
         position: { ...CONFIG.DEFAULT_POSITION },
         isDragging: false,
-        dragOffset: { x: 0, y: 0 }
+        dragOffset: { x: 0, y: 0 },
+        // Filter state
+        filters: {
+            severity: { blocking: true, major: true, minor: true },
+            pillars: new Set() // empty = all pillars shown
+        },
+        filterMenuOpen: false,
+        knownPillars: new Set() // dynamically populated from issues
     };
 
     // =========================================================================
@@ -308,6 +315,144 @@
             background: rgba(248, 81, 73, 0.15);
         }
 
+        .btn.has-active-filter {
+            color: var(--severity-info);
+        }
+
+        .btn.has-active-filter::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 6px;
+            height: 6px;
+            background: var(--severity-info);
+            border-radius: 50%;
+        }
+
+        /* Filter Dropdown */
+        .filter-container {
+            position: relative;
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            min-width: 200px;
+            background: var(--toolbar-bg);
+            border: 1px solid var(--toolbar-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            padding: 8px 0;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition: 
+                opacity var(--duration-fast) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out);
+        }
+
+        .filter-dropdown.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .filter-section {
+            padding: 4px 0;
+        }
+
+        .filter-section + .filter-section {
+            border-top: 1px solid var(--toolbar-border);
+            margin-top: 4px;
+            padding-top: 8px;
+        }
+
+        .filter-section-title {
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: background var(--duration-faster) var(--ease-out);
+        }
+
+        .filter-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--toolbar-border);
+            border-radius: 3px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: 
+                background var(--duration-faster) var(--ease-out),
+                border-color var(--duration-faster) var(--ease-out);
+        }
+
+        .filter-checkbox.checked {
+            background: var(--severity-info);
+            border-color: var(--severity-info);
+        }
+
+        .filter-checkbox.checked::after {
+            content: '✓';
+            font-size: 10px;
+            color: #292929;
+            font-weight: bold;
+        }
+
+        .filter-label {
+            flex: 1;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .filter-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .filter-dot.blocking { background: var(--severity-error); }
+        .filter-dot.major { background: var(--severity-warning); }
+        .filter-dot.minor { background: var(--severity-info); }
+
+        .filter-count {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .filter-reset {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--severity-info);
+            cursor: pointer;
+            transition: background var(--duration-faster) var(--ease-out);
+        }
+
+        .filter-reset:hover {
+            background: var(--hover-bg);
+        }
+
         /* Action Group */
         .action-group {
             display: flex;
@@ -398,6 +543,44 @@
                 
                 <!-- Action Buttons -->
                 <div class="action-group">
+                    <div class="filter-container">
+                        <button class="btn" id="filterBtn" 
+                                aria-label="Filter issues"
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                                title="Filter issues">
+                            ⚙
+                        </button>
+                        <div class="filter-dropdown" id="filterDropdown" role="menu">
+                            <div class="filter-section">
+                                <div class="filter-section-title">Severity</div>
+                                <div class="filter-item" data-filter-type="severity" data-filter-value="blocking" role="menuitemcheckbox" aria-checked="true" tabindex="0">
+                                    <span class="filter-checkbox checked"></span>
+                                    <span class="filter-dot blocking"></span>
+                                    <span class="filter-label">Blocking</span>
+                                    <span class="filter-count" id="filterBlockingCount">0</span>
+                                </div>
+                                <div class="filter-item" data-filter-type="severity" data-filter-value="major" role="menuitemcheckbox" aria-checked="true" tabindex="0">
+                                    <span class="filter-checkbox checked"></span>
+                                    <span class="filter-dot major"></span>
+                                    <span class="filter-label">Major</span>
+                                    <span class="filter-count" id="filterMajorCount">0</span>
+                                </div>
+                                <div class="filter-item" data-filter-type="severity" data-filter-value="minor" role="menuitemcheckbox" aria-checked="true" tabindex="0">
+                                    <span class="filter-checkbox checked"></span>
+                                    <span class="filter-dot minor"></span>
+                                    <span class="filter-label">Minor</span>
+                                    <span class="filter-count" id="filterMinorCount">0</span>
+                                </div>
+                            </div>
+                            <div class="filter-section" id="pillarFilterSection" style="display: none;">
+                                <div class="filter-section-title">Pillar</div>
+                            </div>
+                            <div class="filter-section">
+                                <div class="filter-reset" id="filterReset" role="menuitem" tabindex="0">Reset Filters</div>
+                            </div>
+                        </div>
+                    </div>
                     <button class="btn" id="visibilityBtn" 
                             aria-label="Toggle issue visibility" 
                             aria-pressed="true"
@@ -440,6 +623,13 @@
     const blockingCount = shadow.getElementById('blockingCount');
     const majorCount = shadow.getElementById('majorCount');
     const minorCount = shadow.getElementById('minorCount');
+    const filterBtn = shadow.getElementById('filterBtn');
+    const filterDropdown = shadow.getElementById('filterDropdown');
+    const filterBlockingCount = shadow.getElementById('filterBlockingCount');
+    const filterMajorCount = shadow.getElementById('filterMajorCount');
+    const filterMinorCount = shadow.getElementById('filterMinorCount');
+    const pillarFilterSection = shadow.getElementById('pillarFilterSection');
+    const filterReset = shadow.getElementById('filterReset');
     const visibilityBtn = shadow.getElementById('visibilityBtn');
     const screenshotBtn = shadow.getElementById('screenshotBtn');
     const orientationBtn = shadow.getElementById('orientationBtn');
@@ -575,6 +765,8 @@
     
     function updateIssueCount() {
         const total = state.issues.length;
+        const filtered = getFilteredIssueCount();
+        const isFiltered = hasActiveFilters();
         
         if (state.toolbarState === 'scanning') {
             issueCount.innerHTML = '<span class="spinner">⟳</span> Analyzing...';
@@ -588,11 +780,14 @@
             issueCount.classList.remove('scanning');
             severityBadges.style.display = 'none';
         } else {
-            issueCount.textContent = `${total} Issue${total !== 1 ? 's' : ''}`;
+            if (isFiltered && filtered !== total) {
+                issueCount.textContent = `${filtered} of ${total} Issue${total !== 1 ? 's' : ''}`;
+            } else {
+                issueCount.textContent = `${total} Issue${total !== 1 ? 's' : ''}`;
+            }
             issueCount.classList.remove('success', 'scanning');
             severityBadges.style.display = 'flex';
             
-            // Update severity counts
             blockingCount.textContent = state.severityCounts.blocking;
             majorCount.textContent = state.severityCounts.major;
             minorCount.textContent = state.severityCounts.minor;
@@ -617,6 +812,205 @@
     }
 
     // =========================================================================
+    // Filter Functionality
+    // =========================================================================
+
+    function getFilteredIssueCount() {
+        return state.issues.filter(issue => isIssueVisible(issue)).length;
+    }
+
+    function isIssueVisible(issue) {
+        const severity = normalizeSeverity(issue.severity || 'minor');
+        if (!state.filters.severity[severity]) return false;
+        
+        if (state.filters.pillars.size > 0) {
+            const pillar = issue.pillar || 'General';
+            if (!state.filters.pillars.has(pillar)) return false;
+        }
+        return true;
+    }
+
+    function normalizeSeverity(severity) {
+        if (['blocking', 'critical', 'error'].includes(severity)) return 'blocking';
+        if (['major', 'warning'].includes(severity)) return 'major';
+        return 'minor';
+    }
+
+    function hasActiveFilters() {
+        const allSeveritiesOn = Object.values(state.filters.severity).every(v => v);
+        const noPillarFilter = state.filters.pillars.size === 0;
+        return !allSeveritiesOn || !noPillarFilter;
+    }
+
+    function updateFilterButtonState() {
+        if (hasActiveFilters()) {
+            filterBtn.classList.add('has-active-filter');
+        } else {
+            filterBtn.classList.remove('has-active-filter');
+        }
+    }
+
+    function updateFilterCounts() {
+        filterBlockingCount.textContent = state.severityCounts.blocking;
+        filterMajorCount.textContent = state.severityCounts.major;
+        filterMinorCount.textContent = state.severityCounts.minor;
+    }
+
+    function updatePillarFilters() {
+        state.issues.forEach(issue => {
+            const pillar = issue.pillar || 'General';
+            state.knownPillars.add(pillar);
+        });
+
+        if (state.knownPillars.size > 0) {
+            pillarFilterSection.style.display = 'block';
+            
+            const existingItems = pillarFilterSection.querySelectorAll('.filter-item');
+            existingItems.forEach(item => item.remove());
+
+            state.knownPillars.forEach(pillar => {
+                const isChecked = state.filters.pillars.size === 0 || state.filters.pillars.has(pillar);
+                const pillarCount = state.issues.filter(i => (i.pillar || 'General') === pillar).length;
+                
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                item.dataset.filterType = 'pillar';
+                item.dataset.filterValue = pillar;
+                item.setAttribute('role', 'menuitemcheckbox');
+                item.setAttribute('aria-checked', isChecked.toString());
+                item.setAttribute('tabindex', '0');
+                item.innerHTML = `
+                    <span class="filter-checkbox ${isChecked ? 'checked' : ''}"></span>
+                    <span class="filter-label">${escapeHtml(pillar)}</span>
+                    <span class="filter-count">${pillarCount}</span>
+                `;
+                
+                item.addEventListener('click', () => toggleFilter('pillar', pillar));
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleFilter('pillar', pillar);
+                    }
+                });
+                
+                pillarFilterSection.appendChild(item);
+            });
+        } else {
+            pillarFilterSection.style.display = 'none';
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function toggleFilter(type, value) {
+        if (type === 'severity') {
+            state.filters.severity[value] = !state.filters.severity[value];
+            
+            const item = filterDropdown.querySelector(`[data-filter-type="severity"][data-filter-value="${value}"]`);
+            if (item) {
+                const checkbox = item.querySelector('.filter-checkbox');
+                checkbox.classList.toggle('checked', state.filters.severity[value]);
+                item.setAttribute('aria-checked', state.filters.severity[value].toString());
+            }
+        } else if (type === 'pillar') {
+            if (state.filters.pillars.size === 0) {
+                state.knownPillars.forEach(p => {
+                    if (p !== value) state.filters.pillars.add(p);
+                });
+            } else if (state.filters.pillars.has(value)) {
+                state.filters.pillars.delete(value);
+                if (state.filters.pillars.size === 0) {
+                    state.filters.pillars.clear();
+                }
+            } else {
+                state.filters.pillars.add(value);
+                if (state.filters.pillars.size === state.knownPillars.size) {
+                    state.filters.pillars.clear();
+                }
+            }
+            
+            updatePillarFilters();
+        }
+        
+        applyFilters();
+        updateFilterButtonState();
+        announce(`Filter ${type} ${value}: ${state.filters.severity[value] !== false ? 'on' : 'off'}`);
+    }
+
+    function resetFilters() {
+        state.filters.severity = { blocking: true, major: true, minor: true };
+        state.filters.pillars.clear();
+        
+        filterDropdown.querySelectorAll('.filter-item[data-filter-type="severity"]').forEach(item => {
+            const checkbox = item.querySelector('.filter-checkbox');
+            checkbox.classList.add('checked');
+            item.setAttribute('aria-checked', 'true');
+        });
+        
+        updatePillarFilters();
+        applyFilters();
+        updateFilterButtonState();
+        announce('Filters reset');
+    }
+
+    function applyFilters() {
+        emitEvent('filters.changed', {
+            severity: { ...state.filters.severity },
+            pillars: Array.from(state.filters.pillars)
+        });
+        
+        updateIssueCount();
+    }
+
+    function toggleFilterDropdown() {
+        state.filterMenuOpen = !state.filterMenuOpen;
+        filterDropdown.classList.toggle('open', state.filterMenuOpen);
+        filterBtn.setAttribute('aria-expanded', state.filterMenuOpen.toString());
+        
+        if (state.filterMenuOpen) {
+            updateFilterCounts();
+            updatePillarFilters();
+        }
+    }
+
+    filterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFilterDropdown();
+    });
+
+    filterDropdown.querySelectorAll('.filter-item[data-filter-type="severity"]').forEach(item => {
+        item.addEventListener('click', () => {
+            toggleFilter('severity', item.dataset.filterValue);
+        });
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFilter('severity', item.dataset.filterValue);
+            }
+        });
+    });
+
+    filterReset.addEventListener('click', resetFilters);
+    filterReset.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            resetFilters();
+        }
+    });
+
+    document.addEventListener('click', () => {
+        if (state.filterMenuOpen) {
+            state.filterMenuOpen = false;
+            filterDropdown.classList.remove('open');
+            filterBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // =========================================================================
     // Button Event Handlers
     // =========================================================================
     
@@ -631,13 +1025,65 @@
         announce(state.annotationsVisible ? 'Annotations visible' : 'Annotations hidden');
     });
 
-    // Screenshot button (placeholder - full implementation in Phase 4)
+    // Screenshot button - triggers capture flow
     screenshotBtn.addEventListener('click', () => {
-        emitEvent('screenshot.requested', { issueCount: state.issues.length });
-        announce('Screenshot requested');
+        captureAnnotatedScreenshot();
     });
 
-    // Orientation toggle (placeholder - full implementation in Phase 4)
+    // =========================================================================
+    // Screenshot Capture (Phase 4)
+    // =========================================================================
+
+    /**
+     * Capture annotated screenshot.
+     * 
+     * This function prepares the page for screenshot capture by:
+     * 1. Hiding the toolbar (annotations remain visible)
+     * 2. Emitting screenshot.requested event for Python to capture
+     * 3. The actual screenshot is taken by Playwright in Python
+     * 4. Python emits screenshot.captured with the file path
+     * 5. Toolbar is shown again after capture
+     */
+    async function captureAnnotatedScreenshot() {
+        const issueCount = state.issues.length;
+        
+        // Generate filename per convention: YYYY-MM-DDTHH-MM-SS_N-issues.png
+        const now = new Date();
+        const timestamp = now.toISOString()
+            .replace(/[:.]/g, '-')
+            .slice(0, 19);
+        const filename = `${timestamp}_${issueCount}-issues.png`;
+        
+        // Hide toolbar (annotations stay visible via annotation layer)
+        toolbar.style.display = 'none';
+        
+        // Emit event for Python to handle the actual capture
+        emitEvent('screenshot.requested', { 
+            issueCount: issueCount,
+            filename: filename,
+            directory: '.canvas/screenshots'
+        });
+        
+        announce('Capturing screenshot...');
+        
+        // Fallback timeout in case Python capture doesn't respond
+        setTimeout(() => {
+            if (toolbar.style.display === 'none') {
+                toolbar.style.display = 'flex';
+                announce('Screenshot complete');
+            }
+        }, 3000);
+    }
+
+    // Listen for screenshot capture completion
+    if (bus) {
+        bus.subscribe('screenshot.captured', (event) => {
+            toolbar.style.display = 'flex';
+            announce(`Screenshot saved: ${event.payload?.path || 'complete'}`);
+        });
+    }
+
+    // Orientation toggle with boundary detection
     orientationBtn.addEventListener('click', () => {
         const newOrientation = state.orientation === 'horizontal' ? 'vertical' : 'horizontal';
         
@@ -773,6 +1219,25 @@
         // State queries
         getState: () => ({ ...state }),
         getIssueCount: () => state.issues.length,
+        getFilteredCount: () => getFilteredIssueCount(),
+        
+        // Filter methods
+        getFilters: () => ({
+            severity: { ...state.filters.severity },
+            pillars: Array.from(state.filters.pillars)
+        }),
+        setFilters: (filters) => {
+            if (filters.severity) {
+                state.filters.severity = { ...state.filters.severity, ...filters.severity };
+            }
+            if (filters.pillars !== undefined) {
+                state.filters.pillars = new Set(filters.pillars);
+            }
+            applyFilters();
+            updateFilterButtonState();
+        },
+        resetFilters: () => resetFilters(),
+        isIssueVisible: (issue) => isIssueVisible(issue),
         
         // State updates
         addIssue: (issue) => {
@@ -785,6 +1250,10 @@
             } else {
                 state.severityCounts.minor++;
             }
+            
+            const pillar = issue.pillar || 'General';
+            state.knownPillars.add(pillar);
+            
             setToolbarState('issues');
             updateIssueCount();
             return state.issues.length;
@@ -793,6 +1262,7 @@
         clearIssues: () => {
             state.issues = [];
             state.severityCounts = { blocking: 0, major: 0, minor: 0 };
+            state.knownPillars.clear();
             updateIssueCount();
         },
         

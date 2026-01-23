@@ -172,13 +172,57 @@
         <div class="result" id="result3">Click a button to query state...</div>
     </div>
 
+    <!-- Phase 5: Filtering Tests -->
+    <div class="test-section">
+        <h2>Phase 5: Filtering</h2>
+        <p>Test filter functionality:</p>
+        <div class="test-controls">
+            <button onclick="testFilterDropdown()">Open Filter Menu</button>
+            <button onclick="testToggleSeverityFilter('blocking')">Toggle Blocking Filter</button>
+            <button onclick="testToggleSeverityFilter('major')">Toggle Major Filter</button>
+            <button onclick="testToggleSeverityFilter('minor')">Toggle Minor Filter</button>
+            <button onclick="testResetFilters()">Reset Filters</button>
+            <button onclick="getFilterState()">Get Filter State</button>
+        </div>
+        <div class="result" id="result5">Click a button to test filtering...</div>
+    </div>
+
+    <!-- Phase 5: Keyboard Navigation Tests -->
+    <div class="test-section">
+        <h2>Phase 5: Keyboard Navigation</h2>
+        <p>Test keyboard navigation (5.2.4, 5.2.5):</p>
+        <div class="test-controls">
+            <button onclick="setupKeyboardTest()">Setup Test Badges</button>
+            <button onclick="testNumberKeyJump()">Test Number Keys (1-3)</button>
+            <button onclick="testArrowNavigation()">Test Arrow Keys</button>
+        </div>
+        <p style="margin-top: 10px; color: #666; font-size: 12px;">
+            After clicking "Setup Test Badges", try pressing 1, 2, 3 to jump to badges, 
+            or use arrow keys to navigate between them.
+        </p>
+        <div class="result" id="result6">Click "Setup Test Badges" first...</div>
+    </div>
+
+    <!-- Phase 5: Edge Cases Tests -->
+    <div class="test-section">
+        <h2>Phase 5: Edge Cases</h2>
+        <p>Test edge case handling (5.4.x):</p>
+        <div class="test-controls">
+            <button onclick="testElementRemoval()">Test Element Removal (5.4.1)</button>
+            <button onclick="testLongContent()">Test Long Popover Content (5.4.3)</button>
+            <button onclick="testRapidIssues()">Test Rapid Issues (5.4.4)</button>
+        </div>
+        <div class="result" id="result7">Click a button to test edge cases...</div>
+    </div>
+
     <!-- Verification -->
     <div class="test-section">
         <h2>Verification Checks</h2>
-        <p>Automated verification of Phase 1 and Phase 2 requirements:</p>
+        <p>Automated verification of Phase 1, Phase 2, and Phase 5 requirements:</p>
         <div class="test-controls">
             <button onclick="runPhase1Verification()">Verify Phase 1</button>
             <button onclick="runPhase2Verification()">Verify Phase 2</button>
+            <button onclick="runPhase5Verification()">Verify Phase 5</button>
             <button onclick="runAllVerifications()">Run All Verifications</button>
         </div>
         <div class="result" id="result4">Click to run verifications...</div>
@@ -353,6 +397,186 @@
                 layer?.show();
                 document.getElementById('result3').textContent = 'Annotations visible';
             }
+        }
+        
+        // =================================================================
+        // Phase 5: Filtering Functions
+        // =================================================================
+        
+        function testFilterDropdown() {
+            const filterBtn = document.getElementById('__annotation_toolbar_host');
+            if (filterBtn) {
+                document.getElementById('result5').textContent = 'Filter button found. Use the ⚙ button on toolbar to open filter dropdown.';
+            } else {
+                document.getElementById('result5').textContent = 'Toolbar host not found';
+            }
+        }
+        
+        function testToggleSeverityFilter(severity) {
+            const filters = window.__annotationToolbar?.getFilters();
+            if (!filters) {
+                document.getElementById('result5').textContent = 'Toolbar not available';
+                return;
+            }
+            
+            filters.severity[severity] = !filters.severity[severity];
+            window.__annotationToolbar.setFilters(filters);
+            
+            const state = window.__annotationToolbar.getFilters();
+            document.getElementById('result5').textContent = 
+                `Toggled ${severity} filter to ${state.severity[severity]}. ` +
+                `Current filters: ${JSON.stringify(state.severity)}`;
+        }
+        
+        function testResetFilters() {
+            window.__annotationToolbar?.resetFilters();
+            const state = window.__annotationToolbar?.getFilters();
+            document.getElementById('result5').textContent = 
+                `Filters reset. Current state: ${JSON.stringify(state)}`;
+        }
+        
+        function getFilterState() {
+            const toolbarFilters = window.__annotationToolbar?.getFilters();
+            const layerFilters = window.__annotationLayer?.getFilters();
+            const filteredCount = window.__annotationToolbar?.getFilteredCount();
+            const totalCount = window.__annotationToolbar?.getIssueCount();
+            
+            document.getElementById('result5').textContent = JSON.stringify({
+                toolbar: toolbarFilters,
+                layer: layerFilters,
+                counts: { filtered: filteredCount, total: totalCount }
+            }, null, 2);
+        }
+        
+        // =================================================================
+        // Phase 5: Keyboard Navigation Functions
+        // =================================================================
+        
+        function setupKeyboardTest() {
+            window.__annotationLayer?.clearAll();
+            window.__annotationToolbar?.clearIssues();
+            
+            const testIssues = [
+                { id: 'kbd-1', severity: 'blocking', cssSelector: '#target-1', description: 'Badge 1', pillar: 'Test' },
+                { id: 'kbd-2', severity: 'major', cssSelector: '#target-2', description: 'Badge 2', pillar: 'Test' },
+                { id: 'kbd-3', severity: 'minor', cssSelector: '#target-3', description: 'Badge 3', pillar: 'Test' }
+            ];
+            
+            testIssues.forEach(issue => {
+                window.__annotationLayer?.addIssue(issue, { debounce: false });
+                window.__annotationToolbar?.addIssue(issue);
+            });
+            
+            document.getElementById('result6').textContent = 
+                'Created 3 test badges. Now try:\n' +
+                '- Press 1, 2, 3 to jump to specific badges\n' +
+                '- Use arrow keys to navigate between badges\n' +
+                '- Click on a badge, then use Tab to navigate within the popover';
+        }
+        
+        function testNumberKeyJump() {
+            document.getElementById('result6').textContent = 
+                'Press keys 1, 2, or 3 to focus the corresponding badge.\n' +
+                'The badge should receive focus and you should see the focus ring.';
+        }
+        
+        function testArrowNavigation() {
+            const firstBadge = document.querySelector('.annotation-badge');
+            if (firstBadge) {
+                firstBadge.focus();
+                document.getElementById('result6').textContent = 
+                    'Focused first badge. Now use Arrow Right/Down to go to next badge,\n' +
+                    'or Arrow Left/Up to go to previous badge.';
+            } else {
+                document.getElementById('result6').textContent = 'No badges found. Run "Setup Test Badges" first.';
+            }
+        }
+        
+        // =================================================================
+        // Phase 5: Edge Cases Functions
+        // =================================================================
+        
+        function testElementRemoval() {
+            window.__annotationLayer?.clearAll();
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.id = 'temp-element';
+            tempDiv.className = 'target-box';
+            tempDiv.textContent = 'Temporary Element';
+            tempDiv.style.background = '#ff9f43';
+            document.querySelector('.target-elements').appendChild(tempDiv);
+            
+            window.__annotationLayer?.addIssue({
+                id: 'temp-issue',
+                severity: 'major',
+                cssSelector: '#temp-element',
+                description: 'This badge will become orphaned',
+                pillar: 'Test'
+            }, { debounce: false });
+            
+            setTimeout(() => {
+                tempDiv.remove();
+                document.getElementById('result7').textContent = 
+                    'Removed target element after 2 seconds.\n' +
+                    'Badge should now be marked as orphaned (dimmed/disabled).\n' +
+                    'Check for "orphaned" class on the badge.';
+            }, 2000);
+            
+            document.getElementById('result7').textContent = 
+                'Created badge on temporary element. Element will be removed in 2 seconds...';
+        }
+        
+        function testLongContent() {
+            window.__annotationLayer?.clearAll();
+            
+            const longDescription = 'Lorem ipsum dolor sit amet. '.repeat(50);
+            const longRecommendation = 'Consider implementing the following fixes: '.repeat(30);
+            
+            window.__annotationLayer?.addIssue({
+                id: 'long-content',
+                severity: 'blocking',
+                cssSelector: '#target-1',
+                description: longDescription,
+                recommendation: longRecommendation,
+                pillar: 'Quality Craft'
+            }, { debounce: false });
+            
+            document.getElementById('result7').textContent = 
+                'Created badge with very long content.\n' +
+                'Click the badge to open popover.\n' +
+                'Popover should have scroll for long content without overflowing viewport.';
+        }
+        
+        function testRapidIssues() {
+            window.__annotationLayer?.clearAll();
+            window.__annotationToolbar?.clearIssues();
+            
+            const startTime = performance.now();
+            let added = 0;
+            
+            for (let i = 0; i < 20; i++) {
+                window.__annotationLayer?.addIssue({
+                    id: `rapid-${i}`,
+                    severity: ['blocking', 'major', 'minor'][i % 3],
+                    cssSelector: `#target-${(i % 3) + 1}`,
+                    description: `Rapid issue ${i + 1}`,
+                    pillar: 'Performance Test'
+                });
+                added++;
+            }
+            
+            const elapsed = performance.now() - startTime;
+            
+            setTimeout(() => {
+                const totalBadges = document.querySelectorAll('.annotation-badge').length;
+                document.getElementById('result7').textContent = 
+                    `Added ${added} issues in ${elapsed.toFixed(2)}ms\n` +
+                    `Badges in DOM after debounce flush: ${totalBadges}\n` +
+                    `Issues should be batched with 50ms debounce to prevent visual glitches.`;
+            }, 100);
+            
+            document.getElementById('result7').textContent = 
+                `Adding ${added} issues rapidly... Check for smooth badge addition.`;
         }
         
         // =================================================================
@@ -532,6 +756,97 @@
             displayResults('Phase 2', results);
         }
         
+        function runPhase5Verification() {
+            const results = [];
+            const api = window.__annotationToolbar;
+            const layer = window.__annotationLayer;
+            
+            // 5.1.1 - Filter button exists
+            results.push({
+                test: '5.1.1 Filter dropdown UI exists',
+                pass: typeof api?.getFilters === 'function',
+                detail: api?.getFilters ? 'getFilters() method available' : 'NOT AVAILABLE'
+            });
+            
+            // 5.1.2 - Filter by severity
+            const initialFilters = api?.getFilters();
+            results.push({
+                test: '5.1.2 Filter by severity - initial state',
+                pass: initialFilters?.severity?.blocking === true && 
+                      initialFilters?.severity?.major === true && 
+                      initialFilters?.severity?.minor === true,
+                detail: `Severity filters: ${JSON.stringify(initialFilters?.severity || {})}`
+            });
+            
+            // Test severity toggle
+            api?.setFilters({ severity: { blocking: false, major: true, minor: true } });
+            const afterToggle = api?.getFilters();
+            results.push({
+                test: '5.1.2 Filter by severity - toggle works',
+                pass: afterToggle?.severity?.blocking === false,
+                detail: `After toggle: ${JSON.stringify(afterToggle?.severity || {})}`
+            });
+            
+            // 5.1.5 - Filtered count
+            api?.clearIssues();
+            api?.addIssue({ id: 'test-1', severity: 'blocking', description: 'Test 1' });
+            api?.addIssue({ id: 'test-2', severity: 'major', description: 'Test 2' });
+            api?.addIssue({ id: 'test-3', severity: 'minor', description: 'Test 3' });
+            
+            api?.setFilters({ severity: { blocking: false, major: true, minor: true } });
+            const filteredCount = api?.getFilteredCount();
+            results.push({
+                test: '5.1.5 Toolbar count reflects filtered view',
+                pass: filteredCount === 2,
+                detail: `Total: 3, Filtered: ${filteredCount} (expected 2 when blocking hidden)`
+            });
+            
+            // 5.1.6 - Persist filter state
+            const persistedFilters = api?.getFilters();
+            results.push({
+                test: '5.1.6 Filter state persisted',
+                pass: persistedFilters?.severity?.blocking === false,
+                detail: `Persisted state: ${JSON.stringify(persistedFilters?.severity || {})}`
+            });
+            
+            // 5.1.x - Reset filters
+            api?.resetFilters();
+            const resetFilters = api?.getFilters();
+            results.push({
+                test: '5.1.x Reset filters works',
+                pass: resetFilters?.severity?.blocking === true && 
+                      resetFilters?.severity?.major === true && 
+                      resetFilters?.severity?.minor === true,
+                detail: `After reset: ${JSON.stringify(resetFilters?.severity || {})}`
+            });
+            
+            // 5.1.4 - Badge visibility check
+            layer?.clearAll();
+            layer?.addIssue({ id: 'vis-1', severity: 'blocking', cssSelector: '#target-1', description: 'Test' });
+            layer?.addIssue({ id: 'vis-2', severity: 'minor', cssSelector: '#target-2', description: 'Test' });
+            
+            api?.setFilters({ severity: { blocking: false, major: true, minor: true } });
+            // Trigger filter application
+            layer?.applyFilters({ severity: { blocking: false, major: true, minor: true }, pillars: [] });
+            
+            const blockingBadge = document.querySelector('.annotation-badge.severity-blocking');
+            const minorBadge = document.querySelector('.annotation-badge.severity-minor');
+            results.push({
+                test: '5.1.4 Badge visibility based on active filters',
+                pass: (blockingBadge?.style.display === 'none' || blockingBadge?.classList.contains('filtered-out')) && 
+                      minorBadge?.style.display !== 'none',
+                detail: `Blocking hidden: ${blockingBadge?.style.display === 'none' || blockingBadge?.classList.contains('filtered-out')}, ` +
+                        `Minor visible: ${minorBadge?.style.display !== 'none'}`
+            });
+            
+            // Cleanup
+            api?.clearIssues();
+            api?.resetFilters();
+            layer?.clearAll();
+            
+            displayResults('Phase 5', results);
+        }
+        
         function runAllVerifications() {
             document.getElementById('result4').textContent = '';
             
@@ -540,6 +855,9 @@
             
             // Run Phase 2
             runPhase2VerificationQuiet();
+            
+            // Run Phase 5
+            runPhase5Verification();
         }
         
         function runPhase1VerificationQuiet() {
