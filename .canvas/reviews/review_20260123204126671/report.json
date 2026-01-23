@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "url": "https://www.microsoft.com",
+  "spec": "Default Design Review",
+  "specPath": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+  "sessionId": "review_20260123204126671",
+  "mode": "interactive",
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "issues": [],
+  "reviewedElements": [],
+  "artifacts": {
+    "screenshot": ".canvas/reviews/review_20260123204126671/screenshot.png",
+    "sessionDir": ".canvas/reviews/review_20260123204126671"
+  }
+}

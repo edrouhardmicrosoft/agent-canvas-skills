@@ -1,0 +1,412 @@
+{
+  "sessionId": "review_20260123204717977",
+  "startTime": "2026-01-23T20:47:17.978Z",
+  "endTime": "2026-01-23T20:49:40.976Z",
+  "url": "https://www.erikdrouhard.com",
+  "mode": "interactive",
+  "spec": {
+    "name": "Default Design Review",
+    "path": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+    "pillars": 4,
+    "checks": 21
+  },
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "reviewedElements": [],
+  "events": [
+    {
+      "timestamp": "2026-01-23T20:47:17.979Z",
+      "type": "session_start",
+      "data": {
+        "sessionId": "review_20260123204717977",
+        "url": "https://www.erikdrouhard.com",
+        "spec": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+        "mode": "interactive"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:47:18.700Z",
+      "type": "browser_launched",
+      "data": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:47:20.799Z",
+      "type": "page_loaded",
+      "data": {
+        "url": "https://www.erikdrouhard.com"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:47:20.808Z",
+      "type": "overlay_injected",
+      "data": {
+        "spec": "Default Design Review"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:26.604Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:49:26.594Z",
+        "payload": {
+          "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(3)",
+          "timestamp": "2026-01-23T20:49:26.594Z",
+          "element": {
+            "tag": "p",
+            "id": null,
+            "className": "framer-text",
+            "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(3)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "p.framer-text",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Leveraging my design and development skills, I led an effort to create a design system for Mix and other sophisticated web tools\u2014Verse Design System.",
+            "boundingBox": {
+              "x": 427,
+              "y": 768,
+              "width": 450,
+              "height": 78
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:29.040Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:49:28.980Z",
+        "payload": {
+          "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(1)",
+          "timestamp": "2026-01-23T20:49:28.980Z",
+          "element": {
+            "tag": "p",
+            "id": null,
+            "className": "framer-text",
+            "selector": "div > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(1)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "p.framer-text",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Working at the intersection of design and code. A continuous learner, with an interest in designing complex systems and a passion for prototyping. With over 15 years experience crafting user interface",
+            "boundingBox": {
+              "x": 427,
+              "y": 507,
+              "width": 450,
+              "height": 235
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:30.843Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:49:30.791Z",
+        "payload": {
+          "selector": "div:nth-of-type(1) > div > h1 > a:nth-of-type(5) > span",
+          "timestamp": "2026-01-23T20:49:30.791Z",
+          "element": {
+            "tag": "span",
+            "id": null,
+            "className": "framer-text",
+            "selector": "div:nth-of-type(1) > div > h1 > a:nth-of-type(5) > span",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Microsoft",
+            "boundingBox": {
+              "x": 889,
+              "y": 302,
+              "width": 141,
+              "height": 40
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "inline",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "36px",
+              "fontWeight": "500",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:35.808Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:49:35.716Z",
+        "payload": {
+          "selector": "div.framer-1i42yjc",
+          "timestamp": "2026-01-23T20:49:35.716Z",
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "framer-1i42yjc",
+            "selector": "div.framer-1i42yjc",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "DOWNLOAD RESUMEErik Drouhard is a Product Designer & UX Engineer currently working on Azure AI Foundry at Microsoft. He lives in Worcester, MA with his wife Becca and cat Star.\u00a0Key Skills: UX Engineer",
+            "boundingBox": {
+              "x": 403,
+              "y": 0,
+              "width": 940,
+              "height": 970
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "12px",
+              "fontWeight": "400",
+              "padding": "40px 24px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:38.124Z",
+      "type": "browser_closed",
+      "data": {}
+    },
+    {
+      "timestamp": "2026-01-23T20:49:40.952Z",
+      "type": "screenshot_captured",
+      "data": {
+        "path": ".canvas/reviews/review_20260123204717977/screenshot.png"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:49:40.976Z",
+      "type": "report_saved",
+      "data": {
+        "path": ".canvas/reviews/review_20260123204717977/report.json"
+      }
+    }
+  ]
+}

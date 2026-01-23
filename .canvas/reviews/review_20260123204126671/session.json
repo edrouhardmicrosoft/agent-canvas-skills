@@ -1,0 +1,238 @@
+{
+  "sessionId": "review_20260123204126671",
+  "startTime": "2026-01-23T20:41:26.673Z",
+  "endTime": "2026-01-23T20:43:02.345Z",
+  "url": "https://www.microsoft.com",
+  "mode": "interactive",
+  "spec": {
+    "name": "Default Design Review",
+    "path": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+    "pillars": 4,
+    "checks": 21
+  },
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "reviewedElements": [],
+  "events": [
+    {
+      "timestamp": "2026-01-23T20:41:26.694Z",
+      "type": "session_start",
+      "data": {
+        "sessionId": "review_20260123204126671",
+        "url": "https://www.microsoft.com",
+        "spec": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+        "mode": "interactive"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:41:29.509Z",
+      "type": "browser_launched",
+      "data": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:41:36.090Z",
+      "type": "page_loaded",
+      "data": {
+        "url": "https://www.microsoft.com"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:41:36.113Z",
+      "type": "overlay_injected",
+      "data": {
+        "spec": "Default Design Review"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:42:42.941Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:42:42.910Z",
+        "payload": {
+          "selector": "reimagine-carousel-item > reimagine-hero-featured-slider-item > reimagine-media > picture > img",
+          "timestamp": "2026-01-23T20:42:42.910Z",
+          "element": {
+            "tag": "img",
+            "id": null,
+            "className": "   ",
+            "selector": "reimagine-carousel-item > reimagine-hero-featured-slider-item > reimagine-media > picture > img",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 15,
+              "width": 1265,
+              "height": 580
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": "https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Hero-Mobile-M365-Student-Offer-Podcaster?resMode=sharp2&op_usm=1.5,0.65,15,0&wid=3000&hei=1682&qlt=95&fit=constrain"
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:42:47.355Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T20:42:47.319Z",
+        "payload": {
+          "selector": "#secondary-nav-ocd973",
+          "timestamp": "2026-01-23T20:42:47.318Z",
+          "element": {
+            "tag": "reimagine-secondary-nav",
+            "id": "secondary-nav-ocd973",
+            "className": "",
+            "selector": "#secondary-nav-ocd973",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Secondary Nav\n                \n                \n                    \n                        \n\n\n\n\n\n\n    \n    \n\n    \n\n    \n\n    \n        Shop Surface devices\n            \n               \n            \n ",
+            "boundingBox": {
+              "x": 56,
+              "y": 368,
+              "width": 1153,
+              "height": 216
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:42:54.418Z",
+      "type": "browser_closed",
+      "data": {}
+    },
+    {
+      "timestamp": "2026-01-23T20:43:02.312Z",
+      "type": "screenshot_captured",
+      "data": {
+        "path": ".canvas/reviews/review_20260123204126671/screenshot.png"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:43:02.345Z",
+      "type": "report_saved",
+      "data": {
+        "path": ".canvas/reviews/review_20260123204126671/report.json"
+      }
+    }
+  ]
+}

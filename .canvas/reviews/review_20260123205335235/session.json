@@ -1,0 +1,112 @@
+{
+  "sessionId": "review_20260123205335235",
+  "startTime": "2026-01-23T20:53:35.238Z",
+  "endTime": "2026-01-23T20:53:37.328Z",
+  "url": "https://www.erikdrouhard.com",
+  "spec": {
+    "name": "Default Design Review",
+    "path": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+    "pillars": 4,
+    "checks": 21
+  },
+  "options": {
+    "selector": null,
+    "annotate": true,
+    "generateTasks": true
+  },
+  "editableContext": {
+    "editable": true,
+    "reasons": [
+      "Framework detected: Next.js",
+      "Source directories found: 2",
+      "Git repository (changes can be tracked)",
+      "Warning: Not a local server, changes may not reflect"
+    ],
+    "framework": "Next.js",
+    "source_dirs": [
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/app",
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/lib"
+    ],
+    "has_git": true,
+    "confidence": "low"
+  },
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "events": [
+    {
+      "timestamp": "2026-01-23T20:53:35.239Z",
+      "type": "session_start",
+      "data": {
+        "sessionId": "review_20260123205335235",
+        "url": "https://www.erikdrouhard.com",
+        "spec": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+        "selector": null,
+        "annotate": true,
+        "generateTasks": true,
+        "editableContext": {
+          "editable": true,
+          "reasons": [
+            "Framework detected: Next.js",
+            "Source directories found: 2",
+            "Git repository (changes can be tracked)",
+            "Warning: Not a local server, changes may not reflect"
+          ],
+          "framework": "Next.js",
+          "source_dirs": [
+            "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/app",
+            "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/lib"
+          ],
+          "has_git": true,
+          "confidence": "low"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:53:35.517Z",
+      "type": "browser_launched",
+      "data": {
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:53:37.199Z",
+      "type": "page_loaded",
+      "data": {
+        "url": "https://www.erikdrouhard.com"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:53:37.290Z",
+      "type": "screenshot_captured",
+      "data": {
+        "path": ".canvas/reviews/review_20260123205335235/screenshot.png"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:53:37.290Z",
+      "type": "spec_checks_completed",
+      "data": {
+        "checkCount": 21,
+        "issueCount": 0
+      }
+    },
+    {
+      "timestamp": "2026-01-23T20:53:37.325Z",
+      "type": "browser_closed",
+      "data": {}
+    },
+    {
+      "timestamp": "2026-01-23T20:53:37.328Z",
+      "type": "report_saved",
+      "data": {
+        "path": ".canvas/reviews/review_20260123205335235/report.json"
+      }
+    }
+  ]
+}
