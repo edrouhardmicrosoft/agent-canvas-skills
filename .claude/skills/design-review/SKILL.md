@@ -38,6 +38,12 @@ uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate
 
 # Generate task file for fixes
 uv run $SKILL_DIR/design_review.py review http://localhost:3000 --generate-tasks
+
+# Generate markdown export with CSS selectors
+uv run $SKILL_DIR/design_review.py review http://localhost:3000 --markdown
+
+# Combine annotations and markdown export
+uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate --markdown
 ```
 
 ### Interactive Mode
@@ -79,6 +85,11 @@ uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
 uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
   --reference homepage.png \
   --generate-tasks
+
+# Generate markdown export with CSS selectors
+uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
+  --reference homepage.png \
+  --markdown
 ```
 
 Options:
@@ -88,6 +99,7 @@ Options:
 - `--diff-style`: Visualization style (overlay, sidebyside, heatmap)
 - `--viewport-only`: Capture only viewport (not full page)
 - `--generate-tasks`: Generate DESIGN-REVIEW-TASKS.md
+- `--markdown`: Generate issues.md with CSS selectors for easy fixes
 
 #### Standalone Image Comparator
 
@@ -149,6 +161,7 @@ All commands return JSON:
       "pillar": "Quality Craft",
       "severity": "major",
       "element": ".subtitle-text",
+      "cssSelector": "main > section.hero > p.subtitle-text",
       "description": "Contrast ratio 3.2:1 (minimum 4.5:1 required)",
       "recommendation": "Darken text to #595959 or darker"
     }
@@ -157,6 +170,7 @@ All commands return JSON:
   "artifacts": {
     "screenshot": ".canvas/reviews/review_.../screenshot.png",
     "annotated": ".canvas/reviews/review_.../annotated.png",
+    "markdown": ".canvas/reviews/review_.../issues.md",
     "tasks": "DESIGN-REVIEW-TASKS.md"
   }
 }
@@ -192,7 +206,8 @@ All commands return JSON:
     "screenshot": ".canvas/reviews/review_.../screenshot.png",
     "reference": "imgs/homepage.png",
     "diff": ".canvas/reviews/review_.../diff.png",
-    "annotated": ".canvas/reviews/review_.../annotated.png"
+    "annotated": ".canvas/reviews/review_.../annotated.png",
+    "markdown": ".canvas/reviews/review_.../issues.md"
   }
 }
 ```
@@ -243,7 +258,56 @@ report.json        # Structured issue data
 screenshot.png     # Original screenshot
 annotated.png      # Screenshot with redlines (for issues)
 diff.png           # Visual diff (for compare mode)
+issues.md          # Markdown export with CSS selectors (--markdown)
 ```
+
+## Markdown Export
+
+The `--markdown` flag generates an `issues.md` file with:
+
+- Summary header with URL, timestamp, spec name, and issue counts
+- Detailed issue tables with severity, pillar, check ID, and CSS selectors
+- A "Quick Fix Reference" section with all CSS selectors for easy copying
+
+Example output:
+
+```markdown
+# Design Review Issues
+
+**URL**: http://localhost:3000  
+**Reviewed**: 2026-01-23T17:20:00  
+**Spec**: default.md  
+**Total Issues**: 3 (1 major, 2 minor)
+
+---
+
+## Issue #1: Contrast ratio 3.2:1 (minimum 4.5:1...
+
+| Property | Value |
+|----------|-------|
+| **Severity** | major |
+| **Pillar** | Quality Craft |
+| **Check** | color-contrast |
+| **CSS Selector** | `main > section.hero > p.subtitle-text` |
+
+**Description**: Contrast ratio 3.2:1 (minimum 4.5:1 required)
+
+**Recommendation**: Darken text to #595959 or darker
+
+---
+
+## Quick Fix Reference
+
+Copy these selectors for your AI assistant:
+
+\`\`\`
+main > section.hero > p.subtitle-text
+header > nav > a.nav-link
+footer > div.copyright
+\`\`\`
+```
+
+The annotated screenshot legend also displays CSS selectors for each issue when `--annotate` is used.
 
 ## Reference Images
 

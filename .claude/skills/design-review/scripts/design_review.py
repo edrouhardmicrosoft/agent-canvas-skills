@@ -392,6 +392,54 @@ def analyze_element(page: "Page", selector: str) -> dict[str, Any]:
         return {"error": str(e)}
 
 
+def extract_element_info(page: "Page", selector: str) -> Optional[dict[str, Any]]:
+    """
+    Extract element metadata for CSS selector generation.
+
+    Captures:
+    - tag: element tag name
+    - id: element ID (if any)
+    - classes: array of class names
+    - parent_chain: array of parent element info (up to 3 levels)
+    """
+    try:
+        element_info = page.evaluate(
+            """(selector) => {
+            const el = document.querySelector(selector);
+            if (!el) return null;
+            
+            function getElementInfo(element) {
+                return {
+                    tag: element.tagName.toLowerCase(),
+                    id: element.id || null,
+                    classes: Array.from(element.classList)
+                };
+            }
+            
+            // Get parent chain (up to 3 levels)
+            const parentChain = [];
+            let parent = el.parentElement;
+            let depth = 0;
+            while (parent && depth < 3 && parent !== document.body) {
+                parentChain.push(getElementInfo(parent));
+                parent = parent.parentElement;
+                depth++;
+            }
+            
+            return {
+                tag: el.tagName.toLowerCase(),
+                id: el.id || null,
+                classes: Array.from(el.classList),
+                parent_chain: parentChain
+            };
+        }""",
+            selector,
+        )
+        return element_info
+    except Exception:
+        return None
+
+
 def check_color_contrast(
     color: str, background: str, minimum_ratio: float = 4.5
 ) -> dict[str, Any]:
@@ -479,17 +527,21 @@ def run_spec_checks(
                         )
                         if not contrast["pass"]:
                             issue_id += 1
-                            issues.append(
-                                {
-                                    "id": issue_id,
-                                    "checkId": check.id,
-                                    "pillar": pillar.name,
-                                    "severity": check.severity,
-                                    "element": selector,
-                                    "description": f"Contrast ratio {contrast['ratio']}:1 (minimum {contrast['minimum']}:1)",
-                                    "recommendation": "Increase contrast by darkening text or lightening background",
-                                }
-                            )
+                            # Extract element info for CSS selector generation
+                            element_info = extract_element_info(page, selector)
+                            issue_dict: dict[str, Any] = {
+                                "id": issue_id,
+                                "checkId": check.id,
+                                "pillar": pillar.name,
+                                "severity": check.severity,
+                                "element": selector,
+                                "description": f"Contrast ratio {contrast['ratio']}:1 (minimum {contrast['minimum']}:1)",
+                                "recommendation": "Increase contrast by darkening text or lightening background",
+                                "boundingBox": element_data.get("boundingBox"),
+                            }
+                            if element_info:
+                                issue_dict["elementInfo"] = element_info
+                            issues.append(issue_dict)
 
             elif check.id == "keyboard-navigation":
                 for violation in a11y_results.get("violations", []):
@@ -700,6 +752,28 @@ def cmd_review(args: argparse.Namespace) -> None:
         generate_tasks_file(result, tasks_path, annotated_path, source_mapper)
         result["artifacts"]["tasks"] = str(tasks_path)
         log_event("tasks_file_generated", {"path": str(tasks_path)})
+
+    # Generate markdown export if requested
+    if args.markdown and issues:
+        md_path = session_dir / "issues.md"
+        md_result = generate_markdown_export(
+            review_result=result,
+            output_path=md_path,
+            url=args.url,
+            spec_name=args.spec or "default.md",
+        )
+        if md_result.get("ok"):
+            result["artifacts"]["markdown"] = str(md_path)
+            log_event(
+                "markdown_export_created",
+                {
+                    "path": str(md_path),
+                    "issueCount": md_result.get("issueCount", 0),
+                    "selectorCount": md_result.get("selectorCount", 0),
+                },
+            )
+        else:
+            log_event("markdown_export_error", {"error": md_result.get("error")})
 
     # Handle todowrite output format
     todowrite_mode = getattr(args, "todowrite", False)
@@ -983,6 +1057,125 @@ def get_circled_number(n: int) -> str:
     if isinstance(n, int) and 1 <= n <= len(circled):
         return circled[n - 1]
     return f"({n})"
+
+
+def generate_markdown_export(
+    review_result: dict,
+    output_path: Path,
+    url: str,
+    spec_name: str,
+) -> dict:
+    """
+    Generate issues.md companion file with full issue details.
+
+    Returns:
+        dict with ok, path keys
+    """
+    from annotator import _generate_css_selector
+
+    try:
+        issues = review_result.get("issues", [])
+        summary = review_result.get("summary", {})
+        timestamp = get_timestamp()
+
+        # Calculate summary counts
+        blocking_count = summary.get("blocking", 0)
+        major_count = summary.get("major", 0)
+        minor_count = summary.get("minor", 0)
+        total_count = blocking_count + major_count + minor_count
+
+        # Build summary string
+        summary_parts = []
+        if blocking_count > 0:
+            summary_parts.append(f"{blocking_count} blocking")
+        if major_count > 0:
+            summary_parts.append(f"{major_count} major")
+        if minor_count > 0:
+            summary_parts.append(f"{minor_count} minor")
+        summary_str = ", ".join(summary_parts) if summary_parts else "none"
+
+        lines = [
+            "# Design Review Issues",
+            "",
+            f"**URL**: {url}  ",
+            f"**Reviewed**: {timestamp}  ",
+            f"**Spec**: {spec_name}  ",
+            f"**Total Issues**: {total_count} ({summary_str})",
+            "",
+            "---",
+            "",
+        ]
+
+        # Collect all selectors for the quick reference section
+        all_selectors: list[str] = []
+
+        for issue in issues:
+            issue_id = issue.get("id", "?")
+            severity = issue.get("severity", "minor")
+            pillar = issue.get("pillar", "")
+            check_id = issue.get("checkId", "unknown")
+            description = issue.get("description", "")
+            recommendation = issue.get("recommendation", "")
+            element = issue.get("element", "")
+
+            # Get or generate CSS selector
+            css_selector = issue.get("cssSelector", "")
+            if not css_selector and issue.get("elementInfo"):
+                css_selector = _generate_css_selector(issue["elementInfo"])
+
+            if css_selector:
+                all_selectors.append(css_selector)
+
+            lines.append(
+                f"## Issue #{issue_id}: {description[:50]}{'...' if len(description) > 50 else ''}"
+            )
+            lines.append("")
+            lines.append("| Property | Value |")
+            lines.append("|----------|-------|")
+            lines.append(f"| **Severity** | {severity} |")
+            if pillar:
+                lines.append(f"| **Pillar** | {pillar} |")
+            lines.append(f"| **Check** | {check_id} |")
+            if css_selector:
+                lines.append(f"| **CSS Selector** | `{css_selector}` |")
+            if element:
+                lines.append(f"| **Element** | `{element}` |")
+            lines.append("")
+
+            lines.append(f"**Description**: {description}")
+            lines.append("")
+
+            if recommendation:
+                lines.append(f"**Recommendation**: {recommendation}")
+                lines.append("")
+
+            lines.append("---")
+            lines.append("")
+
+        # Add Quick Fix Reference section
+        if all_selectors:
+            lines.append("## Quick Fix Reference")
+            lines.append("")
+            lines.append("Copy these selectors for your AI assistant:")
+            lines.append("")
+            lines.append("```")
+            for selector in all_selectors:
+                lines.append(selector)
+            lines.append("```")
+            lines.append("")
+
+        # Write the file
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text("\n".join(lines))
+
+        return {
+            "ok": True,
+            "path": str(output_path),
+            "issueCount": len(issues),
+            "selectorCount": len(all_selectors),
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
 
 
 class SourceMapper:
@@ -1797,6 +1990,44 @@ def cmd_compare(args: argparse.Namespace) -> None:
         result["artifacts"]["tasks"] = str(tasks_path)
         log_event("tasks_file_generated", {"path": str(tasks_path)})
 
+    # Generate markdown export if requested and there are differences
+    if args.markdown and not comparison_result.match and comparison_result.diff_regions:
+        # Build issues from diff regions for markdown export
+        compare_issues = []
+        for i, region in enumerate(comparison_result.diff_regions, 1):
+            compare_issues.append(
+                {
+                    "id": i,
+                    "severity": region.severity,
+                    "description": f"Visual difference ({region.width}x{region.height}px)",
+                    "boundingBox": {
+                        "x": region.x,
+                        "y": region.y,
+                        "width": region.width,
+                        "height": region.height,
+                    },
+                }
+            )
+        md_path = session_dir / "issues.md"
+        md_result = generate_markdown_export(
+            review_result={"issues": compare_issues, "summary": {}},
+            output_path=md_path,
+            url=args.url,
+            spec_name="visual-comparison",
+        )
+        if md_result.get("ok"):
+            result["artifacts"]["markdown"] = str(md_path)
+            log_event(
+                "markdown_export_created",
+                {
+                    "path": str(md_path),
+                    "issueCount": md_result.get("issueCount", 0),
+                    "selectorCount": md_result.get("selectorCount", 0),
+                },
+            )
+        else:
+            log_event("markdown_export_error", {"error": md_result.get("error")})
+
     # Save report.json
     report_file = session_dir / "report.json"
     report_file.write_text(json.dumps(result, indent=2))
@@ -2203,6 +2434,11 @@ def main() -> None:
         action="store_true",
         help="Token-efficient output: truncate descriptions, omit details/nodes/editableContext",
     )
+    review_parser.add_argument(
+        "--markdown",
+        action="store_true",
+        help="Generate issues.md companion file with full selector details",
+    )
 
     interactive_parser = subparsers.add_parser(
         "interactive", help="Interactive review mode"
@@ -2252,6 +2488,11 @@ def main() -> None:
         "--compact",
         action="store_true",
         help="Token-efficient output: reduced diff regions, minimal artifacts",
+    )
+    compare_parser.add_argument(
+        "--markdown",
+        action="store_true",
+        help="Generate issues.md companion file with full selector details",
     )
 
     specs_parser = subparsers.add_parser("specs", help="Manage specs")

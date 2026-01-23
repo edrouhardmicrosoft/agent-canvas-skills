@@ -88,6 +88,86 @@ MARKER_FONT_SIZE = 18
 
 
 # =============================================================================
+# CSS Selector Helpers
+# =============================================================================
+
+
+def _is_utility_class(class_name: str) -> bool:
+    """Check if class is a utility/framework class to skip."""
+    utility_patterns = [
+        "flex",
+        "grid",
+        "p-",
+        "m-",
+        "text-",
+        "bg-",
+        "w-",
+        "h-",  # Tailwind
+        "col-",
+        "row-",
+        "d-",  # Bootstrap
+        "css-",  # Emotion/styled-components
+    ]
+    return any(class_name.startswith(p) for p in utility_patterns)
+
+
+def _build_parent_selector(parent: dict) -> str:
+    """Build selector for a parent element."""
+    if parent.get("id"):
+        return f"#{parent['id']}"
+
+    tag = parent.get("tag", "div")
+    classes = parent.get("classes", [])
+
+    if classes:
+        main_class = next((c for c in classes if not _is_utility_class(c)), None)
+        if main_class:
+            return f"{tag}.{main_class}"
+
+    return tag
+
+
+def _generate_css_selector(element_info: dict) -> str:
+    """
+    Generate a unique CSS selector for an element.
+
+    Prioritizes:
+    1. ID selector (if unique): #my-id
+    2. Class chain: .parent > .child.specific
+    3. Tag + attributes: button[aria-label="Close"]
+    4. Nth-child fallback: div > p:nth-child(2)
+    """
+    # If element has a unique ID, use it
+    if element_info.get("id"):
+        return f"#{element_info['id']}"
+
+    # Build selector from tag and classes
+    parts = []
+    tag = element_info.get("tag", "div")
+    classes = element_info.get("classes", [])
+
+    if classes:
+        # Use most specific classes (filter out utility classes)
+        specific_classes = [c for c in classes if not _is_utility_class(c)]
+        if specific_classes:
+            selector = f"{tag}.{'.'.join(specific_classes[:2])}"
+        else:
+            selector = tag
+    else:
+        selector = tag
+
+    # Add parent context for uniqueness
+    parent_chain = element_info.get("parent_chain", [])
+    for parent in reversed(parent_chain[:3]):  # Max 3 parents
+        parent_selector = _build_parent_selector(parent)
+        if parent_selector:
+            parts.append(parent_selector)
+
+    parts.append(selector)
+    return " > ".join(parts)
+
+
+# =============================================================================
 # Data Classes
 # =============================================================================
 
@@ -130,12 +210,23 @@ class Issue:
     check_id: str = ""
     pillar: str = ""
     element: str = ""
+    css_selector: str = ""
+    element_info: Optional[dict] = None
 
     @classmethod
     def from_dict(cls, d: dict) -> "Issue":
         bbox = None
         if "boundingBox" in d and d["boundingBox"]:
             bbox = BoundingBox.from_dict(d["boundingBox"])
+
+        # Get element info and generate selector if available
+        element_info = d.get("elementInfo")
+        css_selector = d.get("cssSelector", "")
+
+        # If elementInfo provided but no cssSelector, generate it
+        if element_info and not css_selector:
+            css_selector = _generate_css_selector(element_info)
+
         return cls(
             id=d.get("id", 0),
             severity=d.get("severity", "minor"),
@@ -144,6 +235,8 @@ class Issue:
             check_id=d.get("checkId", ""),
             pillar=d.get("pillar", ""),
             element=d.get("element", ""),
+            css_selector=css_selector,
+            element_info=element_info,
         )
 
 
@@ -270,11 +363,18 @@ def draw_legend(
     # Calculate legend dimensions
     font = get_font(LEGEND_FONT_SIZE)
     bold_font = get_font(LEGEND_FONT_SIZE, bold=True)
+    small_font = get_font(LEGEND_FONT_SIZE - 2)  # Smaller font for selectors
 
-    # Calculate required height
+    # Count issues with selectors to calculate height
+    issues_with_selectors = sum(1 for i in issues if i.css_selector)
+
+    # Calculate required height - 2 lines per issue with selector, 1 line otherwise
     legend_height = padding * 2  # Top and bottom padding
     legend_height += LEGEND_LINE_HEIGHT  # Header line
-    legend_height += len(issues) * LEGEND_LINE_HEIGHT  # Issue lines
+    legend_height += len(issues) * LEGEND_LINE_HEIGHT  # Main issue lines
+    legend_height += issues_with_selectors * (
+        LEGEND_LINE_HEIGHT - 8
+    )  # Selector lines (smaller)
 
     # Create new image with space for legend
     new_width = image.width
@@ -334,6 +434,22 @@ def draw_legend(
         )
 
         y += LEGEND_LINE_HEIGHT
+
+        # Draw CSS selector on second line if present
+        if issue.css_selector:
+            selector_text = f"→ {issue.css_selector}"
+            # Truncate long selectors
+            max_selector_len = 55
+            if len(selector_text) > max_selector_len:
+                selector_text = selector_text[: max_selector_len - 3] + "..."
+
+            draw.text(
+                (padding + 36, y - 6),  # Indented more than description
+                selector_text,
+                fill=(108, 117, 125, 255),  # Gray color
+                font=small_font,
+            )
+            y += LEGEND_LINE_HEIGHT - 8  # Smaller spacing for selector line
 
     return new_image
 
