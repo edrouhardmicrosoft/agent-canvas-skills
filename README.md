@@ -18,7 +18,7 @@ A suite of 7 AI agent skills for visual web development and design quality assur
 | [agent-canvas-setup](.claude/skills/agent-canvas-setup/SKILL.md) | Dependency installer | First-time setup |
 | [agent-eyes](.claude/skills/agent-eyes/SKILL.md) | Visual context | Screenshots, a11y, DOM |
 | [agent-canvas](.claude/skills/agent-canvas/SKILL.md) | Element picker | Interactive selection |
-| [canvas-edit](.claude/skills/canvas-edit/SKILL.md) | Live editing | Style/text changes |
+| [canvas-edit](.claude/skills/canvas-edit/SKILL.md) | Annotation toolbar | Issue overlay, screenshots |
 | [canvas-apply](.claude/skills/canvas-apply/SKILL.md) | Code generation | Visual edits → code |
 | [canvas-verify](.claude/skills/canvas-verify/SKILL.md) | Verification | Before/after comparison |
 
@@ -204,11 +204,19 @@ uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edi
 
 ### canvas-edit
 
-Floating panel for live text and style editing.
+Live annotation toolbar that overlays design review findings on web pages. Displays numbered badges on elements with issues, severity indicators, and screenshot capture.
 
 ```bash
-uv run .claude/skills/canvas-edit/scripts/canvas_edit.py edit <url>
+SKILL_DIR=".claude/skills/canvas-edit/scripts"
+
+# Inject annotations from design review
+uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json
+
+# Auto-screenshot on load
+uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json --screenshot
 ```
+
+> **Note**: Canvas-edit was redesigned from a style editor to an annotation viewer. For live style/text editing, use `agent-canvas --with-edit`.
 
 [Full docs](.claude/skills/canvas-edit/SKILL.md)
 
@@ -299,7 +307,7 @@ The skills work with any web page - the demo is just a convenient starting point
 ├── agent-canvas-setup/    # Dependency installer
 ├── agent-eyes/            # Visual context
 ├── agent-canvas/          # Element picker
-├── canvas-edit/           # Style editor
+├── canvas-edit/           # Annotation toolbar
 ├── canvas-apply/          # Code generator
 ├── canvas-verify/         # Verification
 └── shared/                # Shared utilities

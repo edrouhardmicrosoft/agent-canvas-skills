@@ -14,6 +14,7 @@ Quick reference for AI agents to navigate and use canvas skills effectively.
 | Check accessibility issues | `agent-eyes` | `uv run .claude/skills/agent-eyes/scripts/agent_eyes.py a11y <url>` |
 | Select an element interactively | `agent-canvas` | `uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url>` |
 | Edit styles/text visually | `agent-canvas` | `uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edit` |
+| Show annotation overlay | `canvas-edit` | `uv run .claude/skills/canvas-edit/scripts/canvas_edit.py inject <url> --issues <json>` |
 | Apply visual edits to code | `canvas-apply` | `python3 .claude/skills/canvas-apply/scripts/canvas_apply.py <sessionId> --apply` |
 | Verify changes worked | `canvas-verify` | `uv run .claude/skills/canvas-verify/scripts/canvas_verify.py <url> --session <sessionId>` |
 | Skills not working / first use | `agent-canvas-setup` | `uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check` |
@@ -46,12 +47,12 @@ Quick reference for AI agents to navigate and use canvas skills effectively.
 - "interactive selection"
 
 ### canvas-edit
-- "edit text"
-- "change content"
-- "edit styles"
-- "change colors"
-- "adjust spacing"
-- "tweak UI"
+- "show annotations"
+- "display issues"
+- "annotate page"
+- "overlay findings"
+- "inject annotations"
+- "show review results"
 
 ### canvas-apply
 - "apply canvas changes"
@@ -222,6 +223,44 @@ uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edi
 {"event": "save_request", "changes": {...}}
 {"event": "session_ended", "total_selections": 1, "total_edits": 2}
 ```
+
+---
+
+### canvas-edit
+
+```bash
+SKILL_DIR=".claude/skills/canvas-edit/scripts"
+
+# Inject annotations from issues JSON file
+uv run $SKILL_DIR/canvas_edit.py inject <url> --issues issues.json
+
+# Inject with auto-screenshot
+uv run $SKILL_DIR/canvas_edit.py inject <url> --issues issues.json --screenshot
+
+# Pipe issues from stdin
+echo '[{"id": 1, "selector": "h1", "severity": "major", "title": "Issue"}]' | \
+  uv run $SKILL_DIR/canvas_edit.py inject <url> --issues -
+```
+
+**Issue JSON format:**
+```json
+[
+  {
+    "id": 1,
+    "selector": ".hero-title",
+    "severity": "major",
+    "title": "Contrast ratio insufficient",
+    "description": "Text contrast 3.2:1 fails WCAG AA",
+    "pillar": "Quality Craft",
+    "recommendation": "Use darker text color"
+  }
+]
+```
+
+**Screenshot output:** `.canvas/screenshots/YYYY-MM-DDTHH-MM-SS_N-issues.png`
+
+> **Note**: Canvas-edit was redesigned from a style editor to an annotation viewer.
+> For live style/text editing, use `agent-canvas --with-edit`.
 
 ---
 

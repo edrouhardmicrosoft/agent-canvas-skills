@@ -1288,6 +1288,9 @@
             }
         },
         
+        // Screenshot
+        captureAnnotatedScreenshot: () => captureAnnotatedScreenshot(),
+        
         // Cleanup
         dismiss: () => dismissBtn.click()
     };

@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "url": "http://localhost:3000",
+  "spec": "Default Design Review",
+  "specPath": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+  "sessionId": "review_20260123225026270",
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "issues": [],
+  "editableContext": {
+    "editable": true,
+    "reasons": [
+      "Local development server detected",
+      "Common dev port 3000",
+      "Framework detected: Next.js",
+      "Source directories found: 2",
+      "Git repository (changes can be tracked)"
+    ],
+    "framework": "Next.js",
+    "source_dirs": [
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/app",
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/lib"
+    ],
+    "has_git": true,
+    "confidence": "high"
+  },
+  "artifacts": {
+    "screenshot": ".canvas/reviews/review_20260123225026270/screenshot.png",
+    "sessionDir": ".canvas/reviews/review_20260123225026270"
+  }
+}

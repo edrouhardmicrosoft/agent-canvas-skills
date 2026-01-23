@@ -1,17 +1,33 @@
 ---
 name: canvas-edit
-description: Floating DevTools-like panel for live UI editing including text and styles. Provides text editing (inline or via textarea), color pickers, typography controls, and spacing adjustments. Uses Shadow DOM to be invisible to agent-eyes screenshots. Emits save_request events for the agent to update code files. Triggers on "edit text", "change content", "edit styles", "change colors", "adjust spacing", "tweak UI", or any visual editing task.
+description: Live Annotation Feedback Toolbar that overlays design review findings directly on web pages. Displays numbered badges on elements with issues, severity indicators, filtering, and screenshot capture. Integrates with design-review for real-time issue display. Triggers on "show annotations", "display issues", "annotate page", "overlay findings", or after running design-review.
 ---
 
-# Canvas Edit
+# Canvas Edit - Live Annotation Toolbar
 
-Floating DevTools-like panel that lets users visually edit element styles AND text content. Changes are applied live to the page and streamed as JSON events for the AI agent to implement in code.
+Floating toolbar that overlays design review findings directly on web pages in real-time. Displays numbered badges on problematic elements with severity-colored borders, hover popovers for issue details, and one-click screenshot capture.
 
 **Key features:**
-- **Live text editing** - Edit text directly on the page or via textarea
-- **Style controls** - Colors, typography, spacing
-- **Shadow DOM** - Panel is invisible to agent-eyes screenshots
-- **Save to Code** - One-click to emit all changes for agent implementation
+- **Live annotations** - Numbered badges appear on elements as issues are found
+- **Severity indicators** - Color-coded badges (red/orange/blue) with counts
+- **Issue popovers** - Click badges to see full issue details and recommendations
+- **Screenshot capture** - Capture annotated page (toolbar hidden, annotations visible)
+- **Shadow DOM** - Toolbar is invisible to agent-eyes screenshots
+- **Filtering** - Filter by severity or pillar category
+
+## Breaking Changes from v1
+
+> **This is a complete redesign.** Canvas-edit is now a **viewing tool**, not an editing tool.
+
+| Old Functionality | New Behavior |
+|-------------------|--------------|
+| Text editing via textarea | **REMOVED** |
+| Style sliders (fontSize, etc.) | **REMOVED** |
+| "Save All to Code" button | **REPLACED** with screenshot capture |
+| contentEditable toggle | **REMOVED** |
+| `edit` command | **REPLACED** with `inject` command |
+
+For live editing, use `agent-canvas --with-edit` instead.
 
 ## Prerequisites
 
@@ -25,123 +41,223 @@ Floating DevTools-like panel that lets users visually edit element styles AND te
 SKILL_DIR=".claude/skills/canvas-edit/scripts"
 ```
 
-### Standalone Edit Session
+### Inject Annotations onto Page
 
 ```bash
-# Open page with edit panel
-uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000
+# Inject toolbar with issues from JSON file
+uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json
 
-# Save all changes to file
-uv run $SKILL_DIR/canvas_edit.py edit http://localhost:3000 --output ./changes.json
+# Inject with issues from stdin
+echo '[{"id": 1, "selector": "h1", "severity": "major", "title": "Contrast issue"}]' | \
+  uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues -
+
+# Auto-screenshot on load
+uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json --screenshot
 ```
 
-### Integrated with Agent Canvas (Recommended)
+### Typical Workflow: Design Review + Annotations
 
 ```bash
-# Full workflow: picker + edit panel + agent-eyes
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+# 1. Run design review to find issues
+uv run .claude/skills/design-review/scripts/design_review.py review http://localhost:3000 \
+  --output-json issues.json
+
+# 2. Inject annotations onto the page
+uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json
+
+# 3. User interacts with annotations, takes screenshots, closes browser
 ```
 
-## Panel Controls
+## Toolbar Controls
 
-The floating panel provides:
+The floating toolbar (top-right by default) provides:
 
-**Text Content**
-- Textarea for editing selected element's text
-- Toggle switch to enable direct on-page editing (contenteditable)
-- Changes sync bidirectionally (textarea ↔ page)
-
-**Colors**
-- Background color (picker + hex input)
-- Text color (picker + hex input)
-
-**Typography**
-- Font size (8-72px slider)
-- Font weight (100-900 slider)
-
-**Spacing**
-- Padding (0-64px slider)
-- Border radius (0-50px slider)
+**Status Display**
+- Issue count ("5 Issues" or "All looks good!")
+- Severity badges: 🔴 blocking, 🟡 major, 🔵 minor
 
 **Actions**
-- **Reset**: Revert to original styles
-- **Apply & Log**: Commit style changes and emit event
-- **Save All to Code**: Emit save_request with ALL changes (styles + text)
+- **👁 Visibility**: Show/hide all annotations
+- **⚙ Filter**: Filter by severity or pillar category
+- **📸 Screenshot**: Capture page with annotations (toolbar hidden)
+- **↕/↔ Orientation**: Toggle vertical/horizontal toolbar
+- **✕ Dismiss**: Remove toolbar and all annotations
 
-## User Workflow
+**Dragging**
+- Grab the ☰ handle to drag toolbar anywhere on screen
+- Position persists during session
 
-1. Click an element to select it
-2. Edit text via textarea OR toggle "Edit text directly on page" for inline editing
-3. Adjust styles using the panel controls (changes apply live)
-4. Click **Apply & Log** to log individual style changes
-5. When done, click **Save All to Code** to emit all changes
-6. Close the browser window to end the session
+## Annotation Badges
 
-## Streamed Output
+Each issue appears as a numbered badge on its target element:
 
-### Style Changes
-```json
-{"event": "style_change", "timestamp": "...", "selector": "h1.title", "property": "backgroundColor", "oldValue": "rgba(0,0,0,0)", "newValue": "#ff0000"}
+- **Position**: Top-right of target element (auto-adjusts at screen edges)
+- **Color**: Border matches severity (red/orange/blue)
+- **Click**: Opens popover with full issue details
+- **Hover**: Highlights the target element
+
+### Badge Popover Contents
+
+```
+┌─────────────────────────────────────┐
+│ #3  Contrast issue         [major] │
+├─────────────────────────────────────┤
+│ Color contrast ratio 3.2:1 fails   │
+│ WCAG AA requirement of 4.5:1       │
+│                                     │
+│ Pillar: Quality Craft               │
+│ Check: color-contrast               │
+├─────────────────────────────────────┤
+│ Recommendation:                     │
+│ Change text color to #1a1a1a or    │
+│ background to #ffffff              │
+└─────────────────────────────────────┘
 ```
 
-### Save Request (all changes bundled)
+## Issue JSON Format
+
+Issues can come from design-review output or be manually constructed:
+
 ```json
-{
-  "event": "save_request",
-  "timestamp": "...",
-  "changes": {
-    "styles": [
-      {"selector": "h1.title", "property": "fontSize", "oldValue": "36px", "newValue": "48px"}
-    ],
-    "texts": [
-      {"selector": "h1.title", "oldText": "Hello World", "newText": "Welcome!"}
-    ]
+[
+  {
+    "id": 1,
+    "selector": ".hero-title",
+    "severity": "major",
+    "title": "Contrast ratio insufficient",
+    "description": "Text contrast 3.2:1 fails WCAG AA (4.5:1 required)",
+    "pillar": "Quality Craft",
+    "checkId": "color-contrast",
+    "recommendation": "Use darker text (#1a1a1a) or lighter background"
   },
-  "summary": {"styleChanges": 1, "textChanges": 1}
-}
-```
-
-## Agent Implementation Workflow
-
-When the agent receives a `save_request` event:
-
-1. **Parse the changes** - Extract style and text modifications
-2. **Find source files** - Use selectors to locate elements in code (JSX, HTML, etc.)
-3. **Apply text changes** - Update string literals in the source
-4. **Apply style changes** - Update CSS/Tailwind classes or inline styles
-5. **Hot reload** - Changes appear live in the browser (Next.js/Vite)
-6. **Verify with agent-eyes** - Take screenshot to confirm changes match intent
-
-### Example: Updating a Next.js component
-
-Given this `save_request`:
-```json
-{
-  "changes": {
-    "texts": [{"selector": "h1.text-4xl", "oldText": "Hello", "newText": "Welcome"}],
-    "styles": [{"selector": "h1.text-4xl", "property": "color", "newValue": "#ff0000"}]
+  {
+    "id": 2,
+    "selector": "button.submit",
+    "severity": "minor",
+    "title": "Touch target too small",
+    "description": "Button is 36x28px, minimum is 44x44px",
+    "pillar": "Quality Craft",
+    "checkId": "touch-target-size"
   }
-}
+]
 ```
 
-Agent would:
-1. Find `<h1 className="text-4xl">Hello</h1>` in the code
-2. Change text to `Welcome`
-3. Add `text-red-500` or `style={{color: '#ff0000'}}`
-4. Save file → Hot reload → Verify
+### Required Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | number | Unique identifier |
+| `selector` | string | CSS selector for target element |
+| `severity` | string | `"blocking"`, `"major"`, or `"minor"` |
+| `title` | string | Short issue title |
+
+### Optional Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `description` | string | Detailed explanation |
+| `pillar` | string | Design pillar category |
+| `checkId` | string | Identifier for the check that found this |
+| `recommendation` | string | Suggested fix |
+
+## Event API (Canvas Bus)
+
+Canvas-edit integrates with other skills via the canvas bus event system.
+
+### Events Emitted
+
+| Event | Payload | When |
+|-------|---------|------|
+| `annotation.clicked` | `{issueId, selector, severity}` | User clicks a badge |
+| `screenshot.requested` | `{directory, filename, issueCount}` | Screenshot button clicked |
+| `screenshot.captured` | `{path, issueCount}` | Screenshot saved (Python-side) |
+| `annotations.cleared` | `{}` | Dismiss button clicked |
+| `filter.changed` | `{severity, pillars}` | Filter settings changed |
+
+### Events Subscribed
+
+| Event | Action |
+|-------|--------|
+| `review.started` | Show "Scanning..." state |
+| `review.issue_found` | Add badge for new issue |
+| `review.completed` | Show final count or success message |
+| `capture_mode.changed` | Hide/show toolbar for agent-eyes |
+
+### Integration Example
+
+```javascript
+// In another skill's JavaScript
+const bus = window.__canvasBus;
+
+// Listen for annotation clicks
+bus.subscribe('annotation.clicked', (payload) => {
+  console.log(`Issue ${payload.issueId} clicked: ${payload.selector}`);
+});
+
+// Add an issue programmatically
+window.__annotationLayer.addIssue({
+  id: 99,
+  selector: '.problematic-element',
+  severity: 'major',
+  title: 'New issue found'
+});
+```
+
+## Screenshot Output
+
+Screenshots are saved to `.canvas/screenshots/` with timestamp filenames:
+
+```
+.canvas/screenshots/
+├── 2026-01-23T15-30-45_5-issues.png
+└── 2026-01-23T15-45-12_0-issues.png
+```
+
+Filename format: `YYYY-MM-DDTHH-MM-SS_N-issues.png`
+
+Screenshots capture:
+- Full page content
+- All visible annotation badges
+- Element highlights (if active)
+- **NOT** the toolbar (hidden during capture)
+
+## Toolbar States
+
+| State | Display | Trigger |
+|-------|---------|---------|
+| **Issues Found** | "N Issues" + severity badges | Default when issues > 0 |
+| **All Clear** | "✓ All looks good!" (randomized) | Zero issues after review completes |
+| **Scanning** | "⟳ Analyzing..." with spinner | During `review.started` |
+
+Success messages rotate randomly:
+- "All looks good!"
+- "Ship it!"
+- "Pixel perfect"
+- "Zero issues found"
+- "Looking sharp!"
+
+## Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Navigate toolbar controls |
+| `1-9` | Jump to badge by number |
+| `Arrow keys` | Navigate between visible badges |
+| `Enter/Space` | Activate focused button/badge |
+| `Escape` | Close open popover |
 
 ## Shadow DOM Isolation
 
-The edit panel is rendered inside a closed Shadow DOM, meaning:
-
-- `document.querySelector()` cannot find panel elements
-- DOM snapshots (agent-eyes) don't include the panel
-- Screenshots show only the actual page content
-- The agent sees what the final user would see
+The toolbar is rendered inside a closed Shadow DOM:
+- Invisible to `document.querySelector()`
+- Excluded from agent-eyes DOM snapshots
+- Hidden from screenshots (annotations remain visible)
+- Page styles cannot affect toolbar appearance
 
 ## Notes
 
-- Panel is draggable (grab the header)
-- Direct edit mode shows a dashed purple outline on the element
-- Text changes are tracked per-selector (latest change wins)
-- Save All bundles everything logged so far
+- Toolbar auto-repositions to stay on screen when dragged or resized
+- Badges reposition when window resizes or scrolls
+- Multiple badges on the same element stack with offset
+- Orphaned badges (element removed) are automatically cleaned up
+- Filter state persists during session but resets on page reload

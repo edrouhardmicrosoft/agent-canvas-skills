@@ -1166,6 +1166,7 @@
         
         // Filtering
         applyFilters,
+        setFilter: applyFilters,
         getFilters: () => ({
             severity: { ...state.filters.severity },
             pillars: Array.from(state.filters.pillars)
