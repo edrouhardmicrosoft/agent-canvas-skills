@@ -10,7 +10,7 @@
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 1 | Core Toolbar | 🔲 Pending |
+| Phase 1 | Core Toolbar | ✅ Complete |
 | Phase 2 | Annotation System | 🔲 Pending |
 | Phase 3 | Integration | 🔲 Pending |
 | Phase 4 | Screenshot & Orientation | 🔲 Pending |
@@ -27,53 +27,55 @@
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 1.1.1 | Create Shadow DOM host element (`__annotation_toolbar_host`) | 🔲 | Host exists in DOM, shadow root created with `mode: 'closed'` |
-| 1.1.2 | Ensure Shadow DOM is invisible to agent-eyes screenshots | 🔲 | Run agent-eyes screenshot, confirm toolbar NOT captured |
-| 1.1.3 | Set up CSS variable injection for Fluent 2 color palette | 🔲 | All 13 CSS variables from spec injected (toolbar-bg, severity colors, etc.) |
+| 1.1.1 | Create Shadow DOM host element (`__annotation_toolbar_host`) | ✅ | Host exists in DOM, shadow root created with `mode: 'closed'` |
+| 1.1.2 | Ensure Shadow DOM is invisible to agent-eyes screenshots | ✅ | Run agent-eyes screenshot, confirm toolbar NOT captured |
+| 1.1.3 | Set up CSS variable injection for Fluent 2 color palette | ✅ | All 13 CSS variables from spec injected (toolbar-bg, severity colors, etc.) |
 
 ### 1.2 Toolbar Layout (Horizontal Mode)
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 1.2.1 | Create toolbar container with horizontal flexbox layout | 🔲 | Toolbar renders horizontally, matches ASCII mockup dimensions |
-| 1.2.2 | Implement drag handle (`☰`) as first element | 🔲 | Drag handle visible, styled per spec |
-| 1.2.3 | Implement status section showing issue count | 🔲 | "N Issues" text displays, updates when count changes |
-| 1.2.4 | Implement severity badges (🔴 🟡 🔵 counts) | 🔲 | Three severity badges with counts, correct colors per spec |
-| 1.2.5 | Add visibility toggle button (`👁`) | 🔲 | Button renders, toggles `aria-pressed` on click |
-| 1.2.6 | Add screenshot button (`📸`) | 🔲 | Button renders, placeholder click handler |
-| 1.2.7 | Add orientation toggle button (`↕`/`↔`) | 🔲 | Button renders, placeholder click handler |
-| 1.2.8 | Add dismiss button (`✕`) | 🔲 | Button removes all annotations and toolbar |
+| 1.2.1 | Create toolbar container with horizontal flexbox layout | ✅ | Toolbar renders horizontally, matches ASCII mockup dimensions |
+| 1.2.2 | Implement drag handle (`☰`) as first element | ✅ | Drag handle visible, styled per spec |
+| 1.2.3 | Implement status section showing issue count | ✅ | "N Issues" text displays, updates when count changes |
+| 1.2.4 | Implement severity badges (🔴 🟡 🔵 counts) | ✅ | Three severity badges with counts, correct colors per spec |
+| 1.2.5 | Add visibility toggle button (`👁`) | ✅ | Button renders, toggles `aria-pressed` on click |
+| 1.2.6 | Add screenshot button (`📸`) | ✅ | Button renders, placeholder click handler |
+| 1.2.7 | Add orientation toggle button (`↕`/`↔`) | ✅ | Button renders, placeholder click handler |
+| 1.2.8 | Add dismiss button (`✕`) | ✅ | Button removes all annotations and toolbar |
 
 ### 1.3 Drag Functionality
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 1.3.1 | Implement mouse drag on drag handle | 🔲 | Toolbar follows mouse when dragging handle |
-| 1.3.2 | Implement touch drag for mobile | 🔲 | Toolbar follows touch when dragging handle |
-| 1.3.3 | Store position in memory for session persistence | 🔲 | Position persists during page interaction |
-| 1.3.4 | Set default initial position (top-right, 8px margin) | 🔲 | Toolbar appears at top-right on first load |
+| 1.3.1 | Implement mouse drag on drag handle | ✅ | Toolbar follows mouse when dragging handle |
+| 1.3.2 | Implement touch drag for mobile | ✅ | Toolbar follows touch when dragging handle |
+| 1.3.3 | Store position in memory for session persistence | ✅ | Position persists during page interaction |
+| 1.3.4 | Set default initial position (top-right, 8px margin) | ✅ | Toolbar appears at top-right on first load |
 
 ### 1.4 Styling (Fluent 2 Inspired)
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 1.4.1 | Apply mono-tone dark grey palette to toolbar | 🔲 | Background #292929, border #3d3d3d matches spec |
-| 1.4.2 | Style buttons with hover/active states | 🔲 | Hover shows #3d3d3d, active shows #454545 |
-| 1.4.3 | Apply Fluent 2 motion tokens for transitions | 🔲 | Transitions use correct durations and easings from spec |
-| 1.4.4 | Add focus ring styling for keyboard navigation | 🔲 | Tab through controls shows #58a6ff focus ring |
+| 1.4.1 | Apply mono-tone dark grey palette to toolbar | ✅ | Background #292929, border #3d3d3d matches spec |
+| 1.4.2 | Style buttons with hover/active states | ✅ | Hover shows #3d3d3d, active shows #454545 |
+| 1.4.3 | Apply Fluent 2 motion tokens for transitions | ✅ | Transitions use correct durations and easings from spec |
+| 1.4.4 | Add focus ring styling for keyboard navigation | ✅ | Tab through controls shows #58a6ff focus ring |
 
 ### 1.5 Toolbar States
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 1.5.1 | Implement "Issues Found" state (default) | 🔲 | Shows count and severity badges |
-| 1.5.2 | Implement "All Clear" state with success message | 🔲 | Shows "✓ All looks good!" (or random variant) |
-| 1.5.3 | Implement "Scanning" state with spinner | 🔲 | Shows "⟳ Analyzing..." with animation |
-| 1.5.4 | Implement randomized success messages (5 variants) | 🔲 | Success state cycles through: "Ship it!", "Pixel perfect", etc. |
+| 1.5.1 | Implement "Issues Found" state (default) | ✅ | Shows count and severity badges |
+| 1.5.2 | Implement "All Clear" state with success message | ✅ | Shows "✓ All looks good!" (or random variant) |
+| 1.5.3 | Implement "Scanning" state with spinner | ✅ | Shows "⟳ Analyzing..." with animation |
+| 1.5.4 | Implement randomized success messages (5 variants) | ✅ | Success state cycles through: "Ship it!", "Pixel perfect", etc. |
 
-**Files to create:**
-- `.claude/skills/canvas-edit/scripts/annotation_toolbar.js`
-- `.claude/skills/canvas-edit/scripts/styles/toolbar.css`
+**Files created:**
+- `.claude/skills/canvas-edit/scripts/annotation_toolbar.js` ✅
+- `.claude/skills/canvas-edit/scripts/styles/toolbar.css` ✅
+- `.claude/skills/canvas-edit/scripts/verify_phase1.py` ✅ (verification script)
+- `.claude/skills/canvas-edit/scripts/test_toolbar.html` ✅ (manual test page)
 
 ---
 
@@ -359,11 +361,13 @@
 
 | File | Phase | Status |
 |------|-------|--------|
-| `.claude/skills/canvas-edit/scripts/annotation_toolbar.js` | 1 | 🔲 |
+| `.claude/skills/canvas-edit/scripts/annotation_toolbar.js` | 1 | ✅ |
 | `.claude/skills/canvas-edit/scripts/annotation_layer.js` | 2 | 🔲 |
-| `.claude/skills/canvas-edit/scripts/styles/toolbar.css` | 1 | 🔲 |
+| `.claude/skills/canvas-edit/scripts/styles/toolbar.css` | 1 | ✅ |
 | `.claude/skills/canvas-edit/scripts/styles/annotations.css` | 2 | 🔲 |
 | `.claude/skills/canvas-edit/tests/test_canvas_edit.py` | 6 | 🔲 |
+| `.claude/skills/canvas-edit/scripts/verify_phase1.py` | 1 | ✅ |
+| `.claude/skills/canvas-edit/scripts/test_toolbar.html` | 1 | ✅ |
 
 ### Modified Files
 

@@ -1,0 +1,217 @@
+/**
+ * Annotation Toolbar Styles
+ * 
+ * Fluent 2 inspired mono-tone dark grey palette.
+ * This file provides reference CSS - the actual styles are embedded
+ * in the JavaScript for Shadow DOM encapsulation.
+ * 
+ * CSS Variable Reference:
+ * 
+ * Primary Surface (Mono-tone Dark Grey):
+ *   --toolbar-bg: #292929
+ *   --toolbar-border: #3d3d3d
+ *   --toolbar-elevated: #333333
+ * 
+ * Text:
+ *   --text-primary: #e0e0e0
+ *   --text-secondary: #a0a0a0
+ *   --text-disabled: #666666
+ * 
+ * Severity Indicators (the ONLY colors):
+ *   --severity-error: #f85149 (blocking/critical)
+ *   --severity-warning: #d29922 (major)
+ *   --severity-info: #58a6ff (minor)
+ *   --severity-success: #3fb950 (all clear)
+ * 
+ * Interaction States:
+ *   --hover-bg: #3d3d3d
+ *   --active-bg: #454545
+ *   --focus-ring: #58a6ff
+ * 
+ * Motion Tokens (Fluent 2):
+ *   --duration-faster: 100ms
+ *   --duration-fast: 150ms
+ *   --duration-normal: 250ms
+ *   --duration-slow: 300ms
+ *   --ease-out: cubic-bezier(0.33, 0, 0.1, 1)
+ *   --ease-in: cubic-bezier(0.9, 0, 0.67, 1)
+ *   --ease-in-out: cubic-bezier(0.85, 0, 0.15, 1)
+ */
+
+/* This file is for reference only - styles are injected via Shadow DOM */
+
+/* ==========================================================================
+   Base Toolbar
+   ========================================================================== */
+
+.toolbar {
+    position: fixed;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    color: var(--text-primary);
+    user-select: none;
+    z-index: 2147483647;
+    transition: 
+        width var(--duration-normal) var(--ease-out),
+        height var(--duration-normal) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out);
+}
+
+/* ==========================================================================
+   Horizontal Layout (Default)
+   ========================================================================== */
+
+.toolbar.horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    min-width: 200px;
+    height: 48px;
+}
+
+/* ==========================================================================
+   Vertical Layout
+   ========================================================================== */
+
+.toolbar.vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    width: 64px;
+    min-height: 200px;
+}
+
+/* ==========================================================================
+   Drag Handle
+   ========================================================================== */
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    cursor: grab;
+    color: var(--text-secondary);
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background var(--duration-faster) var(--ease-out);
+    flex-shrink: 0;
+}
+
+.drag-handle:hover {
+    background: var(--hover-bg);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    background: var(--active-bg);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 16px;
+    transition: 
+        background var(--duration-faster) var(--ease-out),
+        color var(--duration-faster) var(--ease-out);
+    flex-shrink: 0;
+}
+
+.btn:hover {
+    background: var(--hover-bg);
+}
+
+.btn:active {
+    background: var(--active-bg);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.btn[aria-pressed="true"] {
+    background: var(--hover-bg);
+    color: var(--severity-info);
+}
+
+.btn.dismiss:hover {
+    color: var(--severity-error);
+    background: rgba(248, 81, 73, 0.15);
+}
+
+/* ==========================================================================
+   Severity Badges
+   ========================================================================== */
+
+.severity-badge {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.severity-badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.severity-badge.blocking .dot { background: var(--severity-error); }
+.severity-badge.major .dot { background: var(--severity-warning); }
+.severity-badge.minor .dot { background: var(--severity-info); }
+
+/* ==========================================================================
+   States
+   ========================================================================== */
+
+.issue-count.success {
+    color: var(--severity-success);
+}
+
+.issue-count.scanning {
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+/* Position correction animation */
+.toolbar.correcting {
+    transition: 
+        top var(--duration-fast) var(--ease-out),
+        left var(--duration-fast) var(--ease-out);
+}

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotation Toolbar Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #333; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            background: #667eea;
+            color: white;
+        }
+        button:hover { background: #5a6fd6; }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Annotation Toolbar Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. Toolbar Controls</h2>
+        <p>Test the toolbar API functions:</p>
+        <div class="test-controls">
+            <button onclick="addIssue('blocking')">Add Blocking Issue</button>
+            <button onclick="addIssue('major')">Add Major Issue</button>
+            <button onclick="addIssue('minor')">Add Minor Issue</button>
+            <button onclick="setScanning()">Set Scanning</button>
+            <button onclick="setComplete()">Set Complete</button>
+            <button onclick="clearIssues()">Clear Issues</button>
+        </div>
+        <div class="result" id="result1">Click a button to test...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. State Queries</h2>
+        <p>Query the toolbar state:</p>
+        <div class="test-controls">
+            <button onclick="getState()">Get State</button>
+            <button onclick="getIssueCount()">Get Issue Count</button>
+        </div>
+        <div class="result" id="result2">Click a button to query state...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Verification Checks</h2>
+        <p>Automated verification of Phase 1 requirements:</p>
+        <div class="test-controls">
+            <button onclick="runAllVerifications()">Run All Verifications</button>
+        </div>
+        <div class="result" id="result3">Click to run verifications...</div>
+    </div>
+
+    <!-- Canvas Bus (load first) -->
+    <script>
+        // Minimal canvas bus mock for standalone testing
+        if (!window.__canvasBus) {
+            window.__canvasBus = {
+                sessionId: 'test-session',
+                state: { activeTools: new Set(), captureMode: false, selection: null },
+                emit: (type, source, payload) => {
+                    console.log('[CanvasBus] Emit:', type, payload);
+                    return { type, source, payload, timestamp: new Date().toISOString() };
+                },
+                subscribe: (type, callback) => {
+                    console.log('[CanvasBus] Subscribe:', type);
+                    return () => {};
+                },
+                getSeq: () => 0
+            };
+        }
+    </script>
+    
+    <!-- Load the annotation toolbar -->
+    <script src="annotation_toolbar.js"></script>
+    
+    <script>
+        let issueId = 0;
+        
+        function addIssue(severity) {
+            issueId++;
+            const issue = {
+                id: issueId,
+                severity: severity,
+                checkId: 'test-check',
+                description: `Test ${severity} issue #${issueId}`,
+                selector: 'body'
+            };
+            const count = window.__annotationToolbar.addIssue(issue);
+            document.getElementById('result1').textContent = 
+                `Added ${severity} issue. Total issues: ${count}`;
+        }
+        
+        function setScanning() {
+            window.__annotationToolbar.setScanning();
+            document.getElementById('result1').textContent = 'Set toolbar to scanning state';
+        }
+        
+        function setComplete() {
+            window.__annotationToolbar.setComplete();
+            document.getElementById('result1').textContent = 'Set toolbar to complete state';
+        }
+        
+        function clearIssues() {
+            window.__annotationToolbar.clearIssues();
+            issueId = 0;
+            document.getElementById('result1').textContent = 'Cleared all issues';
+        }
+        
+        function getState() {
+            const state = window.__annotationToolbar.getState();
+            document.getElementById('result2').textContent = JSON.stringify(state, null, 2);
+        }
+        
+        function getIssueCount() {
+            const count = window.__annotationToolbar.getIssueCount();
+            document.getElementById('result2').textContent = `Issue count: ${count}`;
+        }
+        
+        function runAllVerifications() {
+            const results = [];
+            
+            // 1.1.1 - Shadow DOM host exists
+            const host = document.getElementById('__annotation_toolbar_host');
+            results.push({
+                test: '1.1.1 Shadow DOM host exists',
+                pass: !!host,
+                detail: host ? 'Found: #__annotation_toolbar_host' : 'NOT FOUND'
+            });
+            
+            // 1.1.2 - Shadow DOM mode is closed
+            if (host) {
+                const shadowRoot = host.shadowRoot;
+                results.push({
+                    test: '1.1.2 Shadow DOM is closed (invisible to external queries)',
+                    pass: shadowRoot === null,
+                    detail: shadowRoot === null ? 'shadowRoot is null (closed mode)' : 'shadowRoot accessible (NOT closed)'
+                });
+            }
+            
+            // 1.1.3 - Check data-agent-ignore attribute
+            results.push({
+                test: '1.1.3 data-agent-ignore attribute set',
+                pass: host?.getAttribute('data-agent-ignore') === 'true',
+                detail: `data-agent-ignore="${host?.getAttribute('data-agent-ignore')}"`
+            });
+            
+            // 1.2.x - Toolbar API exists
+            const api = window.__annotationToolbar;
+            results.push({
+                test: '1.2.x Toolbar API exists',
+                pass: !!api,
+                detail: api ? 'window.__annotationToolbar available' : 'NOT AVAILABLE'
+            });
+            
+            // Test API methods
+            if (api) {
+                results.push({
+                    test: '1.2.3 Issue count method',
+                    pass: typeof api.getIssueCount === 'function',
+                    detail: 'getIssueCount() is a function'
+                });
+                
+                results.push({
+                    test: '1.3.x Position management',
+                    pass: typeof api.getState === 'function' && api.getState().position,
+                    detail: `Position: ${JSON.stringify(api.getState()?.position || {})}`
+                });
+                
+                results.push({
+                    test: '1.5.1-4 State management',
+                    pass: ['issues', 'scanning', 'success'].includes(api.getState()?.toolbarState),
+                    detail: `Current state: ${api.getState()?.toolbarState}`
+                });
+            }
+            
+            // Canvas bus integration
+            results.push({
+                test: 'Canvas Bus Integration',
+                pass: window.__canvasBus?.state?.activeTools?.has('annotation-toolbar'),
+                detail: window.__canvasBus?.state?.activeTools?.has('annotation-toolbar') 
+                    ? 'Tool registered with bus' 
+                    : 'Not registered'
+            });
+            
+            // Format results
+            const passCount = results.filter(r => r.pass).length;
+            const totalCount = results.length;
+            
+            let output = `VERIFICATION RESULTS: ${passCount}/${totalCount} passed\n`;
+            output += '='.repeat(50) + '\n\n';
+            
+            results.forEach(r => {
+                const status = r.pass ? '✓ PASS' : '✗ FAIL';
+                output += `${status}: ${r.test}\n`;
+                output += `       ${r.detail}\n\n`;
+            });
+            
+            document.getElementById('result3').textContent = output;
+        }
+    </script>
+</body>
+</html>
