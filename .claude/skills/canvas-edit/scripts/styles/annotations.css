@@ -1,0 +1,296 @@
+/**
+ * Annotation Layer Styles
+ * 
+ * Fluent 2 inspired styling for badges, highlights, and popovers.
+ * This file provides reference CSS - the actual styles are embedded
+ * in the JavaScript for easier injection.
+ * 
+ * CSS Variable Reference:
+ * 
+ * Motion Tokens:
+ *   --annotation-duration-faster: 100ms
+ *   --annotation-duration-fast: 150ms
+ *   --annotation-duration-normal: 250ms
+ *   --annotation-duration-slow: 300ms
+ *   --annotation-ease-out: cubic-bezier(0.33, 0, 0.1, 1)
+ *   --annotation-ease-in: cubic-bezier(0.9, 0, 0.67, 1)
+ *   --annotation-ease-in-out: cubic-bezier(0.85, 0, 0.15, 1)
+ * 
+ * Colors (same as toolbar):
+ *   Background: #292929
+ *   Border: #3d3d3d
+ *   Text Primary: #e0e0e0
+ *   Text Secondary: #a0a0a0
+ *   Severity Error: #f85149
+ *   Severity Warning: #d29922
+ *   Severity Info: #58a6ff
+ */
+
+/* ==========================================================================
+   Badge Component
+   ========================================================================== */
+
+.annotation-badge {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #292929;
+    border: 2px solid currentColor;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 2147483646;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: transform var(--annotation-duration-faster) var(--annotation-ease-out);
+}
+
+.annotation-badge:hover {
+    transform: scale(1.1);
+}
+
+.annotation-badge:focus-visible {
+    outline: 2px solid #58a6ff;
+    outline-offset: 2px;
+}
+
+/* Severity Colors */
+.annotation-badge.severity-blocking,
+.annotation-badge.severity-critical,
+.annotation-badge.severity-error {
+    border-color: #f85149;
+}
+
+.annotation-badge.severity-major,
+.annotation-badge.severity-warning {
+    border-color: #d29922;
+}
+
+.annotation-badge.severity-minor,
+.annotation-badge.severity-info {
+    border-color: #58a6ff;
+}
+
+/* Badge Appearance Animation */
+@keyframes badgeAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.annotation-badge.appearing {
+    animation: badgeAppear var(--annotation-duration-fast) var(--annotation-ease-out) forwards;
+}
+
+/* Badge Pulse Animation (for new issues) */
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.annotation-badge.new {
+    animation: badgePulse var(--annotation-duration-slow) var(--annotation-ease-in-out) 2;
+}
+
+/* ==========================================================================
+   Highlight Overlay
+   ========================================================================== */
+
+.annotation-highlight {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(248, 81, 73, 0.1);
+    border: 2px solid #f85149;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity var(--annotation-duration-fast) var(--annotation-ease-out);
+    z-index: 2147483645;
+}
+
+.annotation-highlight.visible {
+    opacity: 1;
+}
+
+/* Severity-specific highlight colors */
+.annotation-highlight.severity-blocking,
+.annotation-highlight.severity-critical,
+.annotation-highlight.severity-error {
+    background: rgba(248, 81, 73, 0.1);
+    border-color: #f85149;
+}
+
+.annotation-highlight.severity-major,
+.annotation-highlight.severity-warning {
+    background: rgba(210, 153, 34, 0.1);
+    border-color: #d29922;
+}
+
+.annotation-highlight.severity-minor,
+.annotation-highlight.severity-info {
+    background: rgba(88, 166, 255, 0.1);
+    border-color: #58a6ff;
+}
+
+/* ==========================================================================
+   Popover Component
+   ========================================================================== */
+
+.annotation-popover {
+    position: fixed;
+    background: #292929;
+    border: 1px solid #3d3d3d;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    min-width: 280px;
+    max-width: 400px;
+    padding: 0;
+    margin: 0;
+    z-index: 2147483647;
+    pointer-events: auto;
+}
+
+/* Popover open state animation */
+.annotation-popover {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: 
+        opacity var(--annotation-duration-fast) var(--annotation-ease-out),
+        transform var(--annotation-duration-fast) var(--annotation-ease-out);
+}
+
+.annotation-popover:popover-open {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Popover Header */
+.popover-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.popover-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.severity-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.severity-badge.blocking,
+.severity-badge.critical,
+.severity-badge.error {
+    background: rgba(248, 81, 73, 0.2);
+    color: #f85149;
+}
+
+.severity-badge.major,
+.severity-badge.warning {
+    background: rgba(210, 153, 34, 0.2);
+    color: #d29922;
+}
+
+.severity-badge.minor,
+.severity-badge.info {
+    background: rgba(88, 166, 255, 0.2);
+    color: #58a6ff;
+}
+
+/* Popover Body */
+.popover-body {
+    padding: 12px 16px;
+}
+
+.popover-description {
+    margin: 0 0 12px 0;
+    color: #a0a0a0;
+    line-height: 1.5;
+}
+
+/* Popover Meta */
+.popover-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    margin: 0;
+    font-size: 12px;
+}
+
+.popover-meta dt {
+    color: #666666;
+    font-weight: 500;
+}
+
+.popover-meta dd {
+    color: #a0a0a0;
+    margin: 0;
+}
+
+.popover-meta code {
+    background: #333333;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+    font-size: 11px;
+    color: #e0e0e0;
+}
+
+/* Popover Recommendation */
+.popover-recommendation {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #333333;
+    border-radius: 6px;
+    border-left: 3px solid #58a6ff;
+}
+
+.popover-recommendation strong {
+    color: #58a6ff;
+    font-weight: 600;
+}
+
+.popover-recommendation p {
+    margin: 4px 0 0 0;
+    color: #a0a0a0;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   Hidden State (when visibility toggle is off)
+   ========================================================================== */
+
+.annotation-badge.annotations-hidden,
+.annotation-highlight.annotations-hidden,
+.annotation-popover.annotations-hidden {
+    display: none !important;
+}

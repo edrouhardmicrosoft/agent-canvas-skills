@@ -11,7 +11,7 @@
 | Phase | Description | Status |
 |-------|-------------|--------|
 | Phase 1 | Core Toolbar | ✅ Complete |
-| Phase 2 | Annotation System | 🔲 Pending |
+| Phase 2 | Annotation System | ✅ Complete |
 | Phase 3 | Integration | 🔲 Pending |
 | Phase 4 | Screenshot & Orientation | 🔲 Pending |
 | Phase 5 | Filtering & Polish | 🔲 Pending |
@@ -87,53 +87,53 @@
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 2.1.1 | Create numbered badge HTML structure | 🔲 | Badge renders as circle with number inside |
-| 2.1.2 | Style badge with severity-colored border | 🔲 | Border color matches severity (red/orange/blue) |
-| 2.1.3 | Implement badge appearance animation | 🔲 | Badge fades in with scale animation per spec |
-| 2.1.4 | Implement badge pulse animation for new issues | 🔲 | New badges pulse twice per spec keyframes |
+| 2.1.1 | Create numbered badge HTML structure | ✅ | Badge renders as circle with number inside |
+| 2.1.2 | Style badge with severity-colored border | ✅ | Border color matches severity (red/orange/blue) |
+| 2.1.3 | Implement badge appearance animation | ✅ | Badge fades in with scale animation per spec |
+| 2.1.4 | Implement badge pulse animation for new issues | ✅ | New badges pulse twice per spec keyframes |
 
 ### 2.2 Badge Positioning
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 2.2.1 | Implement `positionBadge()` algorithm from spec | 🔲 | Badges appear at top-right of target element |
-| 2.2.2 | Add boundary detection (keep on screen) | 🔲 | Badges near edges reposition to stay visible |
-| 2.2.3 | Handle multiple badges on same element | 🔲 | Badges stack or offset when overlapping |
-| 2.2.4 | Reposition badges on window resize | 🔲 | Badges move with their target elements |
+| 2.2.1 | Implement `positionBadge()` algorithm from spec | ✅ | Badges appear at top-right of target element |
+| 2.2.2 | Add boundary detection (keep on screen) | ✅ | Badges near edges reposition to stay visible |
+| 2.2.3 | Handle multiple badges on same element | ✅ | Badges stack or offset when overlapping |
+| 2.2.4 | Reposition badges on window resize | ✅ | Badges move with their target elements |
 
 ### 2.3 Element Highlight
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 2.3.1 | Create highlight overlay element | 🔲 | Overlay element exists with `pointer-events: none` |
-| 2.3.2 | Style highlight per spec (10% opacity, 2px border) | 🔲 | Highlight matches `.annotation-highlight` CSS from spec |
-| 2.3.3 | Show highlight on badge hover | 🔲 | Hovering badge highlights target element |
-| 2.3.4 | Animate highlight with 150ms ease-out | 🔲 | Highlight fades in/out smoothly |
+| 2.3.1 | Create highlight overlay element | ✅ | Overlay element exists with `pointer-events: none` |
+| 2.3.2 | Style highlight per spec (10% opacity, 2px border) | ✅ | Highlight matches `.annotation-highlight` CSS from spec |
+| 2.3.3 | Show highlight on badge hover | ✅ | Hovering badge highlights target element |
+| 2.3.4 | Animate highlight with 150ms ease-out | ✅ | Highlight fades in/out smoothly |
 
 ### 2.4 Native Popover Integration
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 2.4.1 | Create popover HTML structure per spec template | 🔲 | Popover contains header, body, meta, recommendation |
-| 2.4.2 | Use native `[popover]` API with `popovertarget` | 🔲 | Badge click opens native popover |
-| 2.4.3 | Style popover with dark grey theme | 🔲 | Popover matches toolbar styling |
-| 2.4.4 | Implement popover animation (translateY, opacity) | 🔲 | Popover slides in per spec CSS |
-| 2.4.5 | Add Escape key to close popover | 🔲 | Escape closes open popover |
-| 2.4.6 | Return focus to badge on popover close | 🔲 | Focus returns to trigger badge |
+| 2.4.1 | Create popover HTML structure per spec template | ✅ | Popover contains header, body, meta, recommendation |
+| 2.4.2 | Use native `[popover]` API with `popovertarget` | ✅ | Badge click opens native popover |
+| 2.4.3 | Style popover with dark grey theme | ✅ | Popover matches toolbar styling |
+| 2.4.4 | Implement popover animation (translateY, opacity) | ✅ | Popover slides in per spec CSS |
+| 2.4.5 | Add Escape key to close popover | ✅ | Escape closes open popover (native API) |
+| 2.4.6 | Return focus to badge on popover close | ✅ | Focus returns to trigger badge (native API) |
 
 ### 2.5 Annotation Layer
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 2.5.1 | Create annotation layer container (separate from toolbar host) | 🔲 | Layer overlays page, contains all badges |
-| 2.5.2 | Implement `addIssue(issue)` method | 🔲 | Calling method adds badge to correct position |
-| 2.5.3 | Implement `removeIssue(id)` method | 🔲 | Calling method removes specific badge |
-| 2.5.4 | Implement `clearAll()` method | 🔲 | Calling method removes all badges |
-| 2.5.5 | Expose `window.__annotationLayer` API | 🔲 | API accessible from Python via page.evaluate |
+| 2.5.1 | Create annotation layer container (separate from toolbar host) | ✅ | Layer overlays page, contains all badges |
+| 2.5.2 | Implement `addIssue(issue)` method | ✅ | Calling method adds badge to correct position |
+| 2.5.3 | Implement `removeIssue(id)` method | ✅ | Calling method removes specific badge |
+| 2.5.4 | Implement `clearAll()` method | ✅ | Calling method removes all badges |
+| 2.5.5 | Expose `window.__annotationLayer` API | ✅ | API accessible from Python via page.evaluate |
 
-**Files to create:**
-- `.claude/skills/canvas-edit/scripts/annotation_layer.js`
-- `.claude/skills/canvas-edit/scripts/styles/annotations.css`
+**Files created:**
+- `.claude/skills/canvas-edit/scripts/annotation_layer.js` ✅
+- `.claude/skills/canvas-edit/scripts/styles/annotations.css` ✅
 
 ---
 
@@ -362,9 +362,9 @@
 | File | Phase | Status |
 |------|-------|--------|
 | `.claude/skills/canvas-edit/scripts/annotation_toolbar.js` | 1 | ✅ |
-| `.claude/skills/canvas-edit/scripts/annotation_layer.js` | 2 | 🔲 |
+| `.claude/skills/canvas-edit/scripts/annotation_layer.js` | 2 | ✅ |
 | `.claude/skills/canvas-edit/scripts/styles/toolbar.css` | 1 | ✅ |
-| `.claude/skills/canvas-edit/scripts/styles/annotations.css` | 2 | 🔲 |
+| `.claude/skills/canvas-edit/scripts/styles/annotations.css` | 2 | ✅ |
 | `.claude/skills/canvas-edit/tests/test_canvas_edit.py` | 6 | 🔲 |
 | `.claude/skills/canvas-edit/scripts/verify_phase1.py` | 1 | ✅ |
 | `.claude/skills/canvas-edit/scripts/test_toolbar.html` | 1 | ✅ |

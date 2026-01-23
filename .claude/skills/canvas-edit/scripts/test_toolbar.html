@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annotation Toolbar Test</title>
+    <title>Annotation Toolbar & Layer Test</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 50px auto;
             padding: 20px;
             background: #f5f5f5;
         }
-        h1 { color: #333; }
+        h1 { color: #333; margin-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        .description { color: #666; margin-bottom: 30px; }
         .test-section {
             background: white;
             padding: 20px;
@@ -35,6 +37,10 @@
             color: white;
         }
         button:hover { background: #5a6fd6; }
+        button.danger { background: #f85149; }
+        button.danger:hover { background: #e03d35; }
+        button.secondary { background: #6c757d; }
+        button.secondary:hover { background: #5a6268; }
         .result {
             margin-top: 15px;
             padding: 10px;
@@ -43,43 +49,139 @@
             font-family: monospace;
             font-size: 12px;
             white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        /* Sample elements for annotation targeting */
+        .target-elements {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .target-box {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+        }
+        .target-box:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .target-box:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        
+        .inline-target {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #ffd93d;
+            border-radius: 4px;
+            color: #333;
+            margin: 0 5px;
+        }
+        
+        .scroll-container {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+            background: white;
+        }
+        .scroll-content {
+            height: 500px;
+            padding: 20px;
+            background: linear-gradient(to bottom, #e0e0e0, #f5f5f5);
+        }
+        .scroll-target {
+            margin-top: 300px;
+            padding: 20px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>Annotation Toolbar Test Page</h1>
-    
+    <h1>Annotation Toolbar & Layer Test Page</h1>
+    <p class="description">
+        Test page for Phase 1 (Toolbar) and Phase 2 (Annotation System) features.
+        The toolbar should appear in the top-right corner. Badges will appear on target elements below.
+    </p>
+
+    <!-- Phase 1: Toolbar Tests -->
     <div class="test-section">
-        <h2>1. Toolbar Controls</h2>
+        <h2>Phase 1: Toolbar Controls</h2>
         <p>Test the toolbar API functions:</p>
         <div class="test-controls">
-            <button onclick="addIssue('blocking')">Add Blocking Issue</button>
-            <button onclick="addIssue('major')">Add Major Issue</button>
-            <button onclick="addIssue('minor')">Add Minor Issue</button>
+            <button onclick="toolbarAddIssue('blocking')">Add Blocking (Toolbar)</button>
+            <button onclick="toolbarAddIssue('major')">Add Major (Toolbar)</button>
+            <button onclick="toolbarAddIssue('minor')">Add Minor (Toolbar)</button>
             <button onclick="setScanning()">Set Scanning</button>
             <button onclick="setComplete()">Set Complete</button>
-            <button onclick="clearIssues()">Clear Issues</button>
+            <button class="danger" onclick="clearToolbar()">Clear Toolbar</button>
         </div>
-        <div class="result" id="result1">Click a button to test...</div>
+        <div class="result" id="result1">Click a button to test toolbar...</div>
     </div>
-    
+
+    <!-- Phase 2: Annotation Layer Tests -->
     <div class="test-section">
-        <h2>2. State Queries</h2>
-        <p>Query the toolbar state:</p>
+        <h2>Phase 2: Annotation Layer</h2>
+        <p>Test badge creation and positioning on target elements:</p>
         <div class="test-controls">
-            <button onclick="getState()">Get State</button>
-            <button onclick="getIssueCount()">Get Issue Count</button>
+            <button onclick="addAnnotationToBox(1, 'blocking')">Annotate Box 1 (Blocking)</button>
+            <button onclick="addAnnotationToBox(2, 'major')">Annotate Box 2 (Major)</button>
+            <button onclick="addAnnotationToBox(3, 'minor')">Annotate Box 3 (Minor)</button>
+            <button onclick="addMultipleToCurrent()">Add 3 to Same Element</button>
+            <button class="secondary" onclick="repositionAll()">Reposition All</button>
+            <button class="danger" onclick="clearAnnotations()">Clear All Annotations</button>
         </div>
-        <div class="result" id="result2">Click a button to query state...</div>
+        
+        <div class="target-elements">
+            <div class="target-box" id="target-1">Target Box 1</div>
+            <div class="target-box" id="target-2">Target Box 2</div>
+            <div class="target-box" id="target-3">Target Box 3</div>
+        </div>
+        
+        <div class="result" id="result2">Click a button to test annotations...</div>
     </div>
-    
+
+    <!-- Additional Target Elements -->
     <div class="test-section">
-        <h2>3. Verification Checks</h2>
-        <p>Automated verification of Phase 1 requirements:</p>
+        <h2>Inline Targets</h2>
+        <p>
+            Here are some <span class="inline-target" id="inline-1">inline target 1</span> and 
+            <span class="inline-target" id="inline-2">inline target 2</span> elements for testing.
+        </p>
         <div class="test-controls">
+            <button onclick="addAnnotationToInline(1)">Annotate Inline 1</button>
+            <button onclick="addAnnotationToInline(2)">Annotate Inline 2</button>
+        </div>
+    </div>
+
+    <!-- State Queries -->
+    <div class="test-section">
+        <h2>State Queries</h2>
+        <p>Query the toolbar and layer state:</p>
+        <div class="test-controls">
+            <button onclick="getToolbarState()">Get Toolbar State</button>
+            <button onclick="getLayerState()">Get Layer State</button>
+            <button onclick="toggleVisibility()">Toggle Visibility</button>
+        </div>
+        <div class="result" id="result3">Click a button to query state...</div>
+    </div>
+
+    <!-- Verification -->
+    <div class="test-section">
+        <h2>Verification Checks</h2>
+        <p>Automated verification of Phase 1 and Phase 2 requirements:</p>
+        <div class="test-controls">
+            <button onclick="runPhase1Verification()">Verify Phase 1</button>
+            <button onclick="runPhase2Verification()">Verify Phase 2</button>
             <button onclick="runAllVerifications()">Run All Verifications</button>
         </div>
-        <div class="result" id="result3">Click to run verifications...</div>
+        <div class="result" id="result4">Click to run verifications...</div>
     </div>
 
     <!-- Canvas Bus (load first) -->
@@ -95,6 +197,10 @@
                 },
                 subscribe: (type, callback) => {
                     console.log('[CanvasBus] Subscribe:', type);
+                    // Store callback for manual triggering if needed
+                    if (!window.__busCallbacks) window.__busCallbacks = {};
+                    if (!window.__busCallbacks[type]) window.__busCallbacks[type] = [];
+                    window.__busCallbacks[type].push(callback);
                     return () => {};
                 },
                 getSeq: () => 0
@@ -105,21 +211,29 @@
     <!-- Load the annotation toolbar -->
     <script src="annotation_toolbar.js"></script>
     
+    <!-- Load the annotation layer -->
+    <script src="annotation_layer.js"></script>
+    
     <script>
-        let issueId = 0;
+        let toolbarIssueId = 0;
+        let layerIssueId = 0;
         
-        function addIssue(severity) {
-            issueId++;
+        // =================================================================
+        // Phase 1: Toolbar Functions
+        // =================================================================
+        
+        function toolbarAddIssue(severity) {
+            toolbarIssueId++;
             const issue = {
-                id: issueId,
+                id: `toolbar-${toolbarIssueId}`,
                 severity: severity,
                 checkId: 'test-check',
-                description: `Test ${severity} issue #${issueId}`,
+                description: `Test ${severity} issue #${toolbarIssueId}`,
                 selector: 'body'
             };
             const count = window.__annotationToolbar.addIssue(issue);
             document.getElementById('result1').textContent = 
-                `Added ${severity} issue. Total issues: ${count}`;
+                `Added ${severity} issue to toolbar. Total issues: ${count}`;
         }
         
         function setScanning() {
@@ -132,23 +246,120 @@
             document.getElementById('result1').textContent = 'Set toolbar to complete state';
         }
         
-        function clearIssues() {
+        function clearToolbar() {
             window.__annotationToolbar.clearIssues();
-            issueId = 0;
-            document.getElementById('result1').textContent = 'Cleared all issues';
+            toolbarIssueId = 0;
+            document.getElementById('result1').textContent = 'Cleared all toolbar issues';
         }
         
-        function getState() {
-            const state = window.__annotationToolbar.getState();
-            document.getElementById('result2').textContent = JSON.stringify(state, null, 2);
+        // =================================================================
+        // Phase 2: Annotation Layer Functions
+        // =================================================================
+        
+        function addAnnotationToBox(boxNum, severity) {
+            layerIssueId++;
+            const issue = {
+                id: `layer-${layerIssueId}`,
+                severity: severity,
+                pillar: 'Quality Craft',
+                checkId: 'color-contrast',
+                cssSelector: `#target-${boxNum}`,
+                description: `Contrast ratio issue on Target Box ${boxNum}. The text color does not meet WCAG AA requirements for the background.`,
+                recommendation: `Darken the text color or lighten the background to achieve at least 4.5:1 contrast ratio.`
+            };
+            const badgeNum = window.__annotationLayer.addIssue(issue);
+            document.getElementById('result2').textContent = 
+                `Added ${severity} annotation to Box ${boxNum}. Badge #${badgeNum}. Total: ${window.__annotationLayer.getIssueCount()}`;
+            
+            // Also update toolbar count
+            window.__annotationToolbar?.addIssue(issue);
         }
         
-        function getIssueCount() {
-            const count = window.__annotationToolbar.getIssueCount();
-            document.getElementById('result2').textContent = `Issue count: ${count}`;
+        function addAnnotationToInline(inlineNum) {
+            layerIssueId++;
+            const issue = {
+                id: `layer-${layerIssueId}`,
+                severity: 'minor',
+                pillar: 'Progressive Clarity',
+                checkId: 'touch-target',
+                cssSelector: `#inline-${inlineNum}`,
+                description: `Touch target size is 32x32px, below the recommended 44x44px minimum.`,
+                recommendation: `Increase padding to achieve at least 44x44px touch target area.`
+            };
+            const badgeNum = window.__annotationLayer.addIssue(issue);
+            document.getElementById('result2').textContent = 
+                `Added annotation to Inline ${inlineNum}. Badge #${badgeNum}. Total: ${window.__annotationLayer.getIssueCount()}`;
+            
+            window.__annotationToolbar?.addIssue(issue);
         }
         
-        function runAllVerifications() {
+        function addMultipleToCurrent() {
+            const severities = ['blocking', 'major', 'minor'];
+            severities.forEach((severity, i) => {
+                layerIssueId++;
+                const issue = {
+                    id: `layer-${layerIssueId}`,
+                    severity: severity,
+                    pillar: 'Quality Craft',
+                    checkId: `multi-check-${i + 1}`,
+                    cssSelector: '#target-1', // Same element
+                    description: `Multiple issue ${i + 1} on the same element with ${severity} severity.`,
+                    recommendation: `Fix the ${severity} issue to improve quality.`
+                };
+                window.__annotationLayer.addIssue(issue);
+                window.__annotationToolbar?.addIssue(issue);
+            });
+            document.getElementById('result2').textContent = 
+                `Added 3 annotations to same element. Total: ${window.__annotationLayer.getIssueCount()}`;
+        }
+        
+        function repositionAll() {
+            window.__annotationLayer.repositionAll();
+            document.getElementById('result2').textContent = 'Repositioned all badges';
+        }
+        
+        function clearAnnotations() {
+            window.__annotationLayer.clearAll();
+            layerIssueId = 0;
+            document.getElementById('result2').textContent = 'Cleared all annotations';
+        }
+        
+        // =================================================================
+        // State Queries
+        // =================================================================
+        
+        function getToolbarState() {
+            const state = window.__annotationToolbar?.getState();
+            document.getElementById('result3').textContent = JSON.stringify(state, null, 2);
+        }
+        
+        function getLayerState() {
+            const issues = window.__annotationLayer?.getIssues();
+            const count = window.__annotationLayer?.getIssueCount();
+            const visible = window.__annotationLayer?.isVisible();
+            document.getElementById('result3').textContent = JSON.stringify({
+                issueCount: count,
+                visible: visible,
+                issues: issues
+            }, null, 2);
+        }
+        
+        function toggleVisibility() {
+            const layer = window.__annotationLayer;
+            if (layer?.isVisible()) {
+                layer.hide();
+                document.getElementById('result3').textContent = 'Annotations hidden';
+            } else {
+                layer?.show();
+                document.getElementById('result3').textContent = 'Annotations visible';
+            }
+        }
+        
+        // =================================================================
+        // Verification Functions
+        // =================================================================
+        
+        function runPhase1Verification() {
             const results = [];
             
             // 1.1.1 - Shadow DOM host exists
@@ -205,20 +416,145 @@
                 });
             }
             
-            // Canvas bus integration
+            displayResults('Phase 1', results);
+        }
+        
+        function runPhase2Verification() {
+            const results = [];
+            
+            // 2.5.1 - Annotation layer container exists
+            const layer = document.getElementById('__annotation_layer');
+            results.push({
+                test: '2.5.1 Annotation layer container exists',
+                pass: !!layer,
+                detail: layer ? 'Found: #__annotation_layer' : 'NOT FOUND'
+            });
+            
+            // 2.5.2 - addIssue method exists
+            const api = window.__annotationLayer;
+            results.push({
+                test: '2.5.2 addIssue method exists',
+                pass: typeof api?.addIssue === 'function',
+                detail: 'addIssue() is a function'
+            });
+            
+            // 2.5.3 - removeIssue method exists
+            results.push({
+                test: '2.5.3 removeIssue method exists',
+                pass: typeof api?.removeIssue === 'function',
+                detail: 'removeIssue() is a function'
+            });
+            
+            // 2.5.4 - clearAll method exists
+            results.push({
+                test: '2.5.4 clearAll method exists',
+                pass: typeof api?.clearAll === 'function',
+                detail: 'clearAll() is a function'
+            });
+            
+            // 2.5.5 - API is exposed
+            results.push({
+                test: '2.5.5 window.__annotationLayer API exposed',
+                pass: !!api,
+                detail: api ? 'API available' : 'NOT AVAILABLE'
+            });
+            
+            // Test badge creation
+            const testIssue = {
+                id: 'test-verification',
+                severity: 'major',
+                pillar: 'Test',
+                checkId: 'test',
+                cssSelector: '#target-1',
+                description: 'Verification test issue',
+                recommendation: 'This is just a test'
+            };
+            
+            // Add and verify badge
+            const badgeNum = api?.addIssue(testIssue);
+            results.push({
+                test: '2.1.1 Badge creation returns number',
+                pass: typeof badgeNum === 'number' && badgeNum > 0,
+                detail: `Badge number: ${badgeNum}`
+            });
+            
+            // Check badge element exists
+            const badges = document.querySelectorAll('.annotation-badge');
+            results.push({
+                test: '2.1.1 Badge element created in DOM',
+                pass: badges.length > 0,
+                detail: `Found ${badges.length} badge(s) in DOM`
+            });
+            
+            // Check badge has correct severity class
+            const testBadge = document.querySelector('.annotation-badge.severity-major');
+            results.push({
+                test: '2.1.2 Badge has severity class',
+                pass: !!testBadge,
+                detail: testBadge ? 'severity-major class applied' : 'No severity class found'
+            });
+            
+            // Check popover exists
+            const popover = document.getElementById('annotation-popover-test-verification');
+            results.push({
+                test: '2.4.1 Popover element created',
+                pass: !!popover,
+                detail: popover ? 'Popover found' : 'Popover NOT FOUND'
+            });
+            
+            // Check popover has popover attribute
+            results.push({
+                test: '2.4.2 Popover uses native API',
+                pass: popover?.hasAttribute('popover'),
+                detail: popover?.hasAttribute('popover') ? 'popover attribute present' : 'Missing popover attribute'
+            });
+            
+            // Check highlight element exists
+            const highlight = document.querySelector('.annotation-highlight');
+            results.push({
+                test: '2.3.1 Highlight overlay element exists',
+                pass: !!highlight,
+                detail: highlight ? 'Highlight element found' : 'Highlight NOT FOUND'
+            });
+            
+            // Check canvas bus registration
             results.push({
                 test: 'Canvas Bus Integration',
-                pass: window.__canvasBus?.state?.activeTools?.has('annotation-toolbar'),
-                detail: window.__canvasBus?.state?.activeTools?.has('annotation-toolbar') 
+                pass: window.__canvasBus?.state?.activeTools?.has('annotation-layer'),
+                detail: window.__canvasBus?.state?.activeTools?.has('annotation-layer') 
                     ? 'Tool registered with bus' 
                     : 'Not registered'
             });
             
-            // Format results
+            // Clean up test issue
+            api?.removeIssue('test-verification');
+            
+            displayResults('Phase 2', results);
+        }
+        
+        function runAllVerifications() {
+            document.getElementById('result4').textContent = '';
+            
+            // Run Phase 1
+            runPhase1VerificationQuiet();
+            
+            // Run Phase 2
+            runPhase2VerificationQuiet();
+        }
+        
+        function runPhase1VerificationQuiet() {
+            runPhase1Verification();
+        }
+        
+        function runPhase2VerificationQuiet() {
+            runPhase2Verification();
+        }
+        
+        function displayResults(phase, results) {
             const passCount = results.filter(r => r.pass).length;
             const totalCount = results.length;
             
-            let output = `VERIFICATION RESULTS: ${passCount}/${totalCount} passed\n`;
+            let output = `${phase} VERIFICATION RESULTS: ${passCount}/${totalCount} passed\n`;
             output += '='.repeat(50) + '\n\n';
             
             results.forEach(r => {
@@ -227,7 +563,7 @@
                 output += `       ${r.detail}\n\n`;
             });
             
-            document.getElementById('result3').textContent = output;
+            document.getElementById('result4').textContent = output;
         }
     </script>
 </body>
