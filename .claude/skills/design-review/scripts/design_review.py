@@ -1640,6 +1640,10 @@ def cmd_interactive(args: argparse.Namespace) -> None:
 
         # Get final review results before browser closes
         try:
+            # Signal completion to emit review.completed event
+            page.evaluate(
+                "() => window.__designReviewComplete && window.__designReviewComplete()"
+            )
             review_results = page.evaluate(
                 "() => window.__designReviewGetResults && window.__designReviewGetResults()"
             )

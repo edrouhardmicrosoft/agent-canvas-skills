@@ -751,6 +751,16 @@
             clearAll();
             cleanup();
         });
+        
+        // Listen for issues from design-review
+        bus.subscribe('review.issue_found', (event) => {
+            addIssue(event.payload);
+        });
+        
+        // Listen for review completion
+        bus.subscribe('review.completed', (event) => {
+            repositionAll();
+        });
     }
 
     // =========================================================================

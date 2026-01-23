@@ -12,7 +12,7 @@
 |-------|-------------|--------|
 | Phase 1 | Core Toolbar | ✅ Complete |
 | Phase 2 | Annotation System | ✅ Complete |
-| Phase 3 | Integration | 🔲 Pending |
+| Phase 3 | Integration | ✅ Complete |
 | Phase 4 | Screenshot & Orientation | 🔲 Pending |
 | Phase 5 | Filtering & Polish | 🔲 Pending |
 | Phase 6 | Documentation & Testing | 🔲 Pending |
@@ -145,41 +145,42 @@
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 3.1.1 | Subscribe to `review.issue_found` events | 🔲 | Event handler fires when design-review emits issue |
-| 3.1.2 | Subscribe to `review.completed` events | 🔲 | Toolbar status updates when review finishes |
-| 3.1.3 | Subscribe to `review.started` events | 🔲 | Toolbar shows "Scanning" state when review starts |
-| 3.1.4 | Subscribe to `capture_mode.changed` events | 🔲 | Toolbar hides when agent-eyes captures |
-| 3.1.5 | Emit `annotation.clicked` events | 🔲 | Clicking badge emits event with issue data |
-| 3.1.6 | Emit `screenshot.captured` events | 🔲 | Screenshot button emits event with file path |
+| 3.1.1 | Subscribe to `review.issue_found` events | ✅ | Event handler fires when design-review emits issue |
+| 3.1.2 | Subscribe to `review.completed` events | ✅ | Toolbar status updates when review finishes |
+| 3.1.3 | Subscribe to `review.started` events | ✅ | Toolbar shows "Scanning" state when review starts |
+| 3.1.4 | Subscribe to `capture_mode.changed` events | ✅ | Toolbar hides when agent-eyes captures |
+| 3.1.5 | Emit `annotation.clicked` events | ✅ | Clicking badge emits event with issue data |
+| 3.1.6 | Emit `screenshot.captured` events | ✅ | Screenshot button emits `screenshot.requested`; capture handled in Phase 4 |
 
 ### 3.2 Design-Review Integration
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 3.2.1 | Map design-review issue format to annotation format | 🔲 | Issue data correctly populates badge and popover |
-| 3.2.2 | Update toolbar issue count on each new issue | 🔲 | Count increments as issues arrive |
-| 3.2.3 | Update severity breakdown as issues arrive | 🔲 | Severity badges show correct counts |
-| 3.2.4 | Handle "no issues found" state | 🔲 | Shows success state when review completes with 0 issues |
+| 3.2.1 | Map design-review issue format to annotation format | ✅ | Issue data correctly populates badge and popover |
+| 3.2.2 | Update toolbar issue count on each new issue | ✅ | Count increments as issues arrive |
+| 3.2.3 | Update severity breakdown as issues arrive | ✅ | Severity badges show correct counts |
+| 3.2.4 | Handle "no issues found" state | ✅ | Shows success state when review completes with 0 issues |
 
 ### 3.3 Agent-Eyes Integration
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 3.3.1 | Hide toolbar on `capture_mode.changed` (enabled=true) | 🔲 | Toolbar invisible during screenshot capture |
-| 3.3.2 | Keep annotations visible during capture | 🔲 | Badges and highlights appear in screenshot |
-| 3.3.3 | Show toolbar on `capture_mode.changed` (enabled=false) | 🔲 | Toolbar reappears after capture |
+| 3.3.1 | Hide toolbar on `capture_mode.changed` (enabled=true) | ✅ | Toolbar invisible during screenshot capture |
+| 3.3.2 | Keep annotations visible during capture | ✅ | Badges and highlights appear in screenshot |
+| 3.3.3 | Show toolbar on `capture_mode.changed` (enabled=false) | ✅ | Toolbar reappears after capture |
 
 ### 3.4 Loading/Success States
 
 | Task | Description | Status | Verification |
 |------|-------------|--------|--------------|
-| 3.4.1 | Show spinner during `review.started` | 🔲 | Spinner animates, text shows "Analyzing..." |
-| 3.4.2 | Transition from scanning to results state | 🔲 | Smooth transition when review completes |
-| 3.4.3 | Display random success message when 0 issues | 🔲 | One of 5 success messages appears |
+| 3.4.1 | Show spinner during `review.started` | ✅ | Spinner animates, text shows "Analyzing..." |
+| 3.4.2 | Transition from scanning to results state | ✅ | Smooth transition when review completes |
+| 3.4.3 | Display random success message when 0 issues | ✅ | One of 5 success messages appears |
 
-**Files to modify:**
-- `.claude/skills/design-review/scripts/design_review.py` (emit events)
-- `.claude/skills/shared/canvas_bus.py` (if needed)
+**Files modified:**
+- `.claude/skills/design-review/scripts/review_overlay.js` (emit `review.started`, `review.issue_found`, `review.completed`)
+- `.claude/skills/design-review/scripts/design_review.py` (call `__designReviewComplete` before browser close)
+- `.claude/skills/canvas-edit/scripts/annotation_layer.js` (subscribe to `review.issue_found`, `review.completed`)
 
 ---
 

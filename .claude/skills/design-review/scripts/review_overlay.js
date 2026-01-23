@@ -834,7 +834,7 @@
 
         reviewState.issues.push(issue);
 
-        // Emit event
+        // Emit review.element_added for Python logging
         const event = {
             type: 'review.element_added',
             source: 'design-review',
@@ -844,6 +844,19 @@
         window.__designReviewEvents.push(event);
         if (bus) {
             bus.emit('review.element_added', 'design-review', issue);
+            
+            // Emit review.issue_found for each failing rule (toolbar integration)
+            for (const rule of issue.rules) {
+                bus.emit('review.issue_found', 'design-review', {
+                    id: `${selector}-${rule.id}`,
+                    checkId: rule.id,
+                    severity: rule.severity,
+                    element: selector,
+                    description: rule.message,
+                    pillar: rule.pillar || '',
+                    boundingBox: issue.element?.boundingBox,
+                });
+            }
         }
 
         // Update UI
@@ -957,6 +970,15 @@
     window.__designReviewInit = function(spec) {
         reviewState.spec = spec;
         console.log('[DesignReview] Initialized with spec:', spec?.name || 'unknown');
+        
+        // Emit review.started event for toolbar integration
+        if (bus) {
+            bus.emit('review.started', 'design-review', {
+                spec: spec?.name || 'unknown',
+                mode: 'interactive',
+                timestamp: new Date().toISOString(),
+            });
+        }
     };
 
     /**
@@ -972,6 +994,24 @@
                 minor: parseInt(minorCountEl.textContent),
             }
         };
+    };
+
+    /**
+     * Signal review completion (called by Python before browser close)
+     */
+    window.__designReviewComplete = function() {
+        if (bus) {
+            const summary = {
+                blocking: parseInt(blockingCountEl.textContent),
+                major: parseInt(majorCountEl.textContent),
+                minor: parseInt(minorCountEl.textContent),
+            };
+            bus.emit('review.completed', 'design-review', {
+                issueCount: reviewState.issues.length,
+                summary: summary,
+                timestamp: new Date().toISOString(),
+            });
+        }
     };
 
     console.log('[DesignReview] Overlay initialized', bus ? `with session: ${bus.sessionId}` : 'standalone');
