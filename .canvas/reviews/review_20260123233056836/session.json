@@ -1,0 +1,238 @@
+{
+  "sessionId": "review_20260123233056836",
+  "startTime": "2026-01-23T23:30:56.836Z",
+  "endTime": "2026-01-23T23:31:38.427Z",
+  "url": "https://www.microsoft.com",
+  "mode": "interactive",
+  "spec": {
+    "name": "Default Design Review",
+    "path": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+    "pillars": 4,
+    "checks": 21
+  },
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "reviewedElements": [],
+  "events": [
+    {
+      "timestamp": "2026-01-23T23:30:56.847Z",
+      "type": "session_start",
+      "data": {
+        "sessionId": "review_20260123233056836",
+        "url": "https://www.microsoft.com",
+        "spec": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+        "mode": "interactive"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:30:57.361Z",
+      "type": "browser_launched",
+      "data": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:05.496Z",
+      "type": "page_loaded",
+      "data": {
+        "url": "https://www.microsoft.com"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:05.527Z",
+      "type": "overlay_injected",
+      "data": {
+        "spec": "Default Design Review"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:19.116Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T23:31:19.014Z",
+        "payload": {
+          "selector": "#highlight-uid8038",
+          "timestamp": "2026-01-23T23:31:19.013Z",
+          "element": {
+            "tag": "reimagine-hero-featured-slider-item",
+            "id": "highlight-uid8038",
+            "className": "",
+            "selector": "#highlight-uid8038",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 0,
+              "y": 96,
+              "width": 1265,
+              "height": 580
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "96px 0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:28.236Z",
+      "type": "review_event",
+      "data": {
+        "type": "review.element_added",
+        "source": "design-review",
+        "timestamp": "2026-01-23T23:31:28.136Z",
+        "payload": {
+          "selector": "div.carousel-content",
+          "timestamp": "2026-01-23T23:31:28.136Z",
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "carousel-content",
+            "selector": "div.carousel-content",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "2-in-1 PCLaptop productivity. Tablet creativity.Built to keep you on the go, Surface Pro delivers AI-accelerated experiences, all-day battery life, and more.Exceptional performance, battery life, and ",
+            "boundingBox": {
+              "x": 24,
+              "y": 363,
+              "width": 1768,
+              "height": 568
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          },
+          "compliance": {
+            "status": "fail",
+            "rules": [
+              {
+                "id": "color-contrast",
+                "name": "Color Contrast",
+                "severity": "major",
+                "status": "fail",
+                "message": "Contrast 1.0:1 (min 4.5:1)"
+              },
+              {
+                "id": "focus-indicators",
+                "name": "Focus Indicators",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              },
+              {
+                "id": "touch-targets",
+                "name": "Touch Targets",
+                "severity": "major",
+                "status": "pass",
+                "message": "Compliant"
+              }
+            ]
+          },
+          "rules": [
+            {
+              "id": "color-contrast",
+              "name": "Color Contrast",
+              "severity": "major",
+              "status": "fail",
+              "message": "Contrast 1.0:1 (min 4.5:1)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:31.204Z",
+      "type": "browser_closed",
+      "data": {}
+    },
+    {
+      "timestamp": "2026-01-23T23:31:38.388Z",
+      "type": "screenshot_captured",
+      "data": {
+        "path": ".canvas/reviews/review_20260123233056836/screenshot.png"
+      }
+    },
+    {
+      "timestamp": "2026-01-23T23:31:38.427Z",
+      "type": "report_saved",
+      "data": {
+        "path": ".canvas/reviews/review_20260123233056836/report.json"
+      }
+    }
+  ]
+}

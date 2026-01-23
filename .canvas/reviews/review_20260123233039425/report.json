@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "url": "https://www.microsoft.com",
+  "spec": "Default Design Review",
+  "specPath": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.claude/skills/design-review/specs/default.md",
+  "sessionId": "review_20260123233039425",
+  "summary": {
+    "blocking": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "issues": [],
+  "editableContext": {
+    "editable": true,
+    "reasons": [
+      "Framework detected: Next.js",
+      "Source directories found: 2",
+      "Git repository (changes can be tracked)",
+      "Warning: Not a local server, changes may not reflect"
+    ],
+    "framework": "Next.js",
+    "source_dirs": [
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/app",
+      "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/lib"
+    ],
+    "has_git": true,
+    "confidence": "low"
+  },
+  "artifacts": {
+    "screenshot": ".canvas/reviews/review_20260123233039425/screenshot.png",
+    "sessionDir": ".canvas/reviews/review_20260123233039425"
+  }
+}

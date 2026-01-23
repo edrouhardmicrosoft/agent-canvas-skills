@@ -1,0 +1,968 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-59695f23869b",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-23T23-28-20-622Z",
+  "endTime": "2026-01-23T23-28-38-617Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-59695f23869b/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:28:29.972Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 397,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 397,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_001.png",
+          "size": 104531
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:28:29.972Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 397,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 397,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_002.png",
+          "size": 104531
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:28:31.320Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Which PC is right for me?",
+            "boundingBox": {
+              "x": 332,
+              "y": 587,
+              "width": 190,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Which PC is right for me?",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Which PC is right for me?",
+          "boundingBox": {
+            "x": 331,
+            "y": 587,
+            "width": 192,
+            "height": 32
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Which PC is right for me?",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_003.png",
+          "size": 3553
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:28:31.320Z",
+        "payload": {
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Which PC is right for me?",
+            "boundingBox": {
+              "x": 332,
+              "y": 587,
+              "width": 190,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Which PC is right for me?",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Which PC is right for me?",
+          "boundingBox": {
+            "x": 330,
+            "y": 587,
+            "width": 193,
+            "height": 32
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Which PC is right for me?",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_004.png",
+          "size": 3553
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 21,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:28:31.829Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(2)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Sign in to my account",
+            "boundingBox": {
+              "x": 533,
+              "y": 587,
+              "width": 167,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Sign in to my account",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(2)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Sign in to my account",
+          "boundingBox": {
+            "x": 533,
+            "y": 587,
+            "width": 167,
+            "height": 31
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Sign in to my account",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_005.png",
+          "size": 3150
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 22,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:28:31.829Z",
+        "payload": {
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(2)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Sign in to my account",
+            "boundingBox": {
+              "x": 533,
+              "y": 587,
+              "width": 167,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Sign in to my account",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(2)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Sign in to my account",
+          "boundingBox": {
+            "x": 531,
+            "y": 587,
+            "width": 170,
+            "height": 32
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Sign in to my account",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_006.png",
+          "size": 3150
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 31,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:28:33.198Z",
+        "payload": {
+          "index": 4,
+          "element": {
+            "tag": "reimagine-icon",
+            "id": "icon-oce5be",
+            "className": "",
+            "selector": "#icon-oce5be",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 651,
+              "y": 295,
+              "width": 20,
+              "height": 20
+            },
+            "attributes": {
+              "role": "presentation",
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(42, 68, 111)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-icon",
+          "id": "icon-oce5be",
+          "className": null,
+          "selector": "#icon-oce5be",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": null,
+          "boundingBox": {
+            "x": 651,
+            "y": 295,
+            "width": 20,
+            "height": 20
+          },
+          "styles": {
+            "display": "block",
+            "position": "relative",
+            "color": "rgb(42, 68, 111)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(42, 68, 111)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": "presentation",
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_007.png",
+          "size": 308
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 32,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:28:33.199Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-icon",
+            "id": "icon-oce5be",
+            "className": "",
+            "selector": "#icon-oce5be",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 651,
+              "y": 295,
+              "width": 20,
+              "height": 20
+            },
+            "attributes": {
+              "role": "presentation",
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(42, 68, 111)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-icon",
+          "id": "icon-oce5be",
+          "className": null,
+          "selector": "#icon-oce5be",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": null,
+          "boundingBox": {
+            "x": 651,
+            "y": 295,
+            "width": 20,
+            "height": 20
+          },
+          "styles": {
+            "display": "block",
+            "position": "relative",
+            "color": "rgb(42, 68, 111)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(42, 68, 111)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": "presentation",
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_008.png",
+          "size": 308
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 41,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:28:34.265Z",
+        "payload": {
+          "index": 5,
+          "element": {
+            "tag": "reimagine-carousel",
+            "id": "caraousal-1",
+            "className": "show-start-fade",
+            "selector": "#caraousal-1",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 0,
+              "y": -315,
+              "width": 1265,
+              "height": 660
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-carousel",
+          "id": "caraousal-1",
+          "className": "show-start-fade",
+          "selector": "#caraousal-1",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 0,
+            "y": -315,
+            "width": 1265,
+            "height": 660
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_009.png",
+          "size": 344160
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrihtoyuo289",
+        "seq": 42,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:28:34.265Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-carousel",
+            "id": "caraousal-1",
+            "className": "show-start-fade",
+            "selector": "#caraousal-1",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 0,
+              "y": -315,
+              "width": 1265,
+              "height": 660
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-carousel",
+          "id": "caraousal-1",
+          "className": "show-start-fade",
+          "selector": "#caraousal-1",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 0,
+            "y": 0,
+            "width": 1265,
+            "height": 660
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-59695f23869b/selection_010.png",
+          "size": 344160
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 10,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

@@ -76,6 +76,9 @@ class DomAgent:
 
                 page.goto(url, wait_until="networkidle")
 
+                # Force browser window to foreground (critical for subprocess execution)
+                page.bring_to_front()
+
                 # Get DOM structure via JavaScript
                 root_selector = selector or "body"
 

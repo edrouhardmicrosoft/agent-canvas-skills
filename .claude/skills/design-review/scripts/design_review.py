@@ -647,6 +647,9 @@ def cmd_review(args: argparse.Namespace) -> None:
         try:
             page.goto(args.url, wait_until="networkidle")
             log_event("page_loaded", {"url": args.url})
+
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
         except Exception as e:
             log_event("page_load_error", {"error": str(e)})
             error_output(f"Failed to load URL: {e}")
@@ -1592,6 +1595,9 @@ def cmd_interactive(args: argparse.Namespace) -> None:
         try:
             page.goto(args.url, wait_until="networkidle", timeout=30000)
             log_event("page_loaded", {"url": args.url})
+
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
         except Exception as e:
             log_event("page_load_error", {"error": str(e)})
             error_output(f"Failed to load URL: {e}")
@@ -1863,6 +1869,9 @@ def cmd_compare(args: argparse.Namespace) -> None:
         try:
             page.goto(args.url, wait_until="networkidle")
             log_event("page_loaded", {"url": args.url})
+
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
         except Exception as e:
             log_event("page_load_error", {"error": str(e)})
             error_output(f"Failed to load URL: {e}")

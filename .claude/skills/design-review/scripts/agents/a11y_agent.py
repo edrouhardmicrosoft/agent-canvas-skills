@@ -76,6 +76,9 @@ class A11yAgent:
 
                 page.goto(url, wait_until="networkidle")
 
+                # Force browser window to foreground (critical for subprocess execution)
+                page.bring_to_front()
+
                 # Run axe-core scan
                 axe = Axe()
 

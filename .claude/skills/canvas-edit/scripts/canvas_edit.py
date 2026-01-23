@@ -240,6 +240,9 @@ def run_inject_session(
             # Navigate to URL
             page.goto(url, wait_until="networkidle", timeout=30000)
 
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
+
             # Inject annotation toolbar
             session_info = inject_annotation_toolbar(page, issues)
 

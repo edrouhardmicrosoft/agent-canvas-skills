@@ -1,0 +1,1169 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-c78b4f7eeb11",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-23T23-24-43-802Z",
+  "endTime": "2026-01-23T23-25-14-186Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-c78b4f7eeb11/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:24:56.090Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Sign up now",
+            "boundingBox": {
+              "x": 56,
+              "y": 458,
+              "width": 116,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Sign up for Microsoft 365 Premium and LinkedIn Premium Career.",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/microsoft-365/college-student-pricing?icid=mscom_marcom_H2a_M365StudentOffer",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": -640,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 120, 212)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_001.png",
+          "size": 2574
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:24:56.090Z",
+        "payload": {
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Sign up now",
+            "boundingBox": {
+              "x": 56,
+              "y": 458,
+              "width": 116,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Sign up for Microsoft 365 Premium and LinkedIn Premium Career.",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/microsoft-365/college-student-pricing?icid=mscom_marcom_H2a_M365StudentOffer",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 120, 212)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_002.png",
+          "size": 2574
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:25:00.435Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "reimagine-announcement",
+            "id": "announcement-ocf60c",
+            "className": "",
+            "selector": "#announcement-ocf60c",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": 56,
+              "width": 1265,
+              "height": 40
+            },
+            "attributes": {
+              "role": "alert",
+              "ariaLabel": "Announcement banner",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "inline",
+              "position": "static",
+              "backgroundColor": "rgb(0, 114, 198)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-announcement",
+          "id": "announcement-ocf60c",
+          "className": null,
+          "selector": "#announcement-ocf60c",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+          "boundingBox": {
+            "x": 0,
+            "y": 56,
+            "width": 1265,
+            "height": 40
+          },
+          "styles": {
+            "display": "inline",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 114, 198)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": "alert",
+            "ariaLabel": "Announcement banner",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_003.png",
+          "size": 8150
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:25:00.435Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-announcement",
+            "id": "announcement-ocf60c",
+            "className": "",
+            "selector": "#announcement-ocf60c",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": 56,
+              "width": 1265,
+              "height": 40
+            },
+            "attributes": {
+              "role": "alert",
+              "ariaLabel": "Announcement banner",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "inline",
+              "position": "static",
+              "backgroundColor": "rgb(0, 114, 198)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-announcement",
+          "id": "announcement-ocf60c",
+          "className": null,
+          "selector": "#announcement-ocf60c",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+          "boundingBox": {
+            "x": 0,
+            "y": 56,
+            "width": 1265,
+            "height": 40
+          },
+          "styles": {
+            "display": "inline",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 114, 198)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": "alert",
+            "ariaLabel": "Announcement banner",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_004.png",
+          "size": 8150
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 21,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:25:03.461Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "aem-Grid aem-Grid--12 aem-Grid--default--12 ",
+            "selector": "div:nth-of-type(2) > main > div > div > div",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "div.aem-Grid.aem-Grid--12.aem-Grid--default--12",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": -446,
+              "width": 1265,
+              "height": 5982
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "aem-Grid aem-Grid--12 aem-Grid--default--12 ",
+          "selector": "div:nth-of-type(2) > main > div > div > div",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "div.aem-Grid.aem-Grid--12.aem-Grid--default--12",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+          "boundingBox": {
+            "x": 0,
+            "y": -446,
+            "width": 1265,
+            "height": 5982
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_005.png",
+          "size": 1328971
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 22,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:25:03.461Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "aem-Grid aem-Grid--12 aem-Grid--default--12 ",
+            "selector": "div:nth-of-type(2) > main > div > div > div",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "div.aem-Grid.aem-Grid--12.aem-Grid--default--12",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": -446,
+              "width": 1265,
+              "height": 5982
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "aem-Grid aem-Grid--12 aem-Grid--default--12 ",
+          "selector": "div:nth-of-type(2) > main > div > div > div",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "div.aem-Grid.aem-Grid--12.aem-Grid--default--12",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+          "boundingBox": {
+            "x": 0,
+            "y": -446,
+            "width": 1265,
+            "height": 5982
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_006.png",
+          "size": 1328971
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 31,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:25:05.447Z",
+        "payload": {
+          "index": 4,
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Which PC is right for me?",
+            "boundingBox": {
+              "x": 332,
+              "y": 496,
+              "width": 190,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Which PC is right for me?",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Which PC is right for me?",
+          "boundingBox": {
+            "x": 331,
+            "y": 496,
+            "width": 192,
+            "height": 32
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Which PC is right for me?",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_007.png",
+          "size": 3553
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 32,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:25:05.447Z",
+        "payload": {
+          "element": {
+            "tag": "button",
+            "id": null,
+            "className": "msstore-chatonpage__prompt-pill",
+            "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "button.msstore-chatonpage__prompt-pill",
+                "note": "3 matches"
+              }
+            ],
+            "text": "Which PC is right for me?",
+            "boundingBox": {
+              "x": 332,
+              "y": 496,
+              "width": 190,
+              "height": 31
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Ask about: Which PC is right for me?",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgb(0, 103, 184)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "padding": "4px 12px",
+              "margin": "0px",
+              "borderRadius": "16px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "button",
+          "id": null,
+          "className": "msstore-chatonpage__prompt-pill",
+          "selector": "div:nth-of-type(3) > div > div:nth-of-type(3) > div > button:nth-of-type(1)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "button.msstore-chatonpage__prompt-pill",
+              "note": "3 matches"
+            }
+          ],
+          "textContent": "Which PC is right for me?",
+          "boundingBox": {
+            "x": 330,
+            "y": 496,
+            "width": 193,
+            "height": 32
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 103, 184)",
+            "fontSize": "15px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "4px 12px",
+            "border": "1px solid rgb(255, 255, 255)",
+            "borderRadius": "16px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Ask about: Which PC is right for me?",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_008.png",
+          "size": 3553
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 41,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:25:07.212Z",
+        "payload": {
+          "index": 5,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "sa-highlight-entry-content",
+            "selector": "div.sa-highlight-entry-content",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?Store Assistant is available 24x7.Chat nowNo thanks",
+            "boundingBox": {
+              "x": 970,
+              "y": 416,
+              "width": 245,
+              "height": 254
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "fixed",
+              "backgroundColor": "rgb(14, 23, 38)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "14px",
+              "fontWeight": "400",
+              "padding": "38px 16px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "sa-highlight-entry-content",
+          "selector": "div.sa-highlight-entry-content",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Can we help you?Store Assistant is available 24x7.Chat nowNo thanks",
+          "boundingBox": {
+            "x": 970,
+            "y": 416,
+            "width": 245,
+            "height": 254
+          },
+          "styles": {
+            "display": "block",
+            "position": "fixed",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(14, 23, 38)",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "38px 16px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_009.png",
+          "size": 12085
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 42,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:25:07.212Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "sa-highlight-entry-content",
+            "selector": "div.sa-highlight-entry-content",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?Store Assistant is available 24x7.Chat nowNo thanks",
+            "boundingBox": {
+              "x": 970,
+              "y": 416,
+              "width": 245,
+              "height": 254
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "fixed",
+              "backgroundColor": "rgb(14, 23, 38)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "14px",
+              "fontWeight": "400",
+              "padding": "38px 16px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "sa-highlight-entry-content",
+          "selector": "div.sa-highlight-entry-content",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Can we help you?Store Assistant is available 24x7.Chat nowNo thanks",
+          "boundingBox": {
+            "x": 970,
+            "y": 416,
+            "width": 245,
+            "height": 254
+          },
+          "styles": {
+            "display": "block",
+            "position": "fixed",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(14, 23, 38)",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "38px 16px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_010.png",
+          "size": 12083
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 51,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:25:09.636Z",
+        "payload": {
+          "index": 6,
+          "element": {
+            "tag": "reimagine-card-feature",
+            "id": "card-feature-oc1f34",
+            "className": "",
+            "selector": "div > div:nth-of-type(5) > reimagine-featured > reimagine-layout-column:nth-of-type(1) > reimagine-card-feature",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "#card-feature-oc1f34",
+                "note": "id not unique"
+              }
+            ],
+            "text": "2-in-1 PC\n      \n    \n\t\n\n  \n\n        \n    \n    \n    \n        \n  \n\n\n\n\n    \n\n\n\n        \n      \n    \n\n    \n      \n      \n        \n\n  \n    \n\n\n\n\n\n  \n  \n\n  \n  \n    \n  \n\n\n\n\n  \n\n  \n  \n\n  \n  \n\n    \n\n        \n ",
+            "boundingBox": {
+              "x": 56,
+              "y": -199,
+              "width": 569,
+              "height": 642
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-card-feature",
+          "id": "card-feature-oc1f34",
+          "className": null,
+          "selector": "div > div:nth-of-type(5) > reimagine-featured > reimagine-layout-column:nth-of-type(1) > reimagine-card-feature",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "#card-feature-oc1f34",
+              "note": "id not unique"
+            }
+          ],
+          "textContent": "2-in-1 PC\n      \n    \n\t\n\n  \n\n        \n    \n    \n    \n        \n  \n\n\n\n\n    \n\n\n\n        \n      \n    \n\n    \n      \n      \n        \n\n  \n    \n\n\n\n\n\n  \n  \n\n  \n  \n    \n  \n\n\n\n\n  \n\n  \n  \n\n  \n  \n\n    \n\n        \n ",
+          "boundingBox": {
+            "x": 56,
+            "y": -199,
+            "width": 569,
+            "height": 642
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgb(255, 255, 255)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "1px solid rgb(231, 231, 231)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_011.png",
+          "size": 132134
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkrid6qza74tw",
+        "seq": 52,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:25:09.636Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-card-feature",
+            "id": "card-feature-oc1f34",
+            "className": "",
+            "selector": "div > div:nth-of-type(5) > reimagine-featured > reimagine-layout-column:nth-of-type(1) > reimagine-card-feature",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [
+              {
+                "selector": "#card-feature-oc1f34",
+                "note": "id not unique"
+              }
+            ],
+            "text": "2-in-1 PC\n      \n    \n\t\n\n  \n\n        \n    \n    \n    \n        \n  \n\n\n\n\n    \n\n\n\n        \n      \n    \n\n    \n      \n      \n        \n\n  \n    \n\n\n\n\n\n  \n  \n\n  \n  \n    \n  \n\n\n\n\n  \n\n  \n  \n\n  \n  \n\n    \n\n        \n ",
+            "boundingBox": {
+              "x": 56,
+              "y": -199,
+              "width": 569,
+              "height": 642
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-card-feature",
+          "id": "card-feature-oc1f34",
+          "className": null,
+          "selector": "div > div:nth-of-type(5) > reimagine-featured > reimagine-layout-column:nth-of-type(1) > reimagine-card-feature",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [
+            {
+              "selector": "#card-feature-oc1f34",
+              "note": "id not unique"
+            }
+          ],
+          "textContent": "2-in-1 PC\n      \n    \n\t\n\n  \n\n        \n    \n    \n    \n        \n  \n\n\n\n\n    \n\n\n\n        \n      \n    \n\n    \n      \n      \n        \n\n  \n    \n\n\n\n\n\n  \n  \n\n  \n  \n    \n  \n\n\n\n\n  \n\n  \n  \n\n  \n  \n\n    \n\n        \n ",
+          "boundingBox": {
+            "x": 56,
+            "y": -1,
+            "width": 569,
+            "height": 642
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgb(255, 255, 255)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "1px solid rgb(231, 231, 231)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-c78b4f7eeb11/selection_012.png",
+          "size": 132134
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 12,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

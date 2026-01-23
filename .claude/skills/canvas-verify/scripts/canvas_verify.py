@@ -348,6 +348,9 @@ def run_verification(
             # Navigate to URL
             page.goto(url, wait_until="networkidle", timeout=30000)
 
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
+
             # Import agent_eyes functions
             from agent_eyes import take_screenshot, run_a11y_scan, inject_canvas_bus
 

@@ -674,10 +674,15 @@ def pick_element(
         # Launch visible browser for interaction
         browser = p.chromium.launch(headless=False)
         context = browser.new_context()
+        # Disable default timeout - user controls when to close browser
+        context.set_default_timeout(0)
         page = context.new_page()
 
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
+
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
 
             # Capture "before" screenshot immediately (as file for token efficiency)
             before_screenshot_path = _save_screenshot_to_session(
@@ -844,9 +849,19 @@ def pick_element(
 
                     time.sleep(0.1)
 
-                except Exception:
-                    # Page likely closed
-                    break
+                except Exception as e:
+                    # Only break if the browser/page is actually closed
+                    # Common close indicators: "Target closed", "Browser closed", "Context closed"
+                    error_msg = str(e).lower()
+                    if any(indicator in error_msg for indicator in [
+                        "target closed", "browser closed", "context closed",
+                        "connection closed", "target page, context or browser has been closed"
+                    ]):
+                        break
+                    # For other exceptions, log and continue polling
+                    print(json.dumps({"type": "debug.error", "message": str(e)}), file=sys.stderr)
+                    time.sleep(0.5)  # Back off slightly on errors
+                    continue
 
             # Session end time
             end_time = get_timestamp()
@@ -993,6 +1008,9 @@ def watch_page(
 
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
+
+            # Force browser window to foreground (critical for subprocess execution)
+            page.bring_to_front()
 
             # Inject canvas bus for utilities
             if HAS_CANVAS_BUS:

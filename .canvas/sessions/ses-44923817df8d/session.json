@@ -1,0 +1,566 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-44923817df8d",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-23T23-35-24-162Z",
+  "endTime": "2026-01-23T23-36-05-501Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-44923817df8d/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:36:01.432Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "h2",
+            "id": null,
+            "className": "",
+            "selector": "div > div:nth-of-type(3) > div > div:nth-of-type(1) > h2",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?",
+            "boundingBox": {
+              "x": 445,
+              "y": 244,
+              "width": 375,
+              "height": 40
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(254, 254, 254)",
+              "fontSize": "32px",
+              "fontWeight": "600",
+              "padding": "0px",
+              "margin": "0px 0px 8px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h2",
+          "id": null,
+          "className": null,
+          "selector": "div > div:nth-of-type(3) > div > div:nth-of-type(1) > h2",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?",
+          "boundingBox": {
+            "x": 445,
+            "y": 244,
+            "width": 375,
+            "height": 40
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(254, 254, 254)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "32px",
+            "fontWeight": "600",
+            "margin": "0px 0px 8px",
+            "padding": "0px",
+            "border": "0px none rgb(254, 254, 254)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_001.png",
+          "size": 12544
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:36:01.432Z",
+        "payload": {
+          "element": {
+            "tag": "h2",
+            "id": null,
+            "className": "",
+            "selector": "div > div:nth-of-type(3) > div > div:nth-of-type(1) > h2",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?",
+            "boundingBox": {
+              "x": 445,
+              "y": 244,
+              "width": 375,
+              "height": 40
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(254, 254, 254)",
+              "fontSize": "32px",
+              "fontWeight": "600",
+              "padding": "0px",
+              "margin": "0px 0px 8px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h2",
+          "id": null,
+          "className": null,
+          "selector": "div > div:nth-of-type(3) > div > div:nth-of-type(1) > h2",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?",
+          "boundingBox": {
+            "x": 445,
+            "y": 244,
+            "width": 375,
+            "height": 40
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(254, 254, 254)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "32px",
+            "fontWeight": "600",
+            "margin": "0px 0px 8px",
+            "padding": "0px",
+            "border": "0px none rgb(254, 254, 254)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_002.png",
+          "size": 12544
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:36:02.103Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 196,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 196,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_003.png",
+          "size": 102687
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:36:02.103Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 196,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 196,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_004.png",
+          "size": 102695
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 21,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T23:36:03.375Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "reimagine-carousel",
+            "id": "caraousal-1",
+            "className": "show-start-fade",
+            "selector": "#caraousal-1",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 0,
+              "y": -512,
+              "width": 1265,
+              "height": 660
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-carousel",
+          "id": "caraousal-1",
+          "className": "show-start-fade",
+          "selector": "#caraousal-1",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 0,
+            "y": -512,
+            "width": 1265,
+            "height": 660
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_005.png",
+          "size": 344160
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkriqwpw7ceod",
+        "seq": 22,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T23:36:03.375Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-carousel",
+            "id": "caraousal-1",
+            "className": "show-start-fade",
+            "selector": "#caraousal-1",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 0,
+              "y": -512,
+              "width": 1265,
+              "height": 660
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "relative",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-carousel",
+          "id": "caraousal-1",
+          "className": "show-start-fade",
+          "selector": "#caraousal-1",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 0,
+            "y": 0,
+            "width": 1265,
+            "height": 660
+          },
+          "styles": {
+            "display": "flex",
+            "position": "relative",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-44923817df8d/selection_006.png",
+          "size": 344160
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 6,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

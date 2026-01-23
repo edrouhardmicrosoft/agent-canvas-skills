@@ -85,6 +85,9 @@ class ScreenshotAgent:
 
                 page.goto(url, wait_until="networkidle")
 
+                # Force browser window to foreground (critical for subprocess execution)
+                page.bring_to_front()
+
                 if selector:
                     # Capture specific element
                     element = page.query_selector(selector)
