@@ -232,7 +232,7 @@ def run_inject_session(
         Result dictionary with session info and artifacts
     """
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=not interactive)
+        browser = p.chromium.launch(headless=False)
         context = browser.new_context()
         page = context.new_page()
 
@@ -398,7 +398,9 @@ def main():
         help="Capture screenshot immediately after injection",
     )
     inject_parser.add_argument(
-        "--headless", action="store_true", help="Run in headless mode (no UI)"
+        "--headless",
+        action="store_true",
+        help="Run in headless mode (no visible browser)",
     )
 
     # Get JS command (for integration)
@@ -417,7 +419,7 @@ def main():
             print(json.dumps({"ok": False, "error": f"File not found: {e}"}))
             sys.exit(1)
 
-        # Run session
+        # Run session (visible by default, headless only if explicitly requested)
         result = run_inject_session(
             url=args.url,
             issues=issues,

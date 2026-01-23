@@ -69,7 +69,7 @@ class A11yAgent:
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=False)
                 page = browser.new_page(
                     viewport={"width": viewport[0], "height": viewport[1]}
                 )

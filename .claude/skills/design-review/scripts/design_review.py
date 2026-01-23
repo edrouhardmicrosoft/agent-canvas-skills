@@ -639,7 +639,7 @@ def cmd_review(args: argparse.Namespace) -> None:
     )
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         page = browser.new_page(viewport={"width": 1280, "height": 720})
 
         log_event("browser_launched", {"viewport": {"width": 1280, "height": 720}})
@@ -1855,7 +1855,7 @@ def cmd_compare(args: argparse.Namespace) -> None:
 
     # Capture current screenshot
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         page = browser.new_page(viewport={"width": 1280, "height": 720})
 
         log_event("browser_launched", {"viewport": {"width": 1280, "height": 720}})
