@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-13fd2963d4aa",
+  "url": "http://localhost:3000",
+  "startTime": "2026-01-23T19-50-56-981Z",
+  "endTime": "2026-01-23T19-53-41-137Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": true
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-13fd2963d4aa/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkraq65y8jv6j",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-23T19:52:33.951Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "h1",
+            "id": null,
+            "className": "text-[72px] font-black mb-8 p-[52px] rounded-[40px]",
+            "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "hello world",
+            "boundingBox": {
+              "x": 398,
+              "y": 96,
+              "width": 483,
+              "height": 212
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "lab(2.75381 0 0)",
+              "fontSize": "72px",
+              "fontWeight": "900",
+              "padding": "52px",
+              "margin": "0px 0px 32px",
+              "borderRadius": "40px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": null,
+          "className": "text-[72px] font-black mb-8 p-[52px] rounded-[40px]",
+          "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "hello world",
+          "boundingBox": {
+            "x": 398,
+            "y": 96,
+            "width": 483,
+            "height": 212
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "lab(2.75381 0 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "72px",
+            "fontWeight": "900",
+            "margin": "0px 0px 32px",
+            "padding": "52px",
+            "border": "0px solid lab(90.952 0 -0.0000119209)",
+            "borderRadius": "40px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-13fd2963d4aa/selection_001.png",
+          "size": 5821
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkraq65y8jv6j",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-23T19:52:33.953Z",
+        "payload": {
+          "element": {
+            "tag": "h1",
+            "id": null,
+            "className": "text-[72px] font-black mb-8 p-[52px] rounded-[40px]",
+            "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "hello world",
+            "boundingBox": {
+              "x": 398,
+              "y": 96,
+              "width": 483,
+              "height": 212
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "lab(2.75381 0 0)",
+              "fontSize": "72px",
+              "fontWeight": "900",
+              "padding": "52px",
+              "margin": "0px 0px 32px",
+              "borderRadius": "40px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": null,
+          "className": "text-[72px] font-black mb-8 p-[52px] rounded-[40px]",
+          "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "hello world",
+          "boundingBox": {
+            "x": 398,
+            "y": 96,
+            "width": 483,
+            "height": 212
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "lab(2.75381 0 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "72px",
+            "fontWeight": "900",
+            "margin": "0px 0px 32px",
+            "padding": "52px",
+            "border": "0px solid lab(90.952 0 -0.0000119209)",
+            "borderRadius": "40px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-13fd2963d4aa/selection_002.png",
+          "size": 5821
+        }
+      }
+    ],
+    "edits": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkraq65y8jv6j",
+        "seq": 3,
+        "type": "edit.element_selected",
+        "source": "edit",
+        "timestamp": "2026-01-23T19:52:33.953Z",
+        "payload": {
+          "selector": "h1.text-\\[72px\\].font-black.mb-8.p-\\[52px\\].rounded-\\[40px\\]",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": []
+        }
+      }
+    ]
+  },
+  "summary": {
+    "totalSelections": 2,
+    "totalEdits": 1,
+    "hasSaveRequest": false
+  }
+}

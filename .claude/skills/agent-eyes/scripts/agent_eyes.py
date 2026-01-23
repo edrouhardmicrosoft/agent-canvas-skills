@@ -174,8 +174,11 @@ def run_a11y_scan(
         else:
             results = axe.run(page)
 
+        # AxeResults wraps the response dict in .response attribute
+        response = results.response
+
         # Filter by WCAG level
-        violations = results.get("violations", [])
+        violations = response.get("violations", [])
         if level == "AAA":
             # Include all violations
             pass
@@ -194,8 +197,8 @@ def run_a11y_scan(
             "ok": True,
             "violations": violations,
             "violationCount": len(violations),
-            "passes": len(results.get("passes", [])),
-            "incomplete": len(results.get("incomplete", [])),
+            "passes": len(response.get("passes", [])),
+            "incomplete": len(response.get("incomplete", [])),
         }
     except ImportError:
         return {
