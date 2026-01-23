@@ -6,95 +6,169 @@
 
 > **Spec-driven design QA for AI agents**
 
-Review UI implementations against design specs, generate annotated screenshots with issues marked, and create actionable fix lists. Then pick, edit, apply, and verify changes visually.
+Review UI implementations against design specs, generate annotated screenshots with issues marked, and create actionable fix lists. Works with **any AI agent** (Copilot, Claude Desktop, Cursor, etc.) on **any web page**.
 
-## Overview
+---
 
-A suite of 7 AI agent skills for visual web development and design quality assurance. Works with **any web page**.
+## Quick Start
 
-| Skill | Role | Docs |
-|-------|------|------|
-| [design-review](.claude/skills/design-review/SKILL.md) | Design QA | Spec compliance, visual diffs, task generation |
-| [agent-canvas-setup](.claude/skills/agent-canvas-setup/SKILL.md) | Dependency installer | First-time setup |
-| [agent-eyes](.claude/skills/agent-eyes/SKILL.md) | Visual context | Screenshots, a11y, DOM |
-| [agent-canvas](.claude/skills/agent-canvas/SKILL.md) | Element picker | Interactive selection |
-| [canvas-edit](.claude/skills/canvas-edit/SKILL.md) | Annotation toolbar | Issue overlay, screenshots |
-| [canvas-apply](.claude/skills/canvas-apply/SKILL.md) | Code generation | Visual edits → code |
-| [canvas-verify](.claude/skills/canvas-verify/SKILL.md) | Verification | Before/after comparison |
+**Copy and paste this into your AI agent:**
 
-### Workflows
+```
+Set up Agent Canvas for design review. Follow the instructions in .claude/skills/agent-canvas-setup/SKILL.md to check dependencies and install anything missing. Use the "temporary" scope unless I specify otherwise.
+```
+
+That's it. Your agent will handle Python, uv, Playwright, and everything else.
+
+Once setup completes, try:
+
+```
+Review the design at http://localhost:3000
+```
+
+---
+
+## Customizing Your Reviews (CRITICAL)
+
+By default, Agent Canvas reviews against generic design principles. **For meaningful reviews, give it YOUR design context:**
+
+### Option 1: Custom Design Spec (Recommended)
+
+Create a `DESIGN-SPEC.md` in your project root:
+
+```
+your-project/
+├── DESIGN-SPEC.md    ← Agent Canvas auto-detects this
+├── src/
+└── ...
+```
+
+Your spec can define brand colors, typography rules, spacing standards, component patterns—anything your team cares about. See [specs/README.md](.claude/skills/design-review/specs/README.md) for the full format.
+
+**Example DESIGN-SPEC.md:**
+
+```markdown
+---
+name: My Project Design Spec
+version: "1.0"
+extends: default.md
+---
+
+# My Project Design Spec
+
+## Brand Guidelines
+
+### Checks
+
+#### brand-colors
+- **Severity**: major
+- **Description**: Uses approved brand colors only
+- **Approved colors**:
+  - `#0078D4` - Primary Blue
+  - `#1B1B1B` - Text Black
+  - `#FFFFFF` - White
+- **How to check**: Extract colors from elements, compare against approved list
+
+#### typography
+- **Severity**: minor
+- **Description**: Uses approved font families
+- **Approved fonts**:
+  - Inter
+  - SF Pro
+- **How to check**: Check computed font-family on text elements
+```
+
+### Option 2: Visual References
+
+Drop reference images (exported from Figma, screenshots from prod, etc.) into:
+
+```
+.claude/skills/design-review/imgs/
+├── homepage.png
+├── settings-page.png
+└── mobile-nav.png
+```
+
+Then ask your agent:
+
+```
+Compare http://localhost:3000 against the homepage.png reference
+```
+
+### Option 3: Figma MCP (If Connected)
+
+If your agent has Figma MCP connected, it will automatically use it for comparisons:
+
+```
+Compare http://localhost:3000 against the Homepage frame in our Figma file
+```
+
+> **Note**: Without Figma MCP, export frames as PNG and use Option 2.
+
+---
+
+## What You Can Do
+
+| Ask your agent... | What happens |
+|-------------------|--------------|
+| "Review the design at [url]" | Checks against spec, lists issues by severity |
+| "Review [url] and show me the problems" | Generates annotated screenshot with issues marked |
+| "Review [url] and create a task list" | Creates `DESIGN-REVIEW-TASKS.md` with fix priorities |
+| "Compare [url] to homepage.png" | Visual diff against reference image |
+| "Let me pick elements to review" | Opens browser, you click elements to inspect |
+
+---
+
+## Workflows
 
 ```
 REVIEW ──▶ FIX ──▶ VERIFY          (Design QA)
 PICK ──▶ EDIT ──▶ APPLY ──▶ VERIFY (Live Editing)
 ```
 
+### Design QA Workflow
+
+1. **Review** - Find issues:
+   ```
+   Review http://localhost:3000 and generate a task list
+   ```
+
+2. **Fix** - Your agent (or you) fixes the issues
+
+3. **Verify** - Re-run review to confirm:
+   ```
+   Review http://localhost:3000 again
+   ```
+
+### Live Editing Workflow
+
+```
+Pick an element on http://localhost:3000 to edit
+```
+
+1. Browser opens → click elements to select
+2. Edit in floating panel → changes apply live
+3. Click "Save All to Code" → agent updates your source files
+
 ---
 
-## Design Review
+## Skills Reference
 
-The headline skill for spec-driven design quality assurance. Reviews UI against customizable design specs, generates annotated screenshots with issues marked, and creates actionable task lists.
+| Skill | What it does |
+|-------|--------------|
+| [design-review](.claude/skills/design-review/SKILL.md) | Reviews UI against specs, generates annotated screenshots |
+| [agent-canvas-setup](.claude/skills/agent-canvas-setup/SKILL.md) | Installs dependencies (Python, Playwright, etc.) |
+| [agent-eyes](.claude/skills/agent-eyes/SKILL.md) | Takes screenshots, runs accessibility scans |
+| [agent-canvas](.claude/skills/agent-canvas/SKILL.md) | Interactive element picker |
+| [canvas-edit](.claude/skills/canvas-edit/SKILL.md) | Annotation toolbar overlay |
+| [canvas-apply](.claude/skills/canvas-apply/SKILL.md) | Converts visual edits to code changes |
+| [canvas-verify](.claude/skills/canvas-verify/SKILL.md) | Before/after visual comparison |
 
-**Trigger phrases**: "review design", "check compliance", "design audit", "spec review", "check against spec", "compare to reference", "design QA"
+---
 
-### Quick Start
+## Default Review Criteria
 
-```bash
-SKILL_DIR=".claude/skills/design-review/scripts"
-
-# Review a page against default spec
-uv run $SKILL_DIR/design_review.py review http://localhost:3000
-
-# Generate annotated screenshot with issues marked
-uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate
-
-# Generate a task file for fixes
-uv run $SKILL_DIR/design_review.py review http://localhost:3000 --generate-tasks
-
-# Review with custom spec
-uv run $SKILL_DIR/design_review.py review http://localhost:3000 --spec my-project.md
-```
-
-### Compare Against Reference Image
-
-```bash
-# Compare current page to a reference screenshot
-uv run $SKILL_DIR/design_review.py compare http://localhost:3000 --reference homepage.png
-
-# Customize thresholds
-uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
-  --reference homepage.png \
-  --threshold 3.0 \
-  --ssim-threshold 0.98
-
-# Different diff visualization styles: overlay, sidebyside, heatmap
-uv run $SKILL_DIR/design_review.py compare http://localhost:3000 \
-  --reference homepage.png \
-  --diff-style sidebyside
-```
-
-### Interactive Mode
-
-```bash
-uv run $SKILL_DIR/design_review.py interactive http://localhost:3000
-```
-
-1. Browser opens with review overlay
-2. Hover elements to see compliance status
-3. Click to see full compliance report
-4. Close browser to generate final report
-
-### Key Features
-
-| Feature | Description |
-|---------|-------------|
-| Spec-driven review | Review against customizable design specs |
-| Visual annotations | Generate screenshots with issues marked |
-| Reference comparison | Compare pages against reference images |
-| Task generation | Create DESIGN-REVIEW-TASKS.md with fix priorities |
-| Multiple comparison methods | Pixel diff, SSIM, or hybrid analysis |
-
-### Default Spec Pillars
+Without a custom spec, Agent Canvas checks these pillars:
 
 | Pillar | Focus |
 |--------|-------|
@@ -103,199 +177,36 @@ uv run $SKILL_DIR/design_review.py interactive http://localhost:3000
 | **Quality Craft** | Accessibility, contrast, keyboard navigation, touch targets |
 | **Trustworthy Building** | AI disclaimers, error handling, secure defaults |
 
-### Comparison Methods
-
-| Method | Description | Use Case |
-|--------|-------------|----------|
-| `pixel` | Fast pixel-by-pixel diff | Quick checks, exact matches |
-| `ssim` | Structural Similarity Index | Perceptual comparison, minor shifts OK |
-| `hybrid` (default) | Both methods combined | Comprehensive analysis |
-
-### Design Review Workflow
-
-1. **Review** - Find issues:
-   ```bash
-   uv run $SKILL_DIR/design_review.py review http://localhost:3000 --generate-tasks
-   ```
-
-2. **Fix** - Review DESIGN-REVIEW-TASKS.md and fix issues in code
-
-3. **Verify** - Re-run review to confirm fixes
-
-Place reference images in `.claude/skills/design-review/imgs/` for comparison.
-
-[Full design-review docs](.claude/skills/design-review/SKILL.md)
-
----
-
-## Prerequisites
-
-- Python 3.10+
-- `uv` package manager
-- Playwright: `playwright install chromium`
-
-### First-Time Setup
-
-```bash
-uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check
-
-# If checks fail:
-uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
-```
-
----
-
-## Quick Start (Live Editing)
-
-### Full Workflow
-
-```bash
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edit --with-eyes
-```
-
-1. Browser opens → click elements to select
-2. Edit in floating panel → changes apply live
-3. Click "Save All to Code" → close browser
-
-### Modes
-
-```bash
-# Interactive: prompts for apply/verify
-... pick <url> --with-edit --with-eyes --interactive
-
-# Auto: applies and verifies automatically
-... pick <url> --with-edit --with-eyes --auto-apply --auto-verify
-```
-
----
-
-## Supporting Skills
-
-### agent-canvas-setup
-
-Dependency checker and installer. **Run this first.**
-
-```bash
-uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py check
-```
-
-[Full docs](.claude/skills/agent-canvas-setup/SKILL.md)
-
-### agent-eyes
-
-Screenshots, accessibility scans, DOM snapshots.
-
-```bash
-uv run .claude/skills/agent-eyes/scripts/agent_eyes.py screenshot <url>
-uv run .claude/skills/agent-eyes/scripts/agent_eyes.py a11y <url>
-```
-
-[Full docs](.claude/skills/agent-eyes/SKILL.md)
-
-### agent-canvas
-
-Interactive element picker with browser overlay.
-
-```bash
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick <url> --with-edit --with-eyes
-```
-
-[Full docs](.claude/skills/agent-canvas/SKILL.md)
-
-### canvas-edit
-
-Live annotation toolbar that overlays design review findings on web pages. Displays numbered badges on elements with issues, severity indicators, and screenshot capture.
-
-```bash
-SKILL_DIR=".claude/skills/canvas-edit/scripts"
-
-# Inject annotations from design review
-uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json
-
-# Auto-screenshot on load
-uv run $SKILL_DIR/canvas_edit.py inject http://localhost:3000 --issues issues.json --screenshot
-```
-
-> **Note**: Canvas-edit was redesigned from a style editor to an annotation viewer. For live style/text editing, use `agent-canvas --with-edit`.
-
-[Full docs](.claude/skills/canvas-edit/SKILL.md)
-
-### canvas-apply
-
-Convert visual edit sessions to code changes.
-
-```bash
-python3 .claude/skills/canvas-apply/scripts/canvas_apply.py --list
-python3 .claude/skills/canvas-apply/scripts/canvas_apply.py <sessionId> --apply
-```
-
-[Full docs](.claude/skills/canvas-apply/SKILL.md)
-
-### canvas-verify
-
-Verify changes with before/after comparison.
-
-```bash
-uv run .claude/skills/canvas-verify/scripts/canvas_verify.py <url> --session <sessionId>
-```
-
-[Full docs](.claude/skills/canvas-verify/SKILL.md)
-
----
-
-## For AI Agents
-
-See **[docs/AGENTS.md](docs/AGENTS.md)** for:
-- Skill selection guide
-- Trigger phrases
-- Command reference
-- Workflow sequences
-- Output parsing
-- Error handling
+See the full default spec: [specs/default.md](.claude/skills/design-review/specs/default.md)
 
 ---
 
 ## Session Artifacts
 
-### Design Reviews
-
 Reviews are saved to `.canvas/reviews/<sessionId>/`:
 
 ```
-session.json       # Full event log + metadata
+session.json       # Full event log
 report.json        # Structured issue data
 screenshot.png     # Original screenshot
-annotated.png      # Screenshot with redlines
+annotated.png      # Screenshot with issues marked
 diff.png           # Visual diff (compare mode)
-```
-
-### Edit Sessions
-
-Sessions are saved to `.canvas/sessions/<sessionId>/`:
-
-```
-session.json   # Full event log + metadata
-changes.json   # Extracted save_request
 ```
 
 ---
 
-## Try It Out (Optional Demo)
+## Troubleshooting
 
-This repo includes a Next.js demo app to test the skills:
-
-```bash
-# 1. Start the demo server
-npm run dev
-
-# 2. Run design review against it
-uv run .claude/skills/design-review/scripts/design_review.py review http://localhost:3000 --annotate
-
-# 3. Or run canvas skills for live editing
-uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --with-edit --with-eyes
+**Browser doesn't open?**
+```
+Run agent-canvas-setup to check dependencies
 ```
 
-The skills work with any web page - the demo is just a convenient starting point.
+**"uv not found" or "Python not found"?**
+Your agent will guide you through installing prerequisites.
+
+**Reviews too generic?**
+Add a `DESIGN-SPEC.md` to your project root with your actual design standards.
 
 ---
 
@@ -303,15 +214,25 @@ The skills work with any web page - the demo is just a convenient starting point
 
 ```
 .claude/skills/
-├── design-review/         # Design QA (headline skill)
+├── design-review/         # Main review skill
+│   ├── specs/             # Design spec files
+│   │   └── default.md     # Default review criteria
+│   └── imgs/              # Reference images go here
 ├── agent-canvas-setup/    # Dependency installer
-├── agent-eyes/            # Visual context
+├── agent-eyes/            # Screenshots & a11y
 ├── agent-canvas/          # Element picker
-├── canvas-edit/           # Annotation toolbar
+├── canvas-edit/           # Annotation overlay
 ├── canvas-apply/          # Code generator
 ├── canvas-verify/         # Verification
 └── shared/                # Shared utilities
-
-docs/
-└── AGENTS.md              # AI agent reference
 ```
+
+---
+
+## For AI Agent Developers
+
+See **[docs/AGENTS.md](docs/AGENTS.md)** for:
+- Skill trigger phrases
+- Command reference  
+- Output parsing
+- Error handling
