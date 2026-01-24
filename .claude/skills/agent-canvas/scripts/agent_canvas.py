@@ -24,11 +24,16 @@ import json
 import sys
 import time
 import uuid
+import signal
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from playwright.sync_api import sync_playwright, Page
+from playwright.sync_api import (
+    sync_playwright,
+    Page,
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 
 # =============================================================================
@@ -91,6 +96,29 @@ def _save_screenshot_to_session(
         return str(screenshot_path)
 
     return None
+
+
+def _append_event_log(session_dir: Path, event: dict) -> None:
+    """Append a single event as JSONL to the session log file."""
+    log_path = session_dir / "events.jsonl"
+    with log_path.open("a", encoding="utf-8") as log_file:
+        log_file.write(json.dumps(event) + "\n")
+
+
+def _emit_event(event: dict, stream: bool, session_dir: Path) -> bool:
+    """Persist event to disk and optionally stream to stdout.
+
+    Returns updated stream flag (False if stdout is broken).
+    """
+    _append_event_log(session_dir, event)
+    if not stream:
+        return False
+    try:
+        print(json.dumps(event))
+        sys.stdout.flush()
+        return True
+    except BrokenPipeError:
+        return False
 
 
 def write_session_artifact(
@@ -253,6 +281,35 @@ try:
     HAS_CANVAS_VERIFY = True
 except ImportError:
     pass
+
+
+# =============================================================================
+# Design Review Overlay Integration
+# =============================================================================
+
+
+def get_review_overlay_js() -> Optional[str]:
+    """Load the design-review overlay JavaScript."""
+    review_js_path = (
+        Path(__file__).parent.parent.parent
+        / "design-review"
+        / "scripts"
+        / "review_overlay.js"
+    )
+    if review_js_path.exists():
+        return review_js_path.read_text()
+    return None
+
+
+def _safe_stderr_write(payload: dict) -> None:
+    try:
+        print(json.dumps(payload), file=sys.stderr)
+        sys.stderr.flush()
+    except BrokenPipeError:
+        return
+
+
+HAS_REVIEW_OVERLAY = get_review_overlay_js() is not None
 
 
 # =============================================================================
@@ -454,16 +511,60 @@ PICKER_OVERLAY_JS = """
     window.__agentCanvasEvents = [];
     window.__agentCanvasClosed = false;
     
-    // Create overlay elements
+    // ==========================================================================
+    // Unified Design Tokens (shared with canvas-edit, design-review)
+    // ==========================================================================
+    const TOKENS = {
+        colors: {
+            primary: '#58a6ff',
+            primaryHover: '#79b8ff',
+            primaryLight: 'rgba(88, 166, 255, 0.15)',
+            background: {
+                panel: '#1f1f1f',
+                elevated: '#292929',
+                overlay: 'rgba(31, 41, 55, 0.95)',
+            },
+            border: '#3d3d3d',
+            text: {
+                primary: '#e0e0e0',
+                secondary: '#a0a0a0',
+            },
+            status: {
+                success: '#3fb950',
+                warning: '#d29922',
+                error: '#f85149',
+            },
+            highlight: 'rgba(88, 166, 255, 0.2)',
+        },
+        font: {
+            family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        },
+        radius: {
+            md: '4px',
+            lg: '6px',
+            xl: '8px',
+        },
+        shadow: {
+            md: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            lg: '0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        },
+        zIndex: {
+            overlay: 2147483645,
+            panel: 2147483646,
+            tooltip: 2147483647,
+        },
+    };
+    
+    // Create overlay elements with unified tokens
     const overlay = document.createElement('div');
     overlay.id = '__agent_canvas_overlay';
     overlay.style.cssText = `
         position: fixed;
         pointer-events: none;
-        border: 2px solid #007AFF;
-        background: rgba(0, 122, 255, 0.1);
-        z-index: 999999;
-        transition: all 0.05s ease-out;
+        border: 2px solid ${TOKENS.colors.primary};
+        background: ${TOKENS.colors.highlight};
+        z-index: ${TOKENS.zIndex.overlay};
+        transition: all 0.1s cubic-bezier(0.33, 0, 0.1, 1);
         display: none;
     `;
     
@@ -471,16 +572,18 @@ PICKER_OVERLAY_JS = """
     label.id = '__agent_canvas_label';
     label.style.cssText = `
         position: fixed;
-        background: #007AFF;
-        color: white;
-        padding: 4px 8px;
+        background: ${TOKENS.colors.background.elevated};
+        color: ${TOKENS.colors.text.primary};
+        padding: 6px 12px;
         font-size: 12px;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        border-radius: 4px;
-        z-index: 1000000;
+        font-family: ${TOKENS.font.family};
+        border-radius: ${TOKENS.radius.lg};
+        border: 1px solid ${TOKENS.colors.border};
+        box-shadow: ${TOKENS.shadow.md};
+        z-index: ${TOKENS.zIndex.tooltip};
         pointer-events: none;
         display: none;
-        max-width: 300px;
+        max-width: 350px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -490,16 +593,17 @@ PICKER_OVERLAY_JS = """
     instructions.id = '__agent_canvas_instructions';
     instructions.style.cssText = `
         position: fixed;
-        top: 10px;
+        top: 12px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 12px 20px;
-        font-size: 14px;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        border-radius: 8px;
-        z-index: 1000001;
+        background: ${TOKENS.colors.background.overlay};
+        color: ${TOKENS.colors.text.primary};
+        padding: 10px 20px;
+        font-size: 13px;
+        font-family: ${TOKENS.font.family};
+        border-radius: ${TOKENS.radius.xl};
+        box-shadow: ${TOKENS.shadow.lg};
+        z-index: ${TOKENS.zIndex.tooltip};
         pointer-events: none;
     `;
     instructions.textContent = 'Click elements to select. Close window when done.';
@@ -509,15 +613,17 @@ PICKER_OVERLAY_JS = """
     counter.id = '__agent_canvas_counter';
     counter.style.cssText = `
         position: fixed;
-        top: 10px;
-        right: 10px;
-        background: #007AFF;
-        color: white;
-        padding: 8px 16px;
-        font-size: 14px;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        border-radius: 8px;
-        z-index: 1000001;
+        top: 12px;
+        right: 12px;
+        background: ${TOKENS.colors.primary};
+        color: #1f1f1f;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: ${TOKENS.font.family};
+        border-radius: ${TOKENS.radius.xl};
+        box-shadow: ${TOKENS.shadow.lg};
+        z-index: ${TOKENS.zIndex.tooltip};
         pointer-events: none;
     `;
     counter.textContent = 'Selections: 0';
@@ -567,13 +673,16 @@ PICKER_OVERLAY_JS = """
         label.style.left = rect.left + 'px';
         label.textContent = selectorInfo.selector;
         
-        // Add confidence indicator
+        // Add confidence indicator using unified tokens
         if (selectorInfo.confidence === 'high') {
-            label.style.background = '#34C759';  // Green for high confidence
+            label.style.background = TOKENS.colors.status.success;  // Green for high
+            label.style.borderColor = TOKENS.colors.status.success;
         } else if (selectorInfo.confidence === 'medium') {
-            label.style.background = '#FF9500';  // Orange for medium
+            label.style.background = TOKENS.colors.status.warning;  // Orange for medium
+            label.style.borderColor = TOKENS.colors.status.warning;
         } else {
-            label.style.background = '#007AFF';  // Blue for low
+            label.style.background = TOKENS.colors.background.elevated;  // Default elevated bg
+            label.style.borderColor = TOKENS.colors.border;
         }
         
         // Adjust label if it goes off screen
@@ -617,16 +726,16 @@ PICKER_OVERLAY_JS = """
             element: elementInfo
         });
         
-        // Visual feedback - flash green then back
-        overlay.style.borderColor = '#34C759';
-        overlay.style.background = 'rgba(52, 199, 89, 0.3)';
+        // Visual feedback - flash success green then restore
+        overlay.style.borderColor = TOKENS.colors.status.success;
+        overlay.style.background = 'rgba(63, 185, 80, 0.2)';
         counter.textContent = `Selections: ${selectionCount}`;
-        counter.style.background = '#34C759';
+        counter.style.background = TOKENS.colors.status.success;
         
         setTimeout(() => {
-            overlay.style.borderColor = '#007AFF';
-            overlay.style.background = 'rgba(0, 122, 255, 0.1)';
-            counter.style.background = '#007AFF';
+            overlay.style.borderColor = TOKENS.colors.primary;
+            overlay.style.background = TOKENS.colors.highlight;
+            counter.style.background = TOKENS.colors.primary;
             updateOverlay(currentElement);  // Restore proper label color
         }, 300);
     }, true);
@@ -640,6 +749,7 @@ def pick_element(
     url: str,
     with_eyes: bool = False,
     with_edit: bool = False,
+    with_review: bool = False,
     output_path: Optional[str] = None,
     stream: bool = False,
     interactive: bool = False,
@@ -663,6 +773,7 @@ def pick_element(
 
     all_selections = []
     all_edit_events = []
+    stream_enabled = stream
 
     # Generate our own session ID for artifact tracking
     session_id = generate_session_id()
@@ -673,10 +784,17 @@ def pick_element(
     with sync_playwright() as p:
         # Launch visible browser for interaction
         browser = p.chromium.launch(headless=False)
+
+        def _on_browser_disconnected(_browser):
+            _safe_stderr_write({"type": "debug.browser_disconnected"})
+
+        browser.on("disconnected", _on_browser_disconnected)
         context = browser.new_context()
         # Disable default timeout - user controls when to close browser
         context.set_default_timeout(0)
         page = context.new_page()
+        page.set_default_timeout(0)
+        page.set_default_navigation_timeout(0)
 
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
@@ -712,11 +830,18 @@ def pick_element(
                 if edit_js:
                     page.evaluate(edit_js)
 
+            # Inject design-review overlay if requested (live a11y compliance)
+            if with_review:
+                review_js = get_review_overlay_js()
+                if review_js:
+                    page.evaluate(review_js)
+
             # Define features for this session
             features = {
                 "picker": True,
                 "eyes": with_eyes and HAS_AGENT_EYES,
                 "edit": with_edit and get_canvas_edit_js() is not None,
+                "review": with_review and HAS_REVIEW_OVERLAY,
             }
 
             # Emit session start
@@ -733,27 +858,35 @@ def pick_element(
                     "artifactDir": str(session_dir),
                 },
             }
-            print(json.dumps(start_event))
-            sys.stdout.flush()
+            stream_enabled = _emit_event(start_event, stream_enabled, session_dir)
 
             # Poll for events until browser closes
             while True:
                 try:
+                    if not browser.is_connected():
+                        _safe_stderr_write({"type": "debug.browser_disconnected"})
+                        break
+
                     # Check if page is still open
                     if page.is_closed():
                         break
 
                     # Drain events from the canvas bus (preferred) or legacy queue
-                    if HAS_CANVAS_BUS:
-                        events = drain_bus_events(page)
-                    else:
-                        events = page.evaluate("""
-                            () => {
-                                const events = window.__agentCanvasEvents || [];
-                                window.__agentCanvasEvents = [];
-                                return events;
-                            }
-                        """)
+                    try:
+                        if HAS_CANVAS_BUS:
+                            events = drain_bus_events(page)
+                        else:
+                            events = page.evaluate("""
+                                () => {
+                                    const events = window.__agentCanvasEvents || [];
+                                    window.__agentCanvasEvents = [];
+                                    return events;
+                                }
+                            """)
+                    except PlaywrightTimeoutError as e:
+                        _safe_stderr_write({"type": "debug.timeout", "message": str(e)})
+                        time.sleep(0.2)
+                        continue
 
                     for event in events:
                         # Handle selection events
@@ -824,18 +957,24 @@ def pick_element(
                             all_edit_events.append(event)
 
                         # Stream event to stdout
-                        print(json.dumps(event))
-                        sys.stdout.flush()
+                        stream_enabled = _emit_event(event, stream_enabled, session_dir)
 
                     # Also check legacy edit event queue for backward compatibility
                     if with_edit:
-                        edit_events = page.evaluate("""
-                            () => {
-                                const events = window.__canvasEditEvents || [];
-                                window.__canvasEditEvents = [];
-                                return events;
-                            }
-                        """)
+                        try:
+                            edit_events = page.evaluate("""
+                                () => {
+                                    const events = window.__canvasEditEvents || [];
+                                    window.__canvasEditEvents = [];
+                                    return events;
+                                }
+                            """)
+                        except PlaywrightTimeoutError as e:
+                            _safe_stderr_write(
+                                {"type": "debug.timeout", "message": str(e)}
+                            )
+                            time.sleep(0.2)
+                            continue
 
                         for event in edit_events:
                             # Avoid duplicates from bus
@@ -844,8 +983,9 @@ def pick_element(
                                 for e in all_edit_events
                             ):
                                 all_edit_events.append(event)
-                                print(json.dumps(event))
-                                sys.stdout.flush()
+                                stream_enabled = _emit_event(
+                                    event, stream_enabled, session_dir
+                                )
 
                     time.sleep(0.1)
 
@@ -853,13 +993,19 @@ def pick_element(
                     # Only break if the browser/page is actually closed
                     # Common close indicators: "Target closed", "Browser closed", "Context closed"
                     error_msg = str(e).lower()
-                    if any(indicator in error_msg for indicator in [
-                        "target closed", "browser closed", "context closed",
-                        "connection closed", "target page, context or browser has been closed"
-                    ]):
+                    if any(
+                        indicator in error_msg
+                        for indicator in [
+                            "target closed",
+                            "browser closed",
+                            "context closed",
+                            "connection closed",
+                            "target page, context or browser has been closed",
+                        ]
+                    ):
                         break
                     # For other exceptions, log and continue polling
-                    print(json.dumps({"type": "debug.error", "message": str(e)}), file=sys.stderr)
+                    _safe_stderr_write({"type": "debug.error", "message": str(e)})
                     time.sleep(0.5)  # Back off slightly on errors
                     continue
 
@@ -893,8 +1039,7 @@ def pick_element(
                     "artifactPath": str(artifact_path),
                 },
             }
-            print(json.dumps(end_event))
-            sys.stdout.flush()
+            stream_enabled = _emit_event(end_event, stream_enabled, session_dir)
 
             result = {
                 "ok": True,
@@ -957,20 +1102,16 @@ def pick_element(
 
         except Exception as e:
             error_result = {"ok": False, "error": str(e), "sessionId": session_id}
-            print(
-                json.dumps(
-                    {
-                        "schemaVersion": "1.0",
-                        "sessionId": session_id,
-                        "type": "session.error",
-                        "source": "picker",
-                        "timestamp": get_timestamp(),
-                        "payload": {"error": str(e)},
-                    }
-                ),
-                file=sys.stderr,
-            )
-            sys.stderr.flush()
+            error_event = {
+                "schemaVersion": "1.0",
+                "sessionId": session_id,
+                "type": "session.error",
+                "source": "picker",
+                "timestamp": get_timestamp(),
+                "payload": {"error": str(e)},
+            }
+            _append_event_log(session_dir, error_event)
+            _safe_stderr_write(error_event)
             return error_result
         finally:
             browser.close()
@@ -1083,6 +1224,7 @@ def watch_page(
 
 
 def main():
+    signal.signal(signal.SIGPIPE, signal.SIG_IGN)
     parser = argparse.ArgumentParser(
         description="Agent Canvas - Interactive element picker for AI agents",
     )
@@ -1100,6 +1242,11 @@ def main():
         "--with-edit",
         action="store_true",
         help="Load canvas-edit panel for live style editing",
+    )
+    pick_parser.add_argument(
+        "--with-review",
+        action="store_true",
+        help="Load design-review overlay with live a11y compliance checking",
     )
     pick_parser.add_argument("--output", "-o", help="Save result to file")
     pick_parser.add_argument(
@@ -1138,6 +1285,7 @@ def main():
             args.url,
             with_eyes=args.with_eyes,
             with_edit=args.with_edit,
+            with_review=args.with_review,
             output_path=args.output,
             interactive=args.interactive,
             auto_apply=args.auto_apply,

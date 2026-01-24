@@ -35,21 +35,28 @@
     window.__designReviewState = reviewState;
     window.__designReviewEvents = [];
 
-    // Color palette - Purple/Violet theme
+    // Color palette - Fluent 2 Dark Theme (unified with canvas skills)
     const COLORS = {
-        primary: '#8B5CF6',        // Violet-500
-        primaryHover: '#7C3AED',   // Violet-600
-        primaryLight: 'rgba(139, 92, 246, 0.1)',
-        pass: '#22C55E',           // Green-500
-        passLight: 'rgba(34, 197, 94, 0.1)',
-        warning: '#F59E0B',        // Amber-500
-        warningLight: 'rgba(245, 158, 11, 0.1)',
-        fail: '#EF4444',           // Red-500
-        failLight: 'rgba(239, 68, 68, 0.1)',
-        neutral: '#6B7280',        // Gray-500
-        dark: '#1F2937',           // Gray-800
-        white: '#FFFFFF',
-        overlay: 'rgba(31, 41, 55, 0.95)',
+        // Primary accent (blue instead of violet for consistency)
+        primary: '#58a6ff',        // Fluent 2 blue accent
+        primaryHover: '#79b8ff',   // Lighter blue on hover
+        primaryLight: 'rgba(88, 166, 255, 0.15)',
+        // Semantic colors
+        pass: '#3fb950',           // Success green
+        passLight: 'rgba(63, 185, 80, 0.15)',
+        warning: '#d29922',        // Warning amber
+        warningLight: 'rgba(210, 153, 34, 0.15)',
+        fail: '#f85149',           // Error red
+        failLight: 'rgba(248, 81, 73, 0.15)',
+        // Neutral / surfaces
+        neutral: '#6e6e6e',        // Muted text
+        dark: '#292929',           // Elevated surface
+        darkPanel: '#1f1f1f',      // Panel background
+        white: '#e0e0e0',          // Primary text
+        overlay: 'rgba(41, 41, 41, 0.95)',  // Modal backdrop
+        border: '#3d3d3d',         // Border color
+        hover: '#3d3d3d',          // Hover state
+        active: '#454545',         // Active state
     };
 
     // Create Shadow DOM host
@@ -155,7 +162,7 @@
         }
 
         .rule-name {
-            color: #A78BFA;
+            color: #58a6ff;
             font-weight: 500;
         }
 
@@ -264,7 +271,7 @@
         }
 
         .panel-header {
-            background: linear-gradient(135deg, ${COLORS.primary} 0%, #6D28D9 100%);
+            background: linear-gradient(135deg, ${COLORS.primary} 0%, #2f7dc9 100%);
             padding: 16px;
             display: flex;
             justify-content: space-between;
@@ -307,7 +314,7 @@
             margin-bottom: 16px;
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 11px;
-            color: #A78BFA;
+            color: #58a6ff;
             word-break: break-all;
         }
 
@@ -338,7 +345,7 @@
         .issue-check-id {
             font-weight: 600;
             font-size: 12px;
-            color: #A78BFA;
+            color: #58a6ff;
         }
 
         .issue-description {
@@ -350,10 +357,10 @@
         .issue-recommendation {
             margin-top: 8px;
             padding: 8px;
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(88, 166, 255, 0.1);
             border-radius: 4px;
             font-size: 11px;
-            color: #C4B5FD;
+            color: #a0c8ff;
         }
 
         .panel-footer {
@@ -735,7 +742,7 @@
                             <span class="rule-status-icon">${rule.status === 'pass' ? '✅' : rule.status === 'warning' ? '⚠️' : '❌'}</span>
                             <div>
                                 <div class="rule-name">${rule.name}</div>
-                                <div style="color: #9CA3AF; font-size: 10px;">${rule.message}</div>
+                                <div style="color: #a0a0a0; font-size: 10px;">${rule.message}</div>
                             </div>
                             <span class="rule-severity ${rule.severity}">${rule.severity}</span>
                         </div>
