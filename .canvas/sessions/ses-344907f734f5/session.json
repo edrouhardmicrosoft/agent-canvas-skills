@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-344907f734f5",
+  "url": "https://microsoft.com",
+  "startTime": "2026-01-24T00-23-28-605Z",
+  "endTime": "2026-01-24T00-23-52-720Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": true,
+    "review": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-344907f734f5/before.png",
+  "events": {
+    "selections": [],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 0,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

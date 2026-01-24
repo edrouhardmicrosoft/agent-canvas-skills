@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-4071cc4a1975",
+  "url": "https://example.com",
+  "startTime": "2026-01-24T00-25-53-964Z",
+  "endTime": "2026-01-24T00-26-32-193Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": true,
+    "review": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-4071cc4a1975/before.png",
+  "events": {
+    "selections": [],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 0,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

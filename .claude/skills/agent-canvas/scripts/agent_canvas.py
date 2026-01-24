@@ -824,11 +824,16 @@ def pick_element(
             # Inject picker overlay
             page.evaluate(PICKER_OVERLAY_JS)
 
-            # Inject edit panel if requested
-            if with_edit:
-                edit_js = get_canvas_edit_js()
-                if edit_js:
-                    page.evaluate(edit_js)
+            # NOTE: --with-edit toolbar temporarily disabled
+            # The canvas-edit toolbar was designed for design-review workflow (displaying issues)
+            # but was incorrectly wired to --with-edit flag. It shows a non-functional UI
+            # with eye/camera/filter buttons that do nothing without pre-loaded issues.
+            # See plans/toolbar-update.md for the redesign plan.
+            #
+            # if with_edit:
+            #     edit_js = get_canvas_edit_js()
+            #     if edit_js:
+            #         page.evaluate(edit_js)
 
             # Inject design-review overlay if requested (live a11y compliance)
             if with_review:
@@ -837,10 +842,11 @@ def pick_element(
                     page.evaluate(review_js)
 
             # Define features for this session
+            # NOTE: edit feature temporarily disabled - see plans/toolbar-update.md
             features = {
                 "picker": True,
                 "eyes": with_eyes and HAS_AGENT_EYES,
-                "edit": with_edit and get_canvas_edit_js() is not None,
+                "edit": False,  # Disabled: was showing non-functional toolbar
                 "review": with_review and HAS_REVIEW_OVERLAY,
             }
 
