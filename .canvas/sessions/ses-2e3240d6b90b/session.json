@@ -1,0 +1,567 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-2e3240d6b90b",
+  "url": "https://microsoft.com",
+  "startTime": "2026-01-29T18-38-25-612Z",
+  "endTime": "2026-01-29T18-39-00-940Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false,
+    "review": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-2e3240d6b90b/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-29T18:38:54.506Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "reimagine-secondary-nav",
+            "id": "secondary-nav-ocd973",
+            "className": "",
+            "selector": "#secondary-nav-ocd973",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Secondary Nav\n                \n                \n                    \n                        \n\n\n\n\n\n\n    \n    \n\n    \n\n    \n\n    \n        Shop Surface devices\n            \n               \n            \n ",
+            "boundingBox": {
+              "x": 56,
+              "y": 480,
+              "width": 1153,
+              "height": 216
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-secondary-nav",
+          "id": "secondary-nav-ocd973",
+          "className": null,
+          "selector": "#secondary-nav-ocd973",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Secondary Nav\n                \n                \n                    \n                        \n\n\n\n\n\n\n    \n    \n\n    \n\n    \n\n    \n        Shop Surface devices\n            \n               \n            \n ",
+          "boundingBox": {
+            "x": 56,
+            "y": 480,
+            "width": 1153,
+            "height": 216
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_001.png",
+          "size": 23329
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-29T18:38:54.506Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-secondary-nav",
+            "id": "secondary-nav-ocd973",
+            "className": "",
+            "selector": "#secondary-nav-ocd973",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Secondary Nav\n                \n                \n                    \n                        \n\n\n\n\n\n\n    \n    \n\n    \n\n    \n\n    \n        Shop Surface devices\n            \n               \n            \n ",
+            "boundingBox": {
+              "x": 56,
+              "y": 480,
+              "width": 1153,
+              "height": 216
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-secondary-nav",
+          "id": "secondary-nav-ocd973",
+          "className": null,
+          "selector": "#secondary-nav-ocd973",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Secondary Nav\n                \n                \n                    \n                        \n\n\n\n\n\n\n    \n    \n\n    \n\n    \n\n    \n        Shop Surface devices\n            \n               \n            \n ",
+          "boundingBox": {
+            "x": 56,
+            "y": 480,
+            "width": 1153,
+            "height": 216
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_002.png",
+          "size": 23329
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-29T18:38:56.448Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 154,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 154,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_003.png",
+          "size": 97501
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-29T18:38:56.448Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "msstore-chatonpage contained",
+            "selector": "div.msstore-chatonpage.contained",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+            "boundingBox": {
+              "x": 127,
+              "y": 154,
+              "width": 1012,
+              "height": 278
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "48px",
+              "margin": "48px 126.5px",
+              "borderRadius": "24px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "msstore-chatonpage contained",
+          "selector": "div.msstore-chatonpage.contained",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Hi there. How can we help?\n            \n        \n\n        \n    \n\n    \n        \n            \n            \n                \n                    Ask me a question\n                \n            \n          ",
+          "boundingBox": {
+            "x": 127,
+            "y": 154,
+            "width": 1012,
+            "height": 278
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "48px 126.5px",
+            "padding": "48px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "24px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_004.png",
+          "size": 97502
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 21,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-29T18:38:58.781Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "reimagine-heading-block",
+            "id": "highlight_2",
+            "className": "",
+            "selector": "#highlight_2",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Free for students: A premium toolkit for getting ahead\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n       ",
+            "boundingBox": {
+              "x": 56,
+              "y": 48,
+              "width": 569,
+              "height": 240
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px 48px 0px 0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-heading-block",
+          "id": "highlight_2",
+          "className": null,
+          "selector": "#highlight_2",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Free for students: A premium toolkit for getting ahead\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n       ",
+          "boundingBox": {
+            "x": 56,
+            "y": 48,
+            "width": 569,
+            "height": 240
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px 48px 0px 0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_005.png",
+          "size": 32467
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_mkzss6i316sm2",
+        "seq": 22,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-29T18:38:58.781Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-heading-block",
+            "id": "highlight_2",
+            "className": "",
+            "selector": "#highlight_2",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Free for students: A premium toolkit for getting ahead\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n       ",
+            "boundingBox": {
+              "x": 56,
+              "y": 48,
+              "width": 569,
+              "height": 240
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px 48px 0px 0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-heading-block",
+          "id": "highlight_2",
+          "className": null,
+          "selector": "#highlight_2",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Free for students: A premium toolkit for getting ahead\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n       ",
+          "boundingBox": {
+            "x": 56,
+            "y": 48,
+            "width": 569,
+            "height": 240
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px 48px 0px 0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-2e3240d6b90b/selection_006.png",
+          "size": 32467
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 6,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}
