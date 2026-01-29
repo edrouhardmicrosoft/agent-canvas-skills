@@ -32,6 +32,12 @@ AGENT_CONFIGS = {
         "supports_subdirs": True,
         "description": "Claude Code / Claude Desktop",
     },
+    "codex": {
+        "skills_dir": ".codex/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "OpenAI Codex CLI",
+    },
     "copilot": {
         "skills_dir": ".github/skills",
         "skill_file": "SKILL.md",

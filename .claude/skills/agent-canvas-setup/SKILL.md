@@ -51,6 +51,7 @@ Agent Canvas can install skills for multiple AI agents. Use `--agents` to specif
 | Agent | Skills Directory | Description |
 |-------|------------------|-------------|
 | `claude` | `.claude/skills/` | Claude Code / Claude Desktop (default) |
+| `codex` | `.codex/skills/` | OpenAI Codex CLI |
 | `copilot` | `.github/skills/` | GitHub Copilot |
 | `cursor` | `.cursor/skills/` | Cursor IDE |
 | `windsurf` | `.windsurf/skills/` | Windsurf IDE |

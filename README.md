@@ -35,7 +35,7 @@ uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope 
 uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot
 ```
 
-**Supported agents:** `claude` (default), `copilot`, `cursor`, `windsurf`, `aider`
+**Supported agents:** `claude` (default), `codex`, `copilot`, `cursor`, `windsurf`, `aider`
 
 Once setup completes, try:
 
