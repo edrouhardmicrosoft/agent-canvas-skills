@@ -17,21 +17,23 @@ Review UI implementations against design specs, generate annotated screenshots w
 ```
 Install Agent Canvas for design review. Run these commands:
 
-# Clone skills into .claude/skills/
+# Download skills from GitHub (sparse clone - only .claude/skills/)
 git clone --depth 1 --filter=blob:none --sparse https://github.com/edrouhardmicrosoft/canvas-cli-demo.git /tmp/agent-canvas-install
-cd /tmp/agent-canvas-install && git sparse-checkout set .claude/skills
+git -C /tmp/agent-canvas-install sparse-checkout set .claude/skills
+
+# Copy to your project
 mkdir -p .claude/skills
 cp -r /tmp/agent-canvas-install/.claude/skills/* .claude/skills/
 rm -rf /tmp/agent-canvas-install
 
-# Install dependencies and distribute to agents (default: claude only)
+# Install dependencies (use "temporary" scope - minimal footprint)
 uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
-
-# Optional: Install for multiple agents (copilot, cursor, windsurf, aider)
-# uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot
 ```
 
-That's it. Your agent will download the skills and handle Python, uv, Playwright setup.
+**Want multi-agent support?** Add `--agents` to install for Copilot, Cursor, etc:
+```
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot
+```
 
 **Supported agents:** `claude` (default), `copilot`, `cursor`, `windsurf`, `aider`
 
