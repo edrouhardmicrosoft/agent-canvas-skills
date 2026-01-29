@@ -15,20 +15,17 @@ Review UI implementations against design specs, generate annotated screenshots w
 **Copy and paste this into your AI agent:**
 
 ```
-Install Agent Canvas from GitHub. Download the .claude/skills directory from https://github.com/edrouhardmicrosoft/canvas-cli-demo into my project, then run the setup script to install dependencies. Use the "temporary" scope unless I specify otherwise.
+Install Agent Canvas for design review. Run these commands:
 
-Steps:
-1. Create .claude/skills/ directory if it doesn't exist
-2. Download these skill folders from the GitHub repo's .claude/skills/ directory:
-   - agent-canvas-setup (required - installer)
-   - agent-eyes (screenshots, a11y)
-   - agent-canvas (element picker)
-   - canvas-edit (annotations)
-   - canvas-apply (code changes)
-   - canvas-verify (verification)
-   - design-review (main review skill)
-   - shared (utilities)
-3. Run: uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
+# Clone skills into .claude/skills/
+git clone --depth 1 --filter=blob:none --sparse https://github.com/edrouhardmicrosoft/canvas-cli-demo.git /tmp/agent-canvas-install
+cd /tmp/agent-canvas-install && git sparse-checkout set .claude/skills
+mkdir -p .claude/skills
+cp -r /tmp/agent-canvas-install/.claude/skills/* .claude/skills/
+rm -rf /tmp/agent-canvas-install
+
+# Install dependencies (use "temporary" scope)
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
 ```
 
 That's it. Your agent will download the skills and handle Python, uv, Playwright setup.
@@ -37,14 +34,6 @@ Once setup completes, try:
 
 ```
 Review the design at http://localhost:3000
-```
-
-### Already have the repo cloned?
-
-If you've cloned this repo locally, use this simpler prompt:
-
-```
-Set up Agent Canvas for design review. Follow the instructions in .claude/skills/agent-canvas-setup/SKILL.md to check dependencies and install anything missing. Use the "temporary" scope unless I specify otherwise.
 ```
 
 ---
