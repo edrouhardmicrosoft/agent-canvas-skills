@@ -44,6 +44,31 @@ Agent Canvas needs some dependencies. How would you like to install them?
 Which do you prefer? (1/2/3 or temporary/local/global)
 ```
 
+## Multi-Agent Support
+
+Agent Canvas can install skills for multiple AI agents. Use `--agents` to specify which agents:
+
+| Agent | Skills Directory | Description |
+|-------|------------------|-------------|
+| `claude` | `.claude/skills/` | Claude Code / Claude Desktop (default) |
+| `copilot` | `.github/skills/` | GitHub Copilot |
+| `cursor` | `.cursor/skills/` | Cursor IDE |
+| `windsurf` | `.windsurf/skills/` | Windsurf IDE |
+| `aider` | `.aider/skills/` | Aider |
+
+### Examples
+
+```bash
+# Install for Claude only (default)
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
+
+# Install for Claude and Copilot
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot
+
+# Install for all supported agents
+uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot,cursor,windsurf,aider
+```
+
 ## Install Commands
 
 ```bash
@@ -51,6 +76,9 @@ SKILL_DIR=".claude/skills/agent-canvas-setup/scripts"
 
 # Temporary (recommended) - uv handles Python deps on-demand
 uv run $SKILL_DIR/check_setup.py install --scope temporary
+
+# With multi-agent support
+uv run $SKILL_DIR/check_setup.py install --scope temporary --agents claude,copilot
 
 # Local - creates .venv in project
 uv run $SKILL_DIR/check_setup.py install --scope local

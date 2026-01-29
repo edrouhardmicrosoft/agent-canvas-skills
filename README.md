@@ -24,11 +24,16 @@ mkdir -p .claude/skills
 cp -r /tmp/agent-canvas-install/.claude/skills/* .claude/skills/
 rm -rf /tmp/agent-canvas-install
 
-# Install dependencies (use "temporary" scope)
+# Install dependencies and distribute to agents (default: claude only)
 uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary
+
+# Optional: Install for multiple agents (copilot, cursor, windsurf, aider)
+# uv run .claude/skills/agent-canvas-setup/scripts/check_setup.py install --scope temporary --agents claude,copilot
 ```
 
 That's it. Your agent will download the skills and handle Python, uv, Playwright setup.
+
+**Supported agents:** `claude` (default), `copilot`, `cursor`, `windsurf`, `aider`
 
 Once setup completes, try:
 

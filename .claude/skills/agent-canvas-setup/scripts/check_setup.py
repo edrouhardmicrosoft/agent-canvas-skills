@@ -12,6 +12,7 @@ Returns JSON with status of each dependency and overall readiness.
 Usage:
     uv run check_setup.py check
     uv run check_setup.py install --scope <global|local|temporary>
+    uv run check_setup.py install --scope temporary --agents claude,copilot,cursor
 """
 
 import argparse
@@ -21,6 +22,53 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+# Agent directory mappings
+# Maps agent name -> (skills_dir, skill_file_name, supports_subdirs)
+AGENT_CONFIGS = {
+    "claude": {
+        "skills_dir": ".claude/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "Claude Code / Claude Desktop",
+    },
+    "copilot": {
+        "skills_dir": ".github/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "GitHub Copilot",
+    },
+    "cursor": {
+        "skills_dir": ".cursor/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "Cursor IDE",
+    },
+    "windsurf": {
+        "skills_dir": ".windsurf/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "Windsurf IDE",
+    },
+    "aider": {
+        "skills_dir": ".aider/skills",
+        "skill_file": "SKILL.md",
+        "supports_subdirs": True,
+        "description": "Aider",
+    },
+}
+
+# Skills to distribute (relative to .claude/skills/)
+CANVAS_SKILLS = [
+    "agent-canvas-setup",
+    "agent-canvas",
+    "agent-eyes",
+    "canvas-edit",
+    "canvas-apply",
+    "canvas-verify",
+    "design-review",
+    "shared",
+]
 
 
 def check_python_version() -> dict:
@@ -433,6 +481,102 @@ def install_dependencies(scope: str) -> dict:
     return results
 
 
+def find_skills_source() -> Path | None:
+    """Find the source .claude/skills directory."""
+    script_path = Path(__file__).resolve()
+
+    for parent in script_path.parents:
+        skills_dir = parent / ".claude" / "skills"
+        if skills_dir.exists() and (skills_dir / "agent-canvas-setup").exists():
+            return skills_dir
+
+    cwd_skills = Path.cwd() / ".claude" / "skills"
+    if cwd_skills.exists():
+        return cwd_skills
+
+    return None
+
+
+def distribute_skills(agents: list[str], project_root: Path) -> dict:
+    """
+    Copy skills to agent-specific directories.
+
+    Args:
+        agents: List of agent names (e.g., ['claude', 'copilot'])
+        project_root: Project root directory
+
+    Returns:
+        dict with results of distribution
+    """
+    results = {"ok": True, "distributions": [], "errors": []}
+
+    source_skills = find_skills_source()
+    if not source_skills:
+        results["ok"] = False
+        results["errors"].append("Could not find source .claude/skills directory")
+        return results
+
+    for agent in agents:
+        if agent not in AGENT_CONFIGS:
+            results["errors"].append(
+                f"Unknown agent: {agent}. Valid: {', '.join(AGENT_CONFIGS.keys())}"
+            )
+            continue
+
+        config = AGENT_CONFIGS[agent]
+        target_dir = project_root / config["skills_dir"]
+
+        if agent == "claude" and source_skills.parent.parent == project_root:
+            results["distributions"].append(
+                {
+                    "agent": agent,
+                    "status": "skipped",
+                    "message": "Source and target are the same",
+                    "path": str(target_dir),
+                }
+            )
+            continue
+
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            skills_copied = []
+            for skill_name in CANVAS_SKILLS:
+                source_skill = source_skills / skill_name
+                target_skill = target_dir / skill_name
+
+                if not source_skill.exists():
+                    continue
+
+                if target_skill.exists():
+                    shutil.rmtree(target_skill)
+
+                shutil.copytree(source_skill, target_skill)
+                skills_copied.append(skill_name)
+
+            results["distributions"].append(
+                {
+                    "agent": agent,
+                    "status": "success",
+                    "path": str(target_dir),
+                    "skills": skills_copied,
+                    "description": config["description"],
+                }
+            )
+
+        except (OSError, shutil.Error) as e:
+            results["ok"] = False
+            results["distributions"].append(
+                {
+                    "agent": agent,
+                    "status": "failed",
+                    "error": str(e),
+                }
+            )
+
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Check and install dependencies for agent-canvas skills"
@@ -450,6 +594,12 @@ def main():
         choices=["global", "local", "temporary"],
         required=True,
         help="Installation scope: global (system-wide), local (project .venv), temporary (uv on-demand)",
+    )
+    install_parser.add_argument(
+        "--agents",
+        type=str,
+        default="claude",
+        help="Comma-separated list of agents to install skills for (default: claude). Options: claude,copilot,cursor,windsurf,aider",
     )
     install_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
@@ -472,6 +622,14 @@ def main():
 
     elif args.command == "install":
         result = install_dependencies(args.scope)
+
+        agents_list = [a.strip() for a in args.agents.split(",") if a.strip()]
+        dist_result = distribute_skills(agents_list, Path.cwd())
+        result["skill_distribution"] = dist_result
+
+        if not dist_result["ok"]:
+            result["ok"] = False
+
         if args.json:
             print(json.dumps(result, indent=2))
         else:
@@ -488,6 +646,23 @@ def main():
                 )
                 if action.get("error"):
                     print(f"    Error: {action['error'][:200]}")
+
+            if dist_result["distributions"]:
+                print("\n  Skills distributed to:")
+                for dist in dist_result["distributions"]:
+                    status_icon = {"success": "✓", "skipped": "○", "failed": "✗"}.get(
+                        dist["status"], "?"
+                    )
+                    print(
+                        f"    {status_icon} {dist['agent']} ({dist.get('description', '')}): {dist['path']}"
+                    )
+                    if dist.get("skills"):
+                        print(f"      → {len(dist['skills'])} skills copied")
+
+            if dist_result.get("errors"):
+                for err in dist_result["errors"]:
+                    print(f"    ✗ {err}")
+
             if result.get("note"):
                 print(f"\n  Note: {result['note']}")
             print(f"\n{result.get('message', '')}\n")
