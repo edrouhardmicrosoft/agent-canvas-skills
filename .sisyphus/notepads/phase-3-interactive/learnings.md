@@ -214,3 +214,31 @@ After calling preScan:
 ```
 feat(design-review): add preScanPage() for automatic issue detection
 ```
+
+## Phase 3 Completion Summary (2026-01-30)
+
+### Tasks Completed
+1. ✅ Inject annotation_layer.js - commit `d105fc0`
+2. ✅ Verify spec checks - verification only, already working
+3. ✅ Add preScanPage() - commit `65a5dcb`
+4. ✅ Wire pre-scan trigger - commit `5d0bcbd`
+5. ✅ Update navigateIssue() - verification only, already working
+6. ✅ Fix browser-close results - commit `34fbe58`
+7. ✅ Integration tests - commit `dc48930`
+
+### Key Implementation Patterns
+- Injection order: canvas_bus → annotation_layer → review_overlay
+- preScanPage() uses chunked processing (50 elements/frame) to avoid UI blocking
+- Results captured via periodic snapshots during polling loop (not after browser close)
+- Warning inclusion: status !== 'pass' includes both fail AND warning
+
+### Test Results
+- 6/6 integration tests passing
+- Test T3: Found 4 issues on test page
+- Test T4: Found 9 badges displayed
+- Test T5: Navigation works (index changes from -1 to 0)
+
+### Files Modified
+- design_review.py: +annotation layer injection, +preScan trigger, +periodic snapshot
+- review_overlay.js: +preScanPage() function (~93 lines)
+- tests/test_interactive_mode.py: NEW (6 tests, 393 lines)

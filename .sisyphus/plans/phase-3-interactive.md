@@ -59,10 +59,10 @@ Enable automatic page scanning on load with visual issue highlighting, making de
 - `test_interactive_mode.py` integration test file
 
 ### Definition of Done
-- [ ] `design_review.py interactive --url <test_url>` shows badges automatically on page load
-- [ ] Pressing 'N' navigates through issues without manual "Add to Review"
-- [ ] Browser close generates report.json with all issues
-- [ ] All integration tests pass headless
+- [x] `design_review.py interactive --url <test_url>` shows badges automatically on page load
+- [x] Pressing 'N' navigates through issues without manual "Add to Review"
+- [x] Browser close generates report.json with all issues
+- [x] All integration tests pass headless
 
 ### Must Have
 - Pre-scan executes on page load
@@ -250,7 +250,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ## TODOs
 
-- [ ] 1. Inject annotation_layer.js in cmd_interactive
+- [x] 1. Inject annotation_layer.js in cmd_interactive
 
   **What to do**:
   - Load `annotation_layer.js` content in `cmd_interactive()` similar to how `review_overlay.js` is loaded
@@ -327,7 +327,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 2. Verify spec checks pass to overlay correctly
+- [x] 2. Verify spec checks pass to overlay correctly
 
   **What to do**:
   - Verify `spec_data` in `cmd_interactive()` at line 1535-1547 contains full check details
@@ -413,7 +413,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 3. Add preScanPage() function to review_overlay.js
+- [x] 3. Add preScanPage() function to review_overlay.js
 
   **What to do**:
   - Create `preScanPage()` function (expose as `window.__designReviewPreScan`) that:
@@ -545,7 +545,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 4. Wire pre-scan trigger in cmd_interactive
+- [x] 4. Wire pre-scan trigger in cmd_interactive
 
   **What to do**:
   - After `window.__designReviewInit(spec_data)` call at line 1614-1617, add call to trigger pre-scan
@@ -627,7 +627,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 5. Update navigateIssue() for pre-scanned issues
+- [x] 5. Update navigateIssue() for pre-scanned issues
 
   **What to do**:
   - Review `navigateIssue(direction)` at lines 883-910 in review_overlay.js
@@ -733,7 +733,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 6. Fix browser-close results capture + include all issues in report
+- [x] 6. Fix browser-close results capture + include all issues in report
 
   **What to do**:
   - **CRITICAL FIX**: Modify event polling loop (lines 1621-1645) to periodically snapshot results WHILE page is still open
@@ -839,7 +839,7 @@ Parallel Speedup: ~30% faster than sequential
 
 ---
 
-- [ ] 7. Integration tests for interactive mode
+- [x] 7. Integration tests for interactive mode
 
   **What to do**:
   - Create `.claude/skills/design-review/tests/test_interactive_mode.py` following `test_canvas_edit.py` pattern (custom runner, NOT pytest)
@@ -953,16 +953,16 @@ python scripts/design_review.py interactive --url "data:text/html,<button style=
 ```
 
 ### Final Checklist
-- [ ] All "Must Have" present:
-  - [ ] Pre-scan executes on page load
-  - [ ] Badges appear via annotation_layer.js (`.annotation-badge` elements)
-  - [ ] 'N' key navigates issues
-  - [ ] Report includes all issues (captured before browser close)
-  - [ ] Tests pass (6/6)
-- [ ] All "Must NOT Have" absent:
-  - [ ] No new badge implementation
-  - [ ] No new check implementations
-  - [ ] No canvas_bus.py changes
-  - [ ] No UI blocking during scan
-  - [ ] No new CLI flags
-- [ ] All tests pass headless
+- [x] All "Must Have" present:
+  - [x] Pre-scan executes on page load
+  - [x] Badges appear via annotation_layer.js (`.annotation-badge` elements)
+  - [x] 'N' key navigates issues
+  - [x] Report includes all issues (captured before browser close)
+  - [x] Tests pass (6/6)
+- [x] All "Must NOT Have" absent:
+  - [x] No new badge implementation
+  - [x] No new check implementations
+  - [x] No canvas_bus.py changes
+  - [x] No UI blocking during scan
+  - [x] No new CLI flags
+- [x] All tests pass headless
