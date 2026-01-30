@@ -1632,6 +1632,13 @@ def cmd_interactive(args: argparse.Namespace) -> None:
 
         log_event("overlay_injected", {"spec": spec.name})
 
+        # Trigger automatic pre-scan of page elements
+        page.evaluate("window.__designReviewPreScan && window.__designReviewPreScan()")
+        # Give scan time to complete (async chunked processing)
+        page.wait_for_timeout(1500)
+
+        log_event("prescan_triggered", {"spec": spec.name})
+
         # Poll for events until browser closes
         while True:
             try:
