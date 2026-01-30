@@ -1,6 +1,9 @@
 {
-  "active_plan": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.sisyphus/plans/phase-3-interactive.md",
-  "started_at": "2026-01-30T19:31:26.837Z",
-  "session_ids": ["ses_3efb7afb6ffeqvEZsefWyfxe5W"],
-  "plan_name": "phase-3-interactive"
+  "active_plan": null,
+  "completed_plan": "/Users/erikdrouhard/Library/CloudStorage/OneDrive-Microsoft/Documents/dev/prototypes/canvas-demo/canvas-cli-demo/.sisyphus/plans/github-issue-skill.md",
+  "started_at": "2026-01-30T22:33:37.829Z",
+  "completed_at": "2026-01-31T01:05:00.000Z",
+  "session_ids": ["ses_3eef5a2ffffeqKXIr5ylabGarZ", "ses_3eee4d686ffeCo8qBAlybuzyQJ"],
+  "plan_name": "github-issue-skill",
+  "status": "completed"
 }

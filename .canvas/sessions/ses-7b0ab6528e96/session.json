@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-7b0ab6528e96",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-30T22-58-43-649Z",
+  "endTime": "2026-01-30T22-59-12-165Z",
+  "features": {
+    "picker": true,
+    "eyes": false,
+    "edit": false,
+    "review": false,
+    "issue": false
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-7b0ab6528e96/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T22:59:05.705Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "img",
+            "id": "cascade-image-oc5090",
+            "className": "   ",
+            "selector": "#cascade-image-oc5090",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 641,
+              "y": 236,
+              "width": 180,
+              "height": 77
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/Heading-Block-Logo-Windows-11-Blue-1?resMode=sharp2&op_usm=1.5,0.65,15,0&qlt=85"
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T22:59:05.705Z",
+        "payload": {
+          "element": {
+            "tag": "img",
+            "id": "cascade-image-oc5090",
+            "className": "   ",
+            "selector": "#cascade-image-oc5090",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 641,
+              "y": 236,
+              "width": 180,
+              "height": 77
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/Heading-Block-Logo-Windows-11-Blue-1?resMode=sharp2&op_usm=1.5,0.65,15,0&qlt=85"
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 3,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T22:59:07.250Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "img",
+            "id": null,
+            "className": "   ",
+            "selector": "reimagine-carousel-item > reimagine-hero-featured-slider-item > reimagine-media > picture > img",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 96,
+              "width": 1265,
+              "height": 580
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": "https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Hero-Mobile-Windows-11-Talk-Copilot?resMode=sharp2&op_usm=1.5,0.65,15,0&wid=3000&hei=1682&qlt=95&fit=constrain"
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 4,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T22:59:07.250Z",
+        "payload": {
+          "element": {
+            "tag": "img",
+            "id": null,
+            "className": "   ",
+            "selector": "reimagine-carousel-item > reimagine-hero-featured-slider-item > reimagine-media > picture > img",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 96,
+              "width": 1265,
+              "height": 580
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": "https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Hero-Mobile-Windows-11-Talk-Copilot?resMode=sharp2&op_usm=1.5,0.65,15,0&wid=3000&hei=1682&qlt=95&fit=constrain"
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 5,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T22:59:08.593Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "reimagine-announcement",
+            "id": "announcement-ocf60c",
+            "className": "",
+            "selector": "#announcement-ocf60c",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": 56,
+              "width": 1265,
+              "height": 40
+            },
+            "attributes": {
+              "role": "alert",
+              "ariaLabel": "Announcement banner",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "inline",
+              "position": "static",
+              "backgroundColor": "rgb(0, 114, 198)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 6,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T22:59:08.593Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-announcement",
+            "id": "announcement-ocf60c",
+            "className": "",
+            "selector": "#announcement-ocf60c",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Protect your device against accidents for up to 4 years with Microsoft Complete.\n      \n    \n\t\n\n  \n\n    \n  \n    \n\n    \n      \n      \n        \n\n\n  \n    \n\n\n\n\n  \n  \n\n  \n  \n\n  \n  \n\n  \n\n  \n\n  \n  \n    \n  \n\n",
+            "boundingBox": {
+              "x": 0,
+              "y": 56,
+              "width": 1265,
+              "height": 40
+            },
+            "attributes": {
+              "role": "alert",
+              "ariaLabel": "Announcement banner",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "inline",
+              "position": "static",
+              "backgroundColor": "rgb(0, 114, 198)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 7,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T22:59:10.135Z",
+        "payload": {
+          "index": 4,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "sa-highlight-entry-content",
+            "selector": "div.sa-highlight-entry-content",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?Store Assistant is available 24/7.Chat nowNo thanks",
+            "boundingBox": {
+              "x": 972,
+              "y": 416,
+              "width": 243,
+              "height": 254
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "fixed",
+              "backgroundColor": "rgb(14, 23, 38)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "14px",
+              "fontWeight": "400",
+              "padding": "38px 16px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1hipu4zvgy5",
+        "seq": 8,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T22:59:10.135Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "sa-highlight-entry-content",
+            "selector": "div.sa-highlight-entry-content",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?Store Assistant is available 24/7.Chat nowNo thanks",
+            "boundingBox": {
+              "x": 972,
+              "y": 416,
+              "width": 243,
+              "height": 254
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "fixed",
+              "backgroundColor": "rgb(14, 23, 38)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "14px",
+              "fontWeight": "400",
+              "padding": "38px 16px",
+              "margin": "0px",
+              "borderRadius": "24px"
+            }
+          }
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 8,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

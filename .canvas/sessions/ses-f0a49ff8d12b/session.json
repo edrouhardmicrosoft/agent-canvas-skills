@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-f0a49ff8d12b",
+  "url": "https://github.com",
+  "startTime": "2026-01-30T23-07-43-822Z",
+  "endTime": "2026-01-30T23-08-20-876Z",
+  "features": {
+    "picker": true,
+    "eyes": false,
+    "edit": false,
+    "review": false,
+    "issue": true
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-f0a49ff8d12b/before.png",
+  "events": {
+    "selections": [],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 0,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

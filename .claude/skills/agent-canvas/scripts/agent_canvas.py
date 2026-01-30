@@ -633,8 +633,8 @@ PICKER_OVERLAY_JS = """
     counter.id = '__agent_canvas_counter';
     counter.style.cssText = `
         position: fixed;
-        top: 12px;
-        right: 12px;
+        bottom: 12px;
+        left: 12px;
         background: ${TOKENS.colors.primary};
         color: #1f1f1f;
         padding: 10px 16px;
@@ -713,6 +713,13 @@ PICKER_OVERLAY_JS = """
     
     document.addEventListener('mousemove', (e) => {
         const el = document.elementFromPoint(e.clientX, e.clientY);
+        // Skip overlay UI elements
+        if (el?.id?.startsWith('__agent_canvas') || 
+            el?.id?.startsWith('__canvas_edit') || 
+            el?.id?.startsWith('__canvas-issue') ||
+            el?.closest?.('[id^="__canvas-issue"]')) {
+            return;
+        }
         if (el !== currentElement) {
             currentElement = el;
             updateOverlay(el);
@@ -722,6 +729,8 @@ PICKER_OVERLAY_JS = """
     document.addEventListener('click', (e) => {
         if (e.target.id?.startsWith('__agent_canvas')) return;
         if (e.target.id?.startsWith('__canvas_edit')) return;
+        if (e.target.id?.startsWith('__canvas-issue')) return;
+        if (e.target.closest?.('[id^="__canvas-issue"]')) return;
         
         e.preventDefault();
         e.stopPropagation();
@@ -1301,16 +1310,15 @@ def main():
         help="Load design-review overlay with live a11y compliance checking",
     )
     pick_parser.add_argument(
-        "--with-issue",
+        "--no-issue",
         action="store_true",
-        help="Load GitHub issue creation overlay for reporting bugs/issues",
+        help="Disable GitHub issue creation overlay (enabled by default)",
     )
     pick_parser.add_argument("--output", "-o", help="Save result to file")
     pick_parser.add_argument(
-        "--interactive",
-        "-i",
+        "--no-interactive",
         action="store_true",
-        help="Interactive mode: prompt to apply/verify after browser closes",
+        help="Disable interactive mode (enabled by default: prompts to apply/verify after browser closes)",
     )
     pick_parser.add_argument(
         "--auto-apply",
@@ -1343,9 +1351,9 @@ def main():
             with_eyes=args.with_eyes,
             with_edit=args.with_edit,
             with_review=args.with_review,
-            with_issue=args.with_issue,
+            with_issue=not args.no_issue,
             output_path=args.output,
-            interactive=args.interactive,
+            interactive=not args.no_interactive,
             auto_apply=args.auto_apply,
             auto_verify=args.auto_verify,
         )

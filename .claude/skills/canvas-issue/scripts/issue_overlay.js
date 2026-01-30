@@ -28,11 +28,11 @@
   createIssueBtn.id = '__canvas-issue-btn';
   createIssueBtn.textContent = 'Create Issue';
   
-  // Style the button to match the counter badge but interactive
+  // Style the button - positioned bottom-left, 24px right of the counter badge
   createIssueBtn.style.cssText = `
     position: fixed;
-    top: 10px;
-    right: 120px; /* Positioned to the left of the counter badge */
+    bottom: 12px;
+    left: 140px; /* Counter is at left:12px, ~104px wide + 24px gap */
     background: ${ISSUE_TOKENS.colors.background};
     color: ${ISSUE_TOKENS.colors.primary};
     padding: ${ISSUE_TOKENS.spacing.sm} ${ISSUE_TOKENS.spacing.md};
@@ -222,6 +222,15 @@
   shadow.appendChild(styleSheet);
 
   // --------------------------------------------------------------------------
+  // HELPER: Prevent keyboard events from leaking out of Shadow DOM inputs
+  // --------------------------------------------------------------------------
+  function preventKeyboardLeak(element) {
+    element.addEventListener('keydown', (e) => e.stopPropagation());
+    element.addEventListener('keyup', (e) => e.stopPropagation());
+    element.addEventListener('keypress', (e) => e.stopPropagation());
+  }
+
+  // --------------------------------------------------------------------------
   // 1. REPO CONFIG MODAL
   // --------------------------------------------------------------------------
   const repoModal = document.createElement('div');
@@ -248,6 +257,8 @@
   const repoInput = repoModal.querySelector('#repo-input');
   const repoSaveBtn = repoModal.querySelector('#repo-save');
   const repoCancelBtn = repoModal.querySelector('#repo-cancel');
+
+  preventKeyboardLeak(repoInput);
 
   repoSaveBtn.addEventListener('click', () => {
     const repo = repoInput.value.trim();
@@ -287,6 +298,9 @@
   const issueDesc = createModal.querySelector('#issue-description');
   const issueCreateBtn = createModal.querySelector('#issue-create');
   const issueCancelBtn = createModal.querySelector('#issue-cancel');
+
+  preventKeyboardLeak(issueTitle);
+  preventKeyboardLeak(issueDesc);
 
   issueCreateBtn.addEventListener('click', () => {
     const title = issueTitle.value.trim();
