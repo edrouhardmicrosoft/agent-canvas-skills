@@ -195,6 +195,112 @@ def set_github_repo(owner_repo: str) -> None:
 
 
 # =============================================================================
+# Issue Body Generation Functions
+# =============================================================================
+
+
+def extract_selections(session_data: dict) -> list:
+    """
+    Extract element info from session.json for issue body.
+
+    Args:
+        session_data: Dictionary from session.json
+
+    Returns:
+        List of dicts with selector, tag, text, screenshot_path
+    """
+    selections = []
+    for event in session_data.get("events", {}).get("selections", []):
+        # Only process "picker" source selections to avoid duplicates
+        if event.get("source") != "picker":
+            continue
+
+        element = event.get("payload", {}).get("element", {})
+        selections.append(
+            {
+                "selector": element.get("selector", "unknown"),
+                "tag": element.get("tag", ""),
+                "text": (element.get("text") or "")[:100],  # Limit text to 100 chars
+                "screenshot_path": event.get("screenshot", {}).get("path"),
+            }
+        )
+    return selections
+
+
+def generate_issue_body(
+    session_data: dict,
+    user_description: Optional[str] = None,
+    screenshot_urls: Optional[Dict[str, str]] = None,
+) -> str:
+    """
+    Generate a Markdown issue body from session data.
+
+    Args:
+        session_data: Dictionary from session.json
+        user_description: Optional user-provided description
+        screenshot_urls: Optional dict mapping screenshot paths to gist URLs
+
+    Returns:
+        Markdown string with sections: Description, Page Info, Selected Elements, Screenshots
+    """
+    screenshot_urls = screenshot_urls or {}
+    sections = []
+
+    # 1. Description section (if provided)
+    if user_description:
+        sections.append(f"## Description\n\n{user_description}")
+
+    # 2. Page Info section (always present)
+    url = session_data.get("url", "")
+    session_id = session_data.get("sessionId", "")
+    page_info = f"## Page Info\n\n- **URL**: {url}"
+    if session_id:
+        page_info += f"\n- **Session ID**: {session_id}"
+    sections.append(page_info)
+
+    # 3. Selected Elements section (always present, may be empty)
+    selections = extract_selections(session_data)
+    elements_section = "## Selected Elements\n\n"
+
+    if selections:
+        # Build table header
+        elements_section += "| # | Selector | Tag | Text Preview |\n"
+        elements_section += "|---|----------|-----|──────────────|\n"
+
+        # Build table rows
+        for idx, sel in enumerate(selections, 1):
+            selector = sel["selector"] or "unknown"
+            tag = sel["tag"] or ""
+            text = sel["text"] or ""
+            elements_section += f"| {idx} | `{selector}` | {tag} | {text} |\n"
+    else:
+        elements_section += "(No elements selected)\n"
+
+    sections.append(elements_section)
+
+    # 4. Screenshots section (only if images exist)
+    if screenshot_urls:
+        screenshots_section = "## Screenshots\n\n"
+        screenshots_section += "| # | Description | Preview |\n"
+        screenshots_section += "|---|-------------|----------|\n"
+
+        for idx, (path, url) in enumerate(screenshot_urls.items(), 1):
+            # Generate description from path
+            if path.endswith("before.png"):
+                desc = "Page screenshot"
+            else:
+                # Extract selection index from path like "selection_001.png"
+                desc = f"Selection {idx-1}" if idx > 1 else "Screenshot"
+
+            filename = Path(path).name
+            screenshots_section += f"| {idx} | {desc} | ![{filename}]({url}) |\n"
+
+        sections.append(screenshots_section)
+
+    return "\n\n".join(sections)
+
+
+# =============================================================================
 # Gist Upload Functions
 # =============================================================================
 
@@ -326,6 +432,27 @@ def main():
         help="File paths to upload (max 5 files, max 10MB per file)",
     )
 
+    # Subcommand: generate-body
+    generate_body_parser = subparsers.add_parser(
+        "generate-body",
+        help="Generate Markdown issue body from session data",
+    )
+    generate_body_parser.add_argument(
+        "--mock",
+        action="store_true",
+        help="Generate body with mock data (for testing)",
+    )
+    generate_body_parser.add_argument(
+        "--session",
+        type=str,
+        help="Session ID to read from .canvas/sessions/<id>/session.json",
+    )
+    generate_body_parser.add_argument(
+        "--description",
+        type=str,
+        help="User-provided description to include in body",
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -357,6 +484,59 @@ def main():
     if args.command == "upload-gist":
         result = upload_to_gist(args.files)
         print(json.dumps(result))
+        return 0
+
+    # Handle generate-body subcommand
+    if args.command == "generate-body":
+        # Determine session data source
+        session_data = None
+
+        if args.mock:
+            # Use mock data for testing
+            session_data = {
+                "url": "http://localhost:3000",
+                "sessionId": "ses-mock-test",
+                "events": {
+                    "selections": [
+                        {
+                            "source": "picker",
+                            "payload": {
+                                "element": {
+                                    "selector": ".btn-primary",
+                                    "tag": "button",
+                                    "text": "Submit",
+                                }
+                            },
+                        }
+                    ]
+                },
+            }
+        elif args.session:
+            # Load from session.json
+            session_path = Path(".canvas/sessions") / args.session / "session.json"
+            if not session_path.exists():
+                print(
+                    f"Error: Session file not found: {session_path}",
+                    file=sys.stderr,
+                )
+                return 1
+
+            try:
+                with open(session_path, "r") as f:
+                    session_data = json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"Error: Failed to parse session JSON: {e}", file=sys.stderr)
+                return 1
+        else:
+            print(
+                "Error: Either --mock or --session must be specified",
+                file=sys.stderr,
+            )
+            return 1
+
+        # Generate and output the issue body
+        body = generate_issue_body(session_data, user_description=args.description)
+        print(body)
         return 0
 
     # No command specified - show help
