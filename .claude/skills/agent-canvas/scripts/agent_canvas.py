@@ -262,6 +262,13 @@ def _setup_apply_verify_imports():
             sys.path.insert(0, str(p))
 
 
+def _setup_issue_imports():
+    """Add canvas-issue module to path for imports."""
+    issue_path = Path(__file__).parent.parent.parent / "canvas-issue" / "scripts"
+    if issue_path.exists() and str(issue_path) not in sys.path:
+        sys.path.insert(0, str(issue_path))
+
+
 _setup_apply_verify_imports()
 
 # Lazy imports - only loaded when interactive mode is used
@@ -298,6 +305,19 @@ def get_review_overlay_js() -> Optional[str]:
     )
     if review_js_path.exists():
         return review_js_path.read_text()
+    return None
+
+
+def get_issue_overlay_js() -> Optional[str]:
+    """Load the canvas-issue overlay JavaScript."""
+    issue_js_path = (
+        Path(__file__).parent.parent.parent
+        / "canvas-issue"
+        / "scripts"
+        / "issue_overlay.js"
+    )
+    if issue_js_path.exists():
+        return issue_js_path.read_text()
     return None
 
 
@@ -750,6 +770,7 @@ def pick_element(
     with_eyes: bool = False,
     with_edit: bool = False,
     with_review: bool = False,
+    with_issue: bool = False,
     output_path: Optional[str] = None,
     stream: bool = False,
     interactive: bool = False,
@@ -774,6 +795,17 @@ def pick_element(
     all_selections = []
     all_edit_events = []
     stream_enabled = stream
+
+    # Import issue handler if with_issue is enabled
+    HAS_ISSUE_HANDLER = False
+    if with_issue:
+        _setup_issue_imports()
+        try:
+            from issue_handler import handle_issue_event
+
+            HAS_ISSUE_HANDLER = True
+        except ImportError:
+            pass
 
     # Generate our own session ID for artifact tracking
     session_id = generate_session_id()
@@ -841,6 +873,12 @@ def pick_element(
                 if review_js:
                     page.evaluate(review_js)
 
+            # Inject issue overlay if enabled
+            if with_issue:
+                issue_js = get_issue_overlay_js()
+                if issue_js:
+                    page.evaluate(issue_js)
+
             # Define features for this session
             # NOTE: edit feature temporarily disabled - see plans/toolbar-update.md
             features = {
@@ -848,6 +886,7 @@ def pick_element(
                 "eyes": with_eyes and HAS_AGENT_EYES,
                 "edit": False,  # Disabled: was showing non-functional toolbar
                 "review": with_review and HAS_REVIEW_OVERLAY,
+                "issue": with_issue,
             }
 
             # Emit session start
@@ -961,6 +1000,13 @@ def pick_element(
                             or event.get("event") == "save_request"
                         ):
                             all_edit_events.append(event)
+
+                        # Handle issue events
+                        elif event.get("type", "").startswith("issue."):
+                            if with_issue and HAS_ISSUE_HANDLER:
+                                handle_issue_event(
+                                    page, event, session_id, all_selections
+                                )
 
                         # Stream event to stdout
                         stream_enabled = _emit_event(event, stream_enabled, session_dir)
@@ -1254,6 +1300,11 @@ def main():
         action="store_true",
         help="Load design-review overlay with live a11y compliance checking",
     )
+    pick_parser.add_argument(
+        "--with-issue",
+        action="store_true",
+        help="Load GitHub issue creation overlay for reporting bugs/issues",
+    )
     pick_parser.add_argument("--output", "-o", help="Save result to file")
     pick_parser.add_argument(
         "--interactive",
@@ -1292,6 +1343,7 @@ def main():
             with_eyes=args.with_eyes,
             with_edit=args.with_edit,
             with_review=args.with_review,
+            with_issue=args.with_issue,
             output_path=args.output,
             interactive=args.interactive,
             auto_apply=args.auto_apply,
