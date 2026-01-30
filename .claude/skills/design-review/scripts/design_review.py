@@ -1531,6 +1531,16 @@ def cmd_interactive(args: argparse.Namespace) -> None:
         except ImportError:
             pass
 
+    # Load annotation layer if available
+    annotation_layer_js = ""
+    annotation_layer_path = (
+        SCRIPT_DIR.parent.parent / "canvas-edit" / "scripts" / "annotation_layer.js"
+    )
+    if annotation_layer_path.exists():
+        annotation_layer_js = annotation_layer_path.read_text()
+    else:
+        error_output(f"Warning: Annotation layer not found: {annotation_layer_path}")
+
     # Prepare spec data for the overlay
     spec_data = {
         "name": spec.name,
@@ -1607,6 +1617,10 @@ def cmd_interactive(args: argparse.Namespace) -> None:
         # Inject canvas bus first if available
         if canvas_bus_js:
             page.evaluate(canvas_bus_js)
+
+        # Inject annotation layer if available
+        if annotation_layer_js:
+            page.evaluate(annotation_layer_js)
 
         # Inject review overlay
         page.evaluate(overlay_js)
