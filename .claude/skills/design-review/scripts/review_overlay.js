@@ -1021,5 +1021,98 @@
         }
     };
 
+    /**
+     * Fallback selector generator when bus is unavailable
+     */
+    function generateFallbackSelector(el) {
+        if (el.id) return `#${el.id}`;
+        if (el.className && typeof el.className === 'string') {
+            const classes = el.className.split(' ').filter(c => c.trim());
+            if (classes.length > 0) {
+                return `${el.tagName.toLowerCase()}.${classes.join('.')}`;
+            }
+        }
+        return el.tagName.toLowerCase();
+    }
+
+    /**
+     * Pre-scan page for design issues (called by Python on load)
+     */
+    window.__designReviewPreScan = function() {
+        const SCAN_SELECTOR = 'button, a, input, select, textarea, img, [role], h1, h2, h3, h4, h5, h6, nav, main, header, footer';
+        const MAX_ELEMENTS = 500;  // Performance guard
+        
+        const elements = Array.from(document.querySelectorAll(SCAN_SELECTOR)).slice(0, MAX_ELEMENTS);
+        let elementsScanned = 0;
+        
+        const processChunk = (startIdx) => {
+            const CHUNK_SIZE = 50;
+            const endIdx = Math.min(startIdx + CHUNK_SIZE, elements.length);
+            
+            for (let i = startIdx; i < endIdx; i++) {
+                const el = elements[i];
+                elementsScanned++;
+                
+                // Get compliance results using existing function
+                const compliance = checkElementCompliance(el);
+                const failingRules = compliance.rules.filter(r => r.status !== 'pass');
+                
+                if (failingRules.length > 0) {
+                    const selector = bus ? bus.generateSelector(el).selector : generateFallbackSelector(el);
+                    
+                    // Skip if already reviewed
+                    if (reviewState.reviewedElements.has(selector)) continue;
+                    
+                    // Create issue matching addToReview() shape (lines 834-840)
+                    const issue = {
+                        selector: selector,
+                        timestamp: new Date().toISOString(),
+                        element: bus ? bus.getElementInfo(el) : { tag: el.tagName.toLowerCase() },
+                        compliance: compliance,
+                        rules: failingRules,
+                    };
+                    
+                    // Add to issues and mark as reviewed (prevents duplicates)
+                    reviewState.issues.push(issue);
+                    reviewState.reviewedElements.add(selector);
+                    
+                    // Emit events for each failing rule (triggers badge in annotation_layer)
+                    for (const rule of failingRules) {
+                        if (bus) {
+                            bus.emit('review.issue_found', 'design-review', {
+                                id: `${selector}-${rule.id}`,
+                                checkId: rule.id,
+                                severity: rule.severity,
+                                element: selector,
+                                description: rule.message,
+                                pillar: rule.pillar || '',
+                                boundingBox: issue.element?.boundingBox,
+                            });
+                        }
+                    }
+                    
+                    // Update UI counters
+                    updateSummary();
+                }
+            }
+            
+            // Continue with next chunk or complete
+            if (endIdx < elements.length) {
+                setTimeout(() => processChunk(endIdx), 0);
+            } else {
+                // Scan complete - push event for Python logging
+                window.__designReviewEvents = window.__designReviewEvents || [];
+                window.__designReviewEvents.push({
+                    type: 'review.scan_complete',
+                    source: 'design-review',
+                    timestamp: new Date().toISOString(),
+                    payload: { issueCount: reviewState.issues.length, elementsScanned: elementsScanned }
+                });
+            }
+        };
+        
+        processChunk(0);
+    };
+
     console.log('[DesignReview] Overlay initialized', bus ? `with session: ${bus.sessionId}` : 'standalone');
 })();
