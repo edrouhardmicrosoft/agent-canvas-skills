@@ -195,6 +195,91 @@ def set_github_repo(owner_repo: str) -> None:
 
 
 # =============================================================================
+# Gist Upload Functions
+# =============================================================================
+
+
+def upload_to_gist(file_paths: list) -> dict:
+    """
+    Upload multiple files to a single public gist and return raw URLs.
+
+    Args:
+        file_paths: List of file paths to upload
+
+    Returns:
+        Dictionary with:
+        - On success: {"gist_url": "https://...", "files": {"filename": {"raw_url": "..."}}}
+        - On error: {"error": "error message"}
+    """
+    # Validate gh authentication
+    if not check_gh_authenticated():
+        return {"error": "gh not authenticated"}
+
+    # Validate file count
+    if len(file_paths) > 5:
+        return {"error": f"Too many files ({len(file_paths)}), max 5"}
+
+    # Validate file sizes and existence
+    files_to_upload = []
+    total_size = 0
+    max_file_size = 10 * 1024 * 1024  # 10MB
+    max_total_size = 25 * 1024 * 1024  # 25MB
+
+    for file_path in file_paths:
+        path = Path(file_path)
+        if not path.exists():
+            return {"error": f"File not found: {file_path}"}
+
+        file_size = path.stat().st_size
+        if file_size > max_file_size:
+            return {
+                "error": f"File too large: {path.name} ({file_size / 1024 / 1024:.1f}MB), max 10MB"
+            }
+
+        total_size += file_size
+        if total_size > max_total_size:
+            return {
+                "error": f"Total size exceeds 25MB limit. Processed {len(files_to_upload)} files before exceeding limit."
+            }
+
+        files_to_upload.append(file_path)
+
+    if not files_to_upload:
+        return {"error": "No valid files to upload"}
+
+    # Create gist with all files
+    cmd = ["gh", "gist", "create", "--public"] + files_to_upload
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        return {"error": f"Failed to create gist: {result.stderr.strip()}"}
+
+    gist_url = result.stdout.strip()
+
+    # Extract gist ID from URL (e.g., https://gist.github.com/username/abc123def)
+    gist_id = gist_url.split("/")[-1]
+
+    # Get file info via API to retrieve raw URLs
+    api_cmd = ["gh", "api", f"/gists/{gist_id}"]
+    api_result = subprocess.run(api_cmd, capture_output=True, text=True)
+
+    if api_result.returncode != 0:
+        return {"error": f"Failed to retrieve gist data: {api_result.stderr.strip()}"}
+
+    try:
+        gist_data = json.loads(api_result.stdout)
+    except json.JSONDecodeError:
+        return {"error": "Failed to parse gist API response"}
+
+    # Build file-to-raw_url mapping
+    files = {}
+    for filename, file_info in gist_data.get("files", {}).items():
+        files[filename] = {"raw_url": file_info.get("raw_url", "")}
+
+    return {"gist_url": gist_url, "files": files}
+
+
+# =============================================================================
 # CLI Entry Point
 # =============================================================================
 
@@ -230,6 +315,17 @@ def main():
         help="Repository in 'owner/repo' format",
     )
 
+    # Subcommand: upload-gist
+    upload_gist_parser = subparsers.add_parser(
+        "upload-gist",
+        help="Upload one or more files to a public gist and return raw URLs",
+    )
+    upload_gist_parser.add_argument(
+        "files",
+        nargs="+",
+        help="File paths to upload (max 5 files, max 10MB per file)",
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -257,6 +353,12 @@ def main():
             print(f"Error: {e}", file=sys.stderr)
             return 0
 
+    # Handle upload-gist subcommand
+    if args.command == "upload-gist":
+        result = upload_to_gist(args.files)
+        print(json.dumps(result))
+        return 0
+
     # No command specified - show help
     if not args.command:
         parser.print_help()
@@ -266,6 +368,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import argparse
-
     sys.exit(main())
