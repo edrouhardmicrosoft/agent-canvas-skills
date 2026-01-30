@@ -11,10 +11,13 @@ Usage:
     python scripts/canvas_issue.py list-issues
 """
 
+import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 from typing import Optional, Dict, Any
 
 
@@ -109,6 +112,89 @@ def get_gh_status() -> Dict[str, Any]:
 
 
 # =============================================================================
+# Config Management Functions
+# =============================================================================
+
+
+def get_config() -> Dict[str, Any]:
+    """
+    Read the canvas config file at .canvas/config.json.
+
+    Returns:
+        Dictionary with config contents, or empty dict if file doesn't exist.
+    """
+    config_path = Path(".canvas/config.json")
+    if not config_path.exists():
+        return {}
+
+    try:
+        with open(config_path, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+def set_config(key_path: str, value: Any) -> None:
+    """
+    Update the canvas config file with nested key support.
+
+    Args:
+        key_path: Dot-separated path (e.g., "github.repo")
+        value: Value to set
+
+    Creates .canvas/config.json if it doesn't exist.
+    """
+    config_dir = Path(".canvas")
+    config_dir.mkdir(exist_ok=True)
+
+    config_path = config_dir / "config.json"
+    config = get_config()
+
+    # Navigate/create nested structure
+    keys = key_path.split(".")
+    current = config
+    for key in keys[:-1]:
+        if key not in current:
+            current[key] = {}
+        current = current[key]
+
+    # Set the final value
+    current[keys[-1]] = value
+
+    # Write config file
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)
+
+
+def get_github_repo() -> Optional[str]:
+    """
+    Get the configured GitHub repo (owner/repo format).
+
+    Returns:
+        The repo string (e.g., "owner/repo"), or None if not configured.
+    """
+    config = get_config()
+    return config.get("github", {}).get("repo")
+
+
+def set_github_repo(owner_repo: str) -> None:
+    """
+    Set the GitHub repo configuration.
+
+    Args:
+        owner_repo: Repository in "owner/repo" format
+
+    Raises:
+        ValueError: If format is invalid (not exactly one slash)
+    """
+    # Validate format
+    if owner_repo.count("/") != 1:
+        raise ValueError("Repository must be in 'owner/repo' format")
+
+    set_config("github.repo", owner_repo)
+
+
+# =============================================================================
 # CLI Entry Point
 # =============================================================================
 
@@ -128,6 +214,22 @@ def main():
         help="Check GitHub CLI installation and authentication status",
     )
 
+    # Subcommand: get-repo
+    get_repo_parser = subparsers.add_parser(
+        "get-repo",
+        help="Get the configured GitHub repository",
+    )
+
+    # Subcommand: set-repo
+    set_repo_parser = subparsers.add_parser(
+        "set-repo",
+        help="Set the GitHub repository (owner/repo format)",
+    )
+    set_repo_parser.add_argument(
+        "repo",
+        help="Repository in 'owner/repo' format",
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -136,6 +238,24 @@ def main():
         status = get_gh_status()
         print(json.dumps(status))
         return 0
+
+    # Handle get-repo subcommand
+    if args.command == "get-repo":
+        repo = get_github_repo()
+        if repo:
+            print(repo)
+        else:
+            print("")
+        return 0
+
+    # Handle set-repo subcommand
+    if args.command == "set-repo":
+        try:
+            set_github_repo(args.repo)
+            return 0
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 0
 
     # No command specified - show help
     if not args.command:
