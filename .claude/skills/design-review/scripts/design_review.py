@@ -1639,6 +1639,9 @@ def cmd_interactive(args: argparse.Namespace) -> None:
 
         log_event("prescan_triggered", {"spec": spec.name})
 
+        # Track most recent valid results
+        last_results = None
+
         # Poll for events until browser closes
         while True:
             try:
@@ -1659,23 +1662,22 @@ def cmd_interactive(args: argparse.Namespace) -> None:
                     print(json.dumps(event))
                     sys.stdout.flush()
 
+                # Periodically snapshot results while page is still open
+                try:
+                    last_results = page.evaluate(
+                        "() => window.__designReviewGetResults && window.__designReviewGetResults()"
+                    )
+                except Exception:
+                    pass  # Ignore evaluation errors during polling
+
                 time.sleep(0.1)
 
             except Exception:
                 # Page likely closed
                 break
 
-        # Get final review results before browser closes
-        try:
-            # Signal completion to emit review.completed event
-            page.evaluate(
-                "() => window.__designReviewComplete && window.__designReviewComplete()"
-            )
-            review_results = page.evaluate(
-                "() => window.__designReviewGetResults && window.__designReviewGetResults()"
-            )
-        except Exception:
-            review_results = None
+        # Use last valid snapshot instead of trying to evaluate after close
+        review_results = last_results
 
         browser.close()
         log_event("browser_closed", {})
