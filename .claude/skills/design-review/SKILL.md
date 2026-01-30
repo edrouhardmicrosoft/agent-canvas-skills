@@ -46,18 +46,36 @@ uv run $SKILL_DIR/design_review.py review http://localhost:3000 --markdown
 uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate --markdown
 ```
 
-### Interactive Mode
+### Interactive Mode (Recommended for Exploration)
 
-Select and review elements interactively:
+Explore pages with automatic issue detection and visual badges:
 
 ```bash
 uv run $SKILL_DIR/design_review.py interactive http://localhost:3000
 ```
 
-1. Browser opens with review overlay
-2. Hover elements to see compliance status
-3. Click to see full compliance report
-4. Close browser to generate final report
+**What happens:**
+
+1. Browser opens with the page
+2. **Automatic pre-scan** runs immediately—scans buttons, links, inputs, images, forms, and more
+3. **Visual badges** appear on elements with issues (numbered, color-coded by severity)
+4. Press **`N`** to navigate through detected issues one by one
+5. Hover any element to see its compliance status
+6. Click elements for detailed compliance reports
+7. Close browser → `report.json` generated with all findings
+
+**Badge colors:**
+- 🔴 Red = blocking/critical issues
+- 🟠 Orange = major issues  
+- 🟡 Yellow = minor issues
+
+**Trigger phrases** (all route to interactive mode):
+- "Show me the design at [url]"
+- "Let me explore [url]"
+- "Open and inspect [url]"
+- "Look at [url]"
+- "Walk through [url]"
+- "Browse [url]"
 
 ### Compare Against Reference
 

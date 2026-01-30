@@ -2253,7 +2253,22 @@ def parse_user_intent(user_input: str) -> dict[str, Any]:
         result["command"] = "compare"
     elif any(
         word in user_input_lower
-        for word in ["interactive", "pick", "select", "browse", "explore"]
+        for word in [
+            "interactive",
+            "pick",
+            "select",
+            "browse",
+            "explore",
+            "show me",
+            "look at",
+            "check out",
+            "open",
+            "inspect",
+            "let me see",
+            "walk through",
+            "go through",
+            "navigate",
+        ]
     ):
         result["command"] = "interactive"
     elif any(

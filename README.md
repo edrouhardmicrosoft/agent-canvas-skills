@@ -132,7 +132,49 @@ Compare http://localhost:3000 against the Homepage frame in our Figma file
 | "Review [url] and show me the problems" | Generates annotated screenshot with issues marked |
 | "Review [url] and create a task list" | Creates `DESIGN-REVIEW-TASKS.md` with fix priorities |
 | "Compare [url] to homepage.png" | Visual diff against reference image |
-| "Let me pick elements to review" | Opens browser, you click elements to inspect |
+| "Show me the design at [url]" | **Interactive mode** - Opens browser with auto-scan and badges |
+
+---
+
+## Example Queries
+
+Different phrases trigger different modes. Use the one that fits your workflow:
+
+### Interactive Mode (Recommended for Exploration)
+
+Opens a browser with **automatic issue scanning** and **visual badges** on elements with problems. Press `N` to navigate through issues.
+
+```
+Show me the design at http://localhost:3000
+Let me explore http://localhost:3000
+Open and inspect http://localhost:3000
+Look at the page at http://localhost:3000
+Walk through http://localhost:3000
+Browse http://localhost:3000
+```
+
+### Review Mode (Headless, for CI/Automation)
+
+Runs in the background without opening a browser. Best for automated checks.
+
+```
+Review http://localhost:3000 against spec
+Run compliance check on http://localhost:3000
+Audit http://localhost:3000
+Check the design at http://localhost:3000
+Review http://localhost:3000 and generate a task list
+```
+
+### Compare Mode (Visual Diff)
+
+Compares current page against a reference image or Figma frame.
+
+```
+Compare http://localhost:3000 to homepage.png
+Check http://localhost:3000 against the mockup
+Compare the current design to the reference
+Diff http://localhost:3000 against settings.png
+```
 
 ---
 
