@@ -132,6 +132,7 @@ Compare http://localhost:3000 against the Homepage frame in our Figma file
 | "Review the design at [url]" | Headless review - checks against spec, lists issues by severity |
 | "Audit [url] and create a task list" | Creates `DESIGN-REVIEW-TASKS.md` with fix priorities |
 | "Compare [url] to homepage.png" | Visual diff against reference image |
+| "Create an issue for this bug" | **GitHub Issue** - Click "Create Issue" button to file bugs with context |
 
 ---
 
@@ -208,6 +209,33 @@ Pick an element on http://localhost:3000 to edit
 2. Edit in floating panel → changes apply live
 3. Click "Save All to Code" → agent updates your source files
 
+### GitHub Issue Creation
+
+Create GitHub issues directly from the browser with full context:
+
+```
+Check http://localhost:3000
+```
+
+1. Browser opens with picker overlay
+2. Select elements related to the bug/issue
+3. Click **"Create Issue"** button (bottom-left)
+4. First time: Enter your GitHub repo (`owner/repo` format)
+5. Fill in title and description
+6. Click **Create** → Issue created with:
+   - Selected element details
+   - Page URL
+   - Screenshots (uploaded to Gist)
+
+**Requirements:**
+- [GitHub CLI](https://cli.github.com/) (`gh`) installed and authenticated
+- Or: Falls back to opening GitHub web interface
+
+**Disable issue button:** Use `--no-issue` flag:
+```bash
+uv run .claude/skills/agent-canvas/scripts/agent_canvas.py pick http://localhost:3000 --no-issue
+```
+
 ---
 
 ## Skills Reference
@@ -218,6 +246,7 @@ Pick an element on http://localhost:3000 to edit
 | [agent-canvas-setup](.claude/skills/agent-canvas-setup/SKILL.md) | Installs dependencies (Python, Playwright, etc.) |
 | [agent-eyes](.claude/skills/agent-eyes/SKILL.md) | Takes screenshots, runs accessibility scans |
 | [agent-canvas](.claude/skills/agent-canvas/SKILL.md) | Interactive element picker |
+| [canvas-issue](.claude/skills/canvas-issue/SKILL.md) | GitHub issue creation with element context and screenshots |
 | [canvas-edit](.claude/skills/canvas-edit/SKILL.md) | Annotation toolbar overlay |
 | [canvas-apply](.claude/skills/canvas-apply/SKILL.md) | Converts visual edits to code changes |
 | [canvas-verify](.claude/skills/canvas-verify/SKILL.md) | Before/after visual comparison |
@@ -279,6 +308,7 @@ Add a `DESIGN-SPEC.md` to your project root with your actual design standards.
 ├── agent-canvas-setup/    # Dependency installer
 ├── agent-eyes/            # Screenshots & a11y
 ├── agent-canvas/          # Element picker
+├── canvas-issue/          # GitHub issue creation
 ├── canvas-edit/           # Annotation overlay
 ├── canvas-apply/          # Code generator
 ├── canvas-verify/         # Verification
