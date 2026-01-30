@@ -46,7 +46,7 @@ uv run $SKILL_DIR/design_review.py review http://localhost:3000 --markdown
 uv run $SKILL_DIR/design_review.py review http://localhost:3000 --annotate --markdown
 ```
 
-### Interactive Mode (Recommended for Exploration)
+### Interactive Mode (Default)
 
 Explore pages with automatic issue detection and visual badges:
 
@@ -69,13 +69,7 @@ uv run $SKILL_DIR/design_review.py interactive http://localhost:3000
 - 🟠 Orange = major issues  
 - 🟡 Yellow = minor issues
 
-**Trigger phrases** (all route to interactive mode):
-- "Show me the design at [url]"
-- "Let me explore [url]"
-- "Open and inspect [url]"
-- "Look at [url]"
-- "Walk through [url]"
-- "Browse [url]"
+This is the **default mode**. Any query without explicit "review", "audit", or "compare" keywords will open interactive mode.
 
 ### Compare Against Reference
 

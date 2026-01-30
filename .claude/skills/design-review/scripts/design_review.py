@@ -2239,43 +2239,39 @@ def parse_user_intent(user_input: str) -> dict[str, Any]:
     user_input_lower = user_input.lower()
 
     result = {
-        "command": "review",  # default
+        "command": "interactive",  # default - opens browser with auto-scan
         "spec_hints": [],
         "selector_hint": None,
         "focus_areas": [],
     }
 
     # Detect command type
+    # Order matters: more specific patterns first
     if any(
         word in user_input_lower
-        for word in ["compare", "reference", "design image", "figma", "mockup"]
+        for word in ["compare", "reference", "design image", "figma", "mockup", "diff"]
     ):
         result["command"] = "compare"
     elif any(
         word in user_input_lower
         for word in [
-            "interactive",
-            "pick",
-            "select",
-            "browse",
-            "explore",
-            "show me",
-            "look at",
-            "check out",
-            "open",
-            "inspect",
-            "let me see",
-            "walk through",
-            "go through",
-            "navigate",
+            "review",
+            "audit",
+            "check compliance",
+            "compliance check",
+            "headless",
+            "generate tasks",
+            "task list",
+            "run check",
         ]
     ):
-        result["command"] = "interactive"
+        result["command"] = "review"  # explicit headless review
     elif any(
         word in user_input_lower
         for word in ["accessibility", "a11y", "wcag", "screen reader", "aria"]
     ):
         result["command"] = "accessibility"
+    # No need for explicit interactive triggers - it's the default now
 
     # Detect focus areas
     focus_keywords = {

@@ -128,11 +128,10 @@ Compare http://localhost:3000 against the Homepage frame in our Figma file
 
 | Ask your agent... | What happens |
 |-------------------|--------------|
-| "Review the design at [url]" | Checks against spec, lists issues by severity |
-| "Review [url] and show me the problems" | Generates annotated screenshot with issues marked |
-| "Review [url] and create a task list" | Creates `DESIGN-REVIEW-TASKS.md` with fix priorities |
+| "Check http://localhost:3000" | **Interactive mode (default)** - Opens browser with auto-scan and badges |
+| "Review the design at [url]" | Headless review - checks against spec, lists issues by severity |
+| "Audit [url] and create a task list" | Creates `DESIGN-REVIEW-TASKS.md` with fix priorities |
 | "Compare [url] to homepage.png" | Visual diff against reference image |
-| "Show me the design at [url]" | **Interactive mode** - Opens browser with auto-scan and badges |
 
 ---
 
@@ -140,29 +139,29 @@ Compare http://localhost:3000 against the Homepage frame in our Figma file
 
 Different phrases trigger different modes. Use the one that fits your workflow:
 
-### Interactive Mode (Recommended for Exploration)
+### Interactive Mode (Default)
 
 Opens a browser with **automatic issue scanning** and **visual badges** on elements with problems. Press `N` to navigate through issues.
 
+This is the **default mode** — any query that doesn't explicitly say "review", "audit", or "compare" will open the browser.
+
 ```
-Show me the design at http://localhost:3000
-Let me explore http://localhost:3000
-Open and inspect http://localhost:3000
-Look at the page at http://localhost:3000
-Walk through http://localhost:3000
-Browse http://localhost:3000
+Check http://localhost:3000
+Show me http://localhost:3000
+Open http://localhost:3000
+Look at the design at http://localhost:3000
+http://localhost:3000
 ```
 
 ### Review Mode (Headless, for CI/Automation)
 
-Runs in the background without opening a browser. Best for automated checks.
+Runs in the background without opening a browser. Use explicit keywords to trigger.
 
 ```
 Review http://localhost:3000 against spec
-Run compliance check on http://localhost:3000
 Audit http://localhost:3000
-Check the design at http://localhost:3000
-Review http://localhost:3000 and generate a task list
+Run compliance check on http://localhost:3000
+Generate task list for http://localhost:3000
 ```
 
 ### Compare Mode (Visual Diff)
