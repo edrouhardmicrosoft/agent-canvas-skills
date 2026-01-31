@@ -324,6 +324,7 @@ def handle_issue_event(
     elif event_type == "issue.create_requested":
         title = payload.get("title", "")
         description = payload.get("description", "")
+        elements = payload.get("elements", [])
 
         # Build session data from available information
         # The caller (agent_canvas.py) has access to session_dir and can pass
@@ -334,6 +335,7 @@ def handle_issue_event(
             "events": {
                 "selections": selections,
             },
+            "elements": elements,
             # Note: beforeScreenshotPath would need to be passed via payload
             # or we need to read from session.json
             "beforeScreenshotPath": payload.get("beforeScreenshotPath"),

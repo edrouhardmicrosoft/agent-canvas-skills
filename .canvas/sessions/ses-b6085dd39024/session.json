@@ -1,0 +1,293 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-b6085dd39024",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-30T23-32-38-350Z",
+  "endTime": "2026-01-30T23-33-01-471Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false,
+    "review": true,
+    "issue": true
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-b6085dd39024/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iqb2u08ojg",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:32:56.146Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 148,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Learn more about Windows 11",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 109, 193)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-b6085dd39024/selection_001.png",
+          "size": 2836
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iqb2u08ojg",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:32:56.146Z",
+        "payload": {
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 148,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Learn more about Windows 11",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 120, 212)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-b6085dd39024/selection_002.png",
+          "size": 2836
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iqb2u08ojg",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:32:57.583Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "div",
+            "id": "__design_review_host",
+            "className": "",
+            "selector": "div:nth-of-type(17)",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "fixed",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": "__design_review_host",
+          "className": null,
+          "selector": "div:nth-of-type(17)",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": null,
+          "boundingBox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "styles": {
+            "display": "none",
+            "position": "fixed",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": false
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 3,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

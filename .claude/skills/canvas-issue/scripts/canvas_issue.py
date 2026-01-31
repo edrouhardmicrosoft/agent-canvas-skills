@@ -263,11 +263,9 @@ def generate_issue_body(
     elements_section = "## Selected Elements\n\n"
 
     if selections:
-        # Build table header
         elements_section += "| # | Selector | Tag | Text Preview |\n"
         elements_section += "|---|----------|-----|──────────────|\n"
 
-        # Build table rows
         for idx, sel in enumerate(selections, 1):
             selector = sel["selector"] or "unknown"
             tag = sel["tag"] or ""
@@ -277,6 +275,24 @@ def generate_issue_body(
         elements_section += "(No elements selected)\n"
 
     sections.append(elements_section)
+
+    # 3b. Design Review Issues section (from "Add to Issue" button)
+    design_elements = session_data.get("elements", [])
+    if design_elements:
+        issues_section = "## Design Review Issues\n\n"
+        issues_section += "| # | Selector | Issue(s) |\n"
+        issues_section += "|---|----------|----------|\n"
+
+        for idx, el in enumerate(design_elements, 1):
+            selector = el.get("selector", "unknown")
+            rules = el.get("rules", [])
+            issues_str = (
+                ", ".join(r.get("message") or r.get("id", "unknown") for r in rules)
+                or "No issues"
+            )
+            issues_section += f"| {idx} | `{selector}` | {issues_str} |\n"
+
+        sections.append(issues_section)
 
     # 4. Screenshots section (only if images exist)
     if screenshot_urls:
@@ -290,7 +306,7 @@ def generate_issue_body(
                 desc = "Page screenshot"
             else:
                 # Extract selection index from path like "selection_001.png"
-                desc = f"Selection {idx-1}" if idx > 1 else "Screenshot"
+                desc = f"Selection {idx - 1}" if idx > 1 else "Screenshot"
 
             filename = Path(path).name
             screenshots_section += f"| {idx} | {desc} | ![{filename}]({url}) |\n"

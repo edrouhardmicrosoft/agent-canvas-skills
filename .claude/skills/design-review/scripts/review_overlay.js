@@ -370,18 +370,33 @@
             gap: 8px;
         }
 
-        .add-to-review-btn {
-            flex: 1;
-            background: linear-gradient(135deg, ${COLORS.pass} 0%, #16A34A 100%);
-            border: none;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: opacity 0.15s;
-        }
+    .add-to-issue-btn {
+        background: ${COLORS.dark};
+        color: ${COLORS.primary};
+        border: 1px solid ${COLORS.border};
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.15s ease;
+    }
+    
+    .add-to-issue-btn:hover {
+        background: ${COLORS.hover};
+        border-color: ${COLORS.primary};
+    }
+    
+    .add-to-issue-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .add-to-issue-btn.added {
+        background: ${COLORS.pass};
+        border-color: ${COLORS.pass};
+        color: #fff;
+    }
 
         .add-to-review-btn:hover {
             opacity: 0.9;
@@ -495,7 +510,7 @@
             <div class="issue-list" id="issueList"></div>
         </div>
         <div class="panel-footer">
-            <button class="add-to-review-btn" id="addToReviewBtn">Add to Review</button>
+            <button class="add-to-issue-btn" id="addToIssueBtn">Add to Issue</button>
         </div>
     `;
     shadow.appendChild(compliancePanel);
@@ -531,7 +546,7 @@
     const closePanelBtn = compliancePanel.querySelector('#closePanelBtn');
     const selectedElementInfo = compliancePanel.querySelector('#selectedElementInfo');
     const issueList = compliancePanel.querySelector('#issueList');
-    const addToReviewBtn = compliancePanel.querySelector('#addToReviewBtn');
+    const addToIssueBtn = compliancePanel.querySelector('#addToIssueBtn');
     const blockingCountEl = reviewSummary.querySelector('#blockingCount');
     const majorCountEl = reviewSummary.querySelector('#majorCount');
     const minorCountEl = reviewSummary.querySelector('#minorCount');
@@ -799,11 +814,11 @@
             `).join('');
         }
 
-        // Update add to review button
+        // Update add to issue button
         const isAdded = reviewState.reviewedElements.has(selector);
-        addToReviewBtn.textContent = isAdded ? 'Added to Review ✓' : 'Add to Review';
-        addToReviewBtn.classList.toggle('added', isAdded);
-        addToReviewBtn.disabled = isAdded;
+        addToIssueBtn.textContent = isAdded ? 'Added to Issue ✓' : 'Add to Issue';
+        addToIssueBtn.classList.toggle('added', isAdded);
+        addToIssueBtn.disabled = isAdded;
 
         compliancePanel.style.display = 'block';
     }
@@ -817,20 +832,28 @@
     }
 
     /**
-     * Add current element to review
+     * Add current element to GitHub issue context
      */
-    function addToReview() {
+    function addToIssue() {
+        console.log('[DesignReview] addToIssue called');
         const el = reviewState.selectedElement;
-        if (!el) return;
+        if (!el) {
+            console.log('[DesignReview] No element selected, returning');
+            return;
+        }
 
         const selector = bus ? bus.generateSelector(el).selector : el.tagName.toLowerCase();
+        console.log('[DesignReview] Selector:', selector);
         const compliance = checkElementCompliance(el);
 
-        if (reviewState.reviewedElements.has(selector)) return;
+        if (reviewState.reviewedElements.has(selector)) {
+            console.log('[DesignReview] Already reviewed, returning');
+            return;
+        }
 
         reviewState.reviewedElements.add(selector);
 
-        // Create issue entry
+        // Create issue entry with element info and compliance issues
         const issue = {
             selector: selector,
             timestamp: new Date().toISOString(),
@@ -840,41 +863,33 @@
         };
 
         reviewState.issues.push(issue);
+        console.log('[DesignReview] Issue created:', issue.selector);
 
-        // Emit review.element_added for Python logging
+        // Emit issue.element_added for GitHub issue integration
+        if (bus) {
+            console.log('[DesignReview] Emitting issue.element_added');
+            bus.emit('issue.element_added', 'design-review', issue);
+            console.log('[DesignReview] Event emitted');
+        }
+
+        // Also emit to legacy event queue for backward compatibility
         const event = {
-            type: 'review.element_added',
+            type: 'issue.element_added',
             source: 'design-review',
             timestamp: new Date().toISOString(),
             payload: issue,
         };
         window.__designReviewEvents.push(event);
-        if (bus) {
-            bus.emit('review.element_added', 'design-review', issue);
-            
-            // Emit review.issue_found for each failing rule (toolbar integration)
-            for (const rule of issue.rules) {
-                bus.emit('review.issue_found', 'design-review', {
-                    id: `${selector}-${rule.id}`,
-                    checkId: rule.id,
-                    severity: rule.severity,
-                    element: selector,
-                    description: rule.message,
-                    pillar: rule.pillar || '',
-                    boundingBox: issue.element?.boundingBox,
-                });
-            }
-        }
 
         // Update UI
         updateSummary();
-        addToReviewBtn.textContent = 'Added to Review ✓';
-        addToReviewBtn.classList.add('added');
-        addToReviewBtn.disabled = true;
+        addToIssueBtn.textContent = 'Added to Issue ✓';
+        addToIssueBtn.classList.add('added');
+        addToIssueBtn.disabled = true;
 
         // Flash feedback
-        addToReviewBtn.style.transform = 'scale(1.05)';
-        setTimeout(() => addToReviewBtn.style.transform = '', 150);
+        addToIssueBtn.style.transform = 'scale(1.05)';
+        setTimeout(() => addToIssueBtn.style.transform = '', 150);
     }
 
     /**
@@ -936,6 +951,8 @@
     // Event listeners
     document.addEventListener('mousemove', (e) => {
         const el = document.elementFromPoint(e.clientX, e.clientY);
+        if (el?.id?.startsWith('__') || el?.closest?.('[id^="__"]')) return;
+        if (el === host || host.contains(el)) return;
         if (el !== reviewState.hoveredElement) {
             reviewState.hoveredElement = el;
             updateOverlay(el);
@@ -943,8 +960,10 @@
     }, true);
 
     document.addEventListener('click', (e) => {
-        if (host.contains(e.target)) return;
+        if (e.target === host || host.contains(e.target)) return;
         if (e.target.id?.startsWith('__')) return;
+        if (e.target.closest?.('[id^="__"]')) return;
+        if (e.composedPath?.().some(el => el.id?.startsWith?.('__'))) return;
 
         e.preventDefault();
         e.stopPropagation();
@@ -952,11 +971,23 @@
         showCompliancePanel(e.target);
     }, true);
 
-    // Panel button listeners
-    closePanelBtn.addEventListener('click', hideCompliancePanel);
-    addToReviewBtn.addEventListener('click', addToReview);
-    prevIssueBtn.addEventListener('click', () => navigateIssue(-1));
-    nextIssueBtn.addEventListener('click', () => navigateIssue(1));
+    // Panel button listeners - use capture:true to ensure they run before document handler
+    closePanelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideCompliancePanel();
+    }, true);
+    addToIssueBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        addToIssue();
+    }, true);
+    prevIssueBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateIssue(-1);
+    }, true);
+    nextIssueBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateIssue(1);
+    }, true);
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -966,7 +997,7 @@
             navigateIssue(1);
         } else if (e.key === 'a' || e.key === 'A') {
             if (reviewState.selectedElement) {
-                addToReview();
+                addToIssue();
             }
         }
     });
@@ -1063,7 +1094,7 @@
                     // Skip if already reviewed
                     if (reviewState.reviewedElements.has(selector)) continue;
                     
-                    // Create issue matching addToReview() shape (lines 834-840)
+                    // Create issue matching addToIssue() shape (lines 834-840)
                     const issue = {
                         selector: selector,
                         timestamp: new Date().toISOString(),

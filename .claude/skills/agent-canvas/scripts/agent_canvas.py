@@ -666,7 +666,8 @@ PICKER_OVERLAY_JS = """
     });
     
     function updateOverlay(el) {
-        if (!el || el.id?.startsWith('__agent_canvas') || el.id?.startsWith('__canvas_edit')) {
+        // Skip all overlay UI elements (any ID starting with __)
+        if (!el || el.id?.startsWith('__') || el.closest?.('[id^="__"]')) {
             overlay.style.display = 'none';
             label.style.display = 'none';
             return;
@@ -713,11 +714,9 @@ PICKER_OVERLAY_JS = """
     
     document.addEventListener('mousemove', (e) => {
         const el = document.elementFromPoint(e.clientX, e.clientY);
-        // Skip overlay UI elements
-        if (el?.id?.startsWith('__agent_canvas') || 
-            el?.id?.startsWith('__canvas_edit') || 
-            el?.id?.startsWith('__canvas-issue') ||
-            el?.closest?.('[id^="__canvas-issue"]')) {
+        // Skip all overlay UI elements (any ID starting with __)
+        if (el?.id?.startsWith('__') || 
+            el?.closest?.('[id^="__"]')) {
             return;
         }
         if (el !== currentElement) {
@@ -727,10 +726,11 @@ PICKER_OVERLAY_JS = """
     }, true);
     
     document.addEventListener('click', (e) => {
-        if (e.target.id?.startsWith('__agent_canvas')) return;
-        if (e.target.id?.startsWith('__canvas_edit')) return;
-        if (e.target.id?.startsWith('__canvas-issue')) return;
-        if (e.target.closest?.('[id^="__canvas-issue"]')) return;
+        // Skip all overlay UI elements (any ID starting with __)
+        if (e.target.id?.startsWith('__')) return;
+        if (e.target.closest?.('[id^="__"]')) return;
+        // Check composed path for shadow DOM clicks
+        if (e.composedPath?.().some(el => el.id?.startsWith?.('__'))) return;
         
         e.preventDefault();
         e.stopPropagation();
@@ -1295,9 +1295,9 @@ def main():
     pick_parser = subparsers.add_parser("pick", help="Pick an element interactively")
     pick_parser.add_argument("url", help="URL to open")
     pick_parser.add_argument(
-        "--with-eyes",
+        "--no-eyes",
         action="store_true",
-        help="Get visual context from agent-eyes after selection (in-process)",
+        help="Disable visual context/a11y scanning (enabled by default)",
     )
     pick_parser.add_argument(
         "--with-edit",
@@ -1305,9 +1305,9 @@ def main():
         help="Load canvas-edit panel for live style editing",
     )
     pick_parser.add_argument(
-        "--with-review",
+        "--no-review",
         action="store_true",
-        help="Load design-review overlay with live a11y compliance checking",
+        help="Disable design-review overlay with live a11y compliance (enabled by default)",
     )
     pick_parser.add_argument(
         "--no-issue",
@@ -1348,9 +1348,9 @@ def main():
     if args.command == "pick":
         result = pick_element(
             args.url,
-            with_eyes=args.with_eyes,
+            with_eyes=not args.no_eyes,
             with_edit=args.with_edit,
-            with_review=args.with_review,
+            with_review=not args.no_review,
             with_issue=not args.no_issue,
             output_path=args.output,
             interactive=not args.no_interactive,

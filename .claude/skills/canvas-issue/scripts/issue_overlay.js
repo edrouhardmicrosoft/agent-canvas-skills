@@ -1,4 +1,7 @@
 (function() {
+  // Collected elements from "Add to Issue" button clicks
+  const collectedElements = [];
+
   // Design tokens duplicated from agent-canvas (as they are not exported)
   const ISSUE_TOKENS = {
     colors: {
@@ -86,8 +89,20 @@
   // Handle capture mode (hide during screenshots)
   if (window.__canvasBus) {
     window.__canvasBus.subscribe('capture_mode.changed', (event) => {
-      const isCapturing = event.payload && event.payload.active;
+      const isCapturing = event.payload && (event.payload.active || event.payload.enabled);
       createIssueBtn.style.display = isCapturing ? 'none' : 'flex';
+    });
+
+    // Subscribe to elements added via "Add to Issue" button in design-review overlay
+    window.__canvasBus.subscribe('issue.element_added', (event) => {
+      try {
+        if (event.payload) {
+          collectedElements.push(event.payload);
+          console.log('[Canvas Issue] Element added:', event.payload.selector, '- Total:', collectedElements.length);
+        }
+      } catch (err) {
+        console.error('[Canvas Issue] Error handling element_added:', err);
+      }
     });
   }
 
@@ -309,7 +324,8 @@
     if (title) {
       window.__canvasBus.emit('issue.create_requested', 'issue-overlay', { 
         title, 
-        description 
+        description,
+        elements: collectedElements.slice()
       });
       createModal.hidePopover();
     }
@@ -364,8 +380,24 @@
       const { suggestedTitle, selections } = event.payload || {};
       
       issueTitle.value = suggestedTitle || '';
-      issueDesc.value = selections ? 
-        `Context:\n\`\`\`\n${JSON.stringify(selections, null, 2)}\n\`\`\`` : '';
+      
+      let descParts = [];
+      if (collectedElements.length > 0) {
+        descParts.push(`**Elements (${collectedElements.length}):**`);
+        for (const el of collectedElements) {
+          const failingRules = el.rules || [];
+          if (failingRules.length > 0) {
+            descParts.push(`- \`${el.selector}\` - ${failingRules.map(r => r.message || r.id).join(', ')}`);
+          } else {
+            descParts.push(`- \`${el.selector}\``);
+          }
+        }
+        descParts.push('');
+      }
+      if (selections) {
+        descParts.push(`Context:\n\`\`\`\n${JSON.stringify(selections, null, 2)}\n\`\`\``);
+      }
+      issueDesc.value = descParts.join('\n');
         
       createModal.showPopover();
       issueTitle.focus();

@@ -1,0 +1,930 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-20845bad0c8b",
+  "url": "https://www.microsoft.com",
+  "startTime": "2026-01-30T23-47-16-865Z",
+  "endTime": "2026-01-30T23-47-59-870Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false,
+    "review": true,
+    "issue": true
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-20845bad0c8b/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:47:29.544Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "reimagine-button-group",
+            "id": "button-group-oc6fe4",
+            "className": "",
+            "selector": "#button-group-oc6fe4",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Discover Microsoft 365 Premium",
+            "boundingBox": {
+              "x": 56,
+              "y": 434,
+              "width": 521,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-button-group",
+          "id": "button-group-oc6fe4",
+          "className": null,
+          "selector": "#button-group-oc6fe4",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Discover Microsoft 365 Premium",
+          "boundingBox": {
+            "x": 56,
+            "y": 434,
+            "width": 521,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_001.png",
+          "size": 5520
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:47:29.544Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-button-group",
+            "id": "button-group-oc6fe4",
+            "className": "",
+            "selector": "#button-group-oc6fe4",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Discover Microsoft 365 Premium",
+            "boundingBox": {
+              "x": 56,
+              "y": 434,
+              "width": 521,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-button-group",
+          "id": "button-group-oc6fe4",
+          "className": null,
+          "selector": "#button-group-oc6fe4",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Discover Microsoft 365 Premium",
+          "boundingBox": {
+            "x": 56,
+            "y": 434,
+            "width": 521,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_002.png",
+          "size": 5520
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:47:34.569Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "reimagine-button-group",
+            "id": "button-group-oc30c8",
+            "className": "",
+            "selector": "#button-group-oc30c8",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 521,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-button-group",
+          "id": "button-group-oc30c8",
+          "className": null,
+          "selector": "#button-group-oc30c8",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 521,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_003.png",
+          "size": 9915
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 13,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:47:34.569Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-button-group",
+            "id": "button-group-oc30c8",
+            "className": "",
+            "selector": "#button-group-oc30c8",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 521,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-button-group",
+          "id": "button-group-oc30c8",
+          "className": null,
+          "selector": "#button-group-oc30c8",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 521,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_004.png",
+          "size": 9915
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 23,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:47:38.714Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "reimagine-heading-block",
+            "id": "heading-block-oc56db",
+            "className": "",
+            "selector": "#heading-block-oc56db",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 641,
+              "y": 236,
+              "width": 569,
+              "height": 301
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px 48px 0px 0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-heading-block",
+          "id": "heading-block-oc56db",
+          "className": null,
+          "selector": "#heading-block-oc56db",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 641,
+            "y": 236,
+            "width": 569,
+            "height": 301
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px 48px 0px 0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_005.png",
+          "size": 74708
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 24,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:47:38.714Z",
+        "payload": {
+          "element": {
+            "tag": "reimagine-heading-block",
+            "id": "heading-block-oc56db",
+            "className": "",
+            "selector": "#heading-block-oc56db",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+            "boundingBox": {
+              "x": 641,
+              "y": 236,
+              "width": 569,
+              "height": 301
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(0, 0, 0)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px 48px 0px 0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "reimagine-heading-block",
+          "id": "heading-block-oc56db",
+          "className": null,
+          "selector": "#heading-block-oc56db",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "Meet the computer you can talk to\n      \n    \n\t\n\n  \n\n      \n    \n\n    \n  \n\n\n                \n            \n        \n\n        \n            \n                \n                \n                    \n\n    \n ",
+          "boundingBox": {
+            "x": 641,
+            "y": 236,
+            "width": 569,
+            "height": 301
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(0, 0, 0)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px 48px 0px 0px",
+            "border": "0px none rgb(0, 0, 0)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_006.png",
+          "size": 74708
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 33,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:47:39.675Z",
+        "payload": {
+          "index": 4,
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 148,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Learn more about Windows 11",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 109, 193)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_007.png",
+          "size": 2836
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 34,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:47:39.675Z",
+        "payload": {
+          "element": {
+            "tag": "a",
+            "id": null,
+            "className": "",
+            "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+            "selectorConfidence": "low",
+            "selectorAlternatives": [],
+            "text": "Meet Windows 11",
+            "boundingBox": {
+              "x": 641,
+              "y": 489,
+              "width": 148,
+              "height": 48
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": "Learn more about Windows 11",
+              "dataTestid": null,
+              "dataCy": null,
+              "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "static",
+              "backgroundColor": "rgb(0, 109, 193)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "15px",
+              "fontWeight": "600",
+              "padding": "12px 17px",
+              "margin": "0px",
+              "borderRadius": "8px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "a",
+          "id": null,
+          "className": null,
+          "selector": "reimagine-layout-column > reimagine-heading-block > reimagine-button-group > reimagine-button > a",
+          "selectorConfidence": "low",
+          "selectorAlternatives": [],
+          "textContent": "Meet Windows 11",
+          "boundingBox": {
+            "x": 641,
+            "y": 489,
+            "width": 148,
+            "height": 48
+          },
+          "styles": {
+            "display": "flex",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgb(0, 120, 212)",
+            "fontSize": "15px",
+            "fontWeight": "600",
+            "margin": "0px",
+            "padding": "12px 17px",
+            "border": "0px solid rgba(0, 0, 0, 0)",
+            "borderRadius": "8px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": "Learn more about Windows 11",
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": "https://www.microsoft.com/en-us/windows/windows-11?icid=mscom_marcom_H1a_WindowsHoliday&form=MA149N",
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_008.png",
+          "size": 2836
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 43,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:47:42.237Z",
+        "payload": {
+          "index": 5,
+          "element": {
+            "tag": "h3",
+            "id": null,
+            "className": "sa-highlight-entry-header",
+            "selector": "h3.sa-highlight-entry-header",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?",
+            "boundingBox": {
+              "x": 988,
+              "y": 454,
+              "width": 211,
+              "height": 44
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(244, 250, 253)",
+              "fontSize": "24px",
+              "fontWeight": "500",
+              "padding": "0px 0px 12px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h3",
+          "id": null,
+          "className": "sa-highlight-entry-header",
+          "selector": "h3.sa-highlight-entry-header",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Can we help you?",
+          "boundingBox": {
+            "x": 988,
+            "y": 454,
+            "width": 211,
+            "height": 44
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(244, 250, 253)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "24px",
+            "fontWeight": "500",
+            "margin": "0px",
+            "padding": "0px 0px 12px",
+            "border": "0px none rgb(244, 250, 253)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_009.png",
+          "size": 3585
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1j956t32pkq",
+        "seq": 44,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:47:42.237Z",
+        "payload": {
+          "element": {
+            "tag": "h3",
+            "id": null,
+            "className": "sa-highlight-entry-header",
+            "selector": "h3.sa-highlight-entry-header",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Can we help you?",
+            "boundingBox": {
+              "x": 988,
+              "y": 454,
+              "width": 211,
+              "height": 44
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(244, 250, 253)",
+              "fontSize": "24px",
+              "fontWeight": "500",
+              "padding": "0px 0px 12px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h3",
+          "id": null,
+          "className": "sa-highlight-entry-header",
+          "selector": "h3.sa-highlight-entry-header",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Can we help you?",
+          "boundingBox": {
+            "x": 988,
+            "y": 454,
+            "width": 211,
+            "height": 44
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(244, 250, 253)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "24px",
+            "fontWeight": "500",
+            "margin": "0px",
+            "padding": "0px 0px 12px",
+            "border": "0px none rgb(244, 250, 253)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-20845bad0c8b/selection_010.png",
+          "size": 3585
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 10,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}

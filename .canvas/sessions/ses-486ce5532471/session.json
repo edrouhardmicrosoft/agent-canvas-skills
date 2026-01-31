@@ -1,0 +1,749 @@
+{
+  "schemaVersion": "1.1",
+  "sessionId": "ses-486ce5532471",
+  "url": "https://github.com",
+  "startTime": "2026-01-30T23-20-26-304Z",
+  "endTime": "2026-01-30T23-20-40-262Z",
+  "features": {
+    "picker": true,
+    "eyes": true,
+    "edit": false,
+    "review": false,
+    "issue": true
+  },
+  "beforeScreenshotPath": ".canvas/sessions/ses-486ce5532471/before.png",
+  "events": {
+    "selections": [
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 1,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:20:33.399Z",
+        "payload": {
+          "index": 1,
+          "element": {
+            "tag": "h1",
+            "id": "hero-section-brand-heading",
+            "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+            "selector": "#hero-section-brand-heading",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "The future of building happens together",
+            "boundingBox": {
+              "x": 171,
+              "y": 164,
+              "width": 924,
+              "height": 123
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "56px",
+              "fontWeight": "440",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": "hero-section-brand-heading",
+          "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+          "selector": "#hero-section-brand-heading",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "The future of building happens together",
+          "boundingBox": {
+            "x": 171,
+            "y": 164,
+            "width": 924,
+            "height": 123
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "56px",
+            "fontWeight": "440",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_001.png",
+          "size": 25987
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 2,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:20:33.399Z",
+        "payload": {
+          "element": {
+            "tag": "h1",
+            "id": "hero-section-brand-heading",
+            "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+            "selector": "#hero-section-brand-heading",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "The future of building happens together",
+            "boundingBox": {
+              "x": 171,
+              "y": 164,
+              "width": 924,
+              "height": 123
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "56px",
+              "fontWeight": "440",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": "hero-section-brand-heading",
+          "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+          "selector": "#hero-section-brand-heading",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "The future of building happens together",
+          "boundingBox": {
+            "x": 171,
+            "y": 164,
+            "width": 924,
+            "height": 123
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "56px",
+            "fontWeight": "440",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_002.png",
+          "size": 25983
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 11,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:20:34.839Z",
+        "payload": {
+          "index": 2,
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "lp-IntroVisuals-canvasWrapper",
+            "selector": "div.lp-IntroVisuals-canvasWrapper",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 44,
+              "width": 1265,
+              "height": 950
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "absolute",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(240, 246, 252)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "lp-IntroVisuals-canvasWrapper",
+          "selector": "div.lp-IntroVisuals-canvasWrapper",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": null,
+          "boundingBox": {
+            "x": 0,
+            "y": 44,
+            "width": 1265,
+            "height": 950
+          },
+          "styles": {
+            "display": "flex",
+            "position": "absolute",
+            "color": "rgb(240, 246, 252)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(240, 246, 252)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_003.png",
+          "size": 357564
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 12,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:20:34.839Z",
+        "payload": {
+          "element": {
+            "tag": "div",
+            "id": null,
+            "className": "lp-IntroVisuals-canvasWrapper",
+            "selector": "div.lp-IntroVisuals-canvasWrapper",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": null,
+            "boundingBox": {
+              "x": 0,
+              "y": 44,
+              "width": 1265,
+              "height": 950
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "flex",
+              "position": "absolute",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(240, 246, 252)",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "div",
+          "id": null,
+          "className": "lp-IntroVisuals-canvasWrapper",
+          "selector": "div.lp-IntroVisuals-canvasWrapper",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": null,
+          "boundingBox": {
+            "x": 0,
+            "y": 44,
+            "width": 1265,
+            "height": 950
+          },
+          "styles": {
+            "display": "flex",
+            "position": "absolute",
+            "color": "rgb(240, 246, 252)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(240, 246, 252)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_004.png",
+          "size": 357237
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 21,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:20:36.039Z",
+        "payload": {
+          "index": 3,
+          "element": {
+            "tag": "h1",
+            "id": "hero-section-brand-heading",
+            "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+            "selector": "#hero-section-brand-heading",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "The future of building happens together",
+            "boundingBox": {
+              "x": 171,
+              "y": 164,
+              "width": 924,
+              "height": 123
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "56px",
+              "fontWeight": "440",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": "hero-section-brand-heading",
+          "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+          "selector": "#hero-section-brand-heading",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "The future of building happens together",
+          "boundingBox": {
+            "x": 171,
+            "y": 164,
+            "width": 924,
+            "height": 123
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "56px",
+            "fontWeight": "440",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_005.png",
+          "size": 25978
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 22,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:20:36.039Z",
+        "payload": {
+          "element": {
+            "tag": "h1",
+            "id": "hero-section-brand-heading",
+            "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+            "selector": "#hero-section-brand-heading",
+            "selectorConfidence": "high",
+            "selectorAlternatives": [],
+            "text": "The future of building happens together",
+            "boundingBox": {
+              "x": 171,
+              "y": 164,
+              "width": 924,
+              "height": 123
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "56px",
+              "fontWeight": "440",
+              "padding": "0px",
+              "margin": "0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "h1",
+          "id": "hero-section-brand-heading",
+          "className": "Primer_Brand__Heading-module__Heading___IVpmp Primer_Brand__Heading-module__Heading-font--mona-sans___SCnTx Primer_Brand__Heading-module__Heading--1___Ufc7G Primer_Brand__Heading-module__Heading--textWrap-balance___AOKvC Primer_Brand__Hero-module__Hero-heading___QuVBH",
+          "selector": "#hero-section-brand-heading",
+          "selectorConfidence": "high",
+          "selectorAlternatives": [],
+          "textContent": "The future of building happens together",
+          "boundingBox": {
+            "x": 171,
+            "y": 164,
+            "width": 924,
+            "height": 123
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "56px",
+            "fontWeight": "440",
+            "margin": "0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_006.png",
+          "size": 25978
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 31,
+        "type": "selection.changed",
+        "source": "picker",
+        "timestamp": "2026-01-30T23:20:37.890Z",
+        "payload": {
+          "index": 4,
+          "element": {
+            "tag": "p",
+            "id": null,
+            "className": "Primer_Brand__Text-module__Text___pecHN Primer_Brand__Text-module__Text-font--mona-sans___GpzSG Primer_Brand__Text-module__Text--default___DChoE Primer_Brand__Text-module__Text--300___TBQTB Primer_Brand__Text-module__Text--antialiased___fYDxq Primer_Brand__Text-module__Text--weight-normal___siVLX Primer_Brand__Hero-module__Hero-description___vG4iA",
+            "selector": "p.Primer_Brand__Text-module__Text___pecHN.Primer_Brand__Text-module__Text-font--mona-sans___GpzSG.Primer_Brand__Text-module__Text--default___DChoE.Primer_Brand__Text-module__Text--300___TBQTB.Primer_Brand__Text-module__Text--antialiased___fYDxq.Primer_Brand__Text-module__Text--weight-normal___siVLX.Primer_Brand__Hero-module__Hero-description___vG4iA",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Tools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.",
+            "boundingBox": {
+              "x": 333,
+              "y": 307,
+              "width": 600,
+              "height": 54
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "20px 0px 0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "p",
+          "id": null,
+          "className": "Primer_Brand__Text-module__Text___pecHN Primer_Brand__Text-module__Text-font--mona-sans___GpzSG Primer_Brand__Text-module__Text--default___DChoE Primer_Brand__Text-module__Text--300___TBQTB Primer_Brand__Text-module__Text--antialiased___fYDxq Primer_Brand__Text-module__Text--weight-normal___siVLX Primer_Brand__Hero-module__Hero-description___vG4iA",
+          "selector": "p.Primer_Brand__Text-module__Text___pecHN.Primer_Brand__Text-module__Text-font--mona-sans___GpzSG.Primer_Brand__Text-module__Text--default___DChoE.Primer_Brand__Text-module__Text--300___TBQTB.Primer_Brand__Text-module__Text--antialiased___fYDxq.Primer_Brand__Text-module__Text--weight-normal___siVLX.Primer_Brand__Hero-module__Hero-description___vG4iA",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Tools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.",
+          "boundingBox": {
+            "x": 333,
+            "y": 307,
+            "width": 600,
+            "height": 54
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "18px",
+            "fontWeight": "400",
+            "margin": "20px 0px 0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_007.png",
+          "size": 24048
+        }
+      },
+      {
+        "schemaVersion": "1.0",
+        "sessionId": "ses_ml1iaiygw0jon",
+        "seq": 32,
+        "type": "selection.changed",
+        "source": "bus",
+        "timestamp": "2026-01-30T23:20:37.890Z",
+        "payload": {
+          "element": {
+            "tag": "p",
+            "id": null,
+            "className": "Primer_Brand__Text-module__Text___pecHN Primer_Brand__Text-module__Text-font--mona-sans___GpzSG Primer_Brand__Text-module__Text--default___DChoE Primer_Brand__Text-module__Text--300___TBQTB Primer_Brand__Text-module__Text--antialiased___fYDxq Primer_Brand__Text-module__Text--weight-normal___siVLX Primer_Brand__Hero-module__Hero-description___vG4iA",
+            "selector": "p.Primer_Brand__Text-module__Text___pecHN.Primer_Brand__Text-module__Text-font--mona-sans___GpzSG.Primer_Brand__Text-module__Text--default___DChoE.Primer_Brand__Text-module__Text--300___TBQTB.Primer_Brand__Text-module__Text--antialiased___fYDxq.Primer_Brand__Text-module__Text--weight-normal___siVLX.Primer_Brand__Hero-module__Hero-description___vG4iA",
+            "selectorConfidence": "medium",
+            "selectorAlternatives": [],
+            "text": "Tools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.",
+            "boundingBox": {
+              "x": 333,
+              "y": 307,
+              "width": 600,
+              "height": 54
+            },
+            "attributes": {
+              "role": null,
+              "ariaLabel": null,
+              "dataTestid": null,
+              "dataCy": null,
+              "href": null,
+              "src": null
+            },
+            "styles": {
+              "display": "block",
+              "position": "static",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "color": "rgb(255, 255, 255)",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "padding": "0px",
+              "margin": "20px 0px 0px",
+              "borderRadius": "0px"
+            }
+          }
+        },
+        "eyes": {
+          "ok": true,
+          "tag": "p",
+          "id": null,
+          "className": "Primer_Brand__Text-module__Text___pecHN Primer_Brand__Text-module__Text-font--mona-sans___GpzSG Primer_Brand__Text-module__Text--default___DChoE Primer_Brand__Text-module__Text--300___TBQTB Primer_Brand__Text-module__Text--antialiased___fYDxq Primer_Brand__Text-module__Text--weight-normal___siVLX Primer_Brand__Hero-module__Hero-description___vG4iA",
+          "selector": "p.Primer_Brand__Text-module__Text___pecHN.Primer_Brand__Text-module__Text-font--mona-sans___GpzSG.Primer_Brand__Text-module__Text--default___DChoE.Primer_Brand__Text-module__Text--300___TBQTB.Primer_Brand__Text-module__Text--antialiased___fYDxq.Primer_Brand__Text-module__Text--weight-normal___siVLX.Primer_Brand__Hero-module__Hero-description___vG4iA",
+          "selectorConfidence": "medium",
+          "selectorAlternatives": [],
+          "textContent": "Tools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.",
+          "boundingBox": {
+            "x": 333,
+            "y": 307,
+            "width": 600,
+            "height": 54
+          },
+          "styles": {
+            "display": "block",
+            "position": "static",
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "fontSize": "18px",
+            "fontWeight": "400",
+            "margin": "20px 0px 0px",
+            "padding": "0px",
+            "border": "0px none rgb(255, 255, 255)",
+            "borderRadius": "0px",
+            "visibility": "visible",
+            "opacity": "1"
+          },
+          "attributes": {
+            "role": null,
+            "ariaLabel": null,
+            "ariaDescribedby": null,
+            "tabindex": null,
+            "dataTestid": null,
+            "dataCy": null,
+            "href": null,
+            "src": null,
+            "alt": null
+          },
+          "isVisible": true
+        },
+        "screenshot": {
+          "path": ".canvas/sessions/ses-486ce5532471/selection_008.png",
+          "size": 24048
+        }
+      }
+    ],
+    "edits": []
+  },
+  "summary": {
+    "totalSelections": 8,
+    "totalEdits": 0,
+    "hasSaveRequest": false
+  }
+}
