@@ -6,7 +6,7 @@
 
 > **Spec-driven design QA for AI agents**
 
-Review UI implementations against design specs, generate annotated screenshots with issues marked, and create actionable fix lists. Works with **any AI agent** (Copilot, Claude Desktop, Cursor, etc.) on **any web page**.
+Review UI implementations against design specs, generate annotated screenshots with issues marked, and create actionable fix lists. Works with **any AI agent** that supports skills (Copilot, Claude Desktop, Cursor, etc.) on **any web page**.
 
 ---
 
